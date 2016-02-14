@@ -1,0 +1,15 @@
+﻿<Window x:Class="VagrantTray.GUI.SettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="VagrantTray - Settings" Height="255" Width="300" Icon="/Resources/Vagrant.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid Margin="15">
+        <TextBlock x:Name="txtblkBoxesPath" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Choose the path where your Vagrant boxes are stored!" VerticalAlignment="Top" Height="35" Width="242" TextAlignment="Center"/>
+        <TextBox x:Name="txtBoxesPath" HorizontalAlignment="Left" Height="20" Margin="10,51,0,0" VerticalAlignment="Top" Width="176" IsReadOnly="True"/>
+        <Button x:Name="btnBoxesPath" Content="Select" HorizontalAlignment="Left" Margin="191,51,0,0" VerticalAlignment="Top" Width="61" Click="btnBoxesPath_Click"/>
+        <TextBlock x:Name="txtblkVagrantPath" HorizontalAlignment="Left" Margin="10,89,0,0" TextWrapping="Wrap" Text="Choose the path where the vagrant.exe file is stored!" VerticalAlignment="Top" Height="35" Width="242" TextAlignment="Center"/>
+        <TextBox x:Name="txtVagrantPath" HorizontalAlignment="Left" Height="20" Margin="10,130,0,0" VerticalAlignment="Top" Width="176" IsReadOnly="True"/>
+        <Button x:Name="btnVagrantPath" Content="Select" HorizontalAlignment="Left" Margin="191,130,0,0" VerticalAlignment="Top" Width="61" Click="btnVagrantPath_Click"/>
+        <Button x:Name="btnSave_Copy" Content="Save" Margin="25,166,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.173,0.55" Width="100" HorizontalAlignment="Left" Click="btnSave_Click"/>
+        <Button x:Name="btnCancel_Copy" Content="Cancel" Margin="139,166,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.173,0.55" Click="btnCancel_Click" HorizontalAlignment="Left" Width="100"/>
+    </Grid>
+</Window>
