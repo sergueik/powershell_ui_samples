@@ -29,8 +29,7 @@ namespace Lanayo.Vagrant_Manager.Menu {
         private ToolStripSeparator _TopMachineSeparator;
         private ToolStripSeparator _BottomMachineSeparator;
 
-        private ToolStripMenuItem _CheckForUpdatesMenuItem;
-
+       
         private int _RefreshIconFrame;
         private Timer _RefreshTimer;
 
@@ -84,9 +83,6 @@ namespace Lanayo.Vagrant_Manager.Menu {
             _Menu.Items.Add(Util.MakeBlankToolstripMenuItem("Manage Bookmarks", ManageBookmarksMenuItem_Click));
             _Menu.Items.Add(Util.MakeBlankToolstripMenuItem("Preferences", PreferencesMenuItem_Click));
             _Menu.Items.Add(Util.MakeBlankToolstripMenuItem("About", AboutMenuItem_Click));
-
-            _CheckForUpdatesMenuItem = Util.MakeBlankToolstripMenuItem("Check For Updates", CheckForUpdatesMenuItem_Click);
-            _Menu.Items.Add(_CheckForUpdatesMenuItem);
 
             _Menu.Items.Add(Util.MakeBlankToolstripMenuItem("Exit", ExitMenuItem_Click));
         }
@@ -405,9 +401,6 @@ namespace Lanayo.Vagrant_Manager.Menu {
             AboutWindow.Show();
         }
 
-        private void CheckForUpdatesMenuItem_Click(object sender, EventArgs e) {
-            SharpSparkle.SharpSparkle.CheckUpdateWithUi();
-        }
 
         private void ExitMenuItem_Click(object Sender, EventArgs e) {
             Application.Exit();

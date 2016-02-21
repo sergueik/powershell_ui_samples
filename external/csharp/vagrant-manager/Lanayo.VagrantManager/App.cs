@@ -64,9 +64,7 @@ namespace Lanayo.Vagrant_Manager {
 
             Uri appcastUrl = Util.AddQuery(new Uri(Properties.Settings.Default.AppcastUrl), "machineid", Properties.Settings.Default.Guid);
             appcastUrl = Util.AddQuery(appcastUrl, "appversion", Application.ProductVersion);
-            SharpSparkle.SharpSparkle.SetAppcastUrl(appcastUrl.AbsoluteUri);
-            SharpSparkle.SharpSparkle.SetAppDetails(Application.CompanyName, Application.ProductName, Application.ProductVersion);
-            SharpSparkle.SharpSparkle.Init();
+            
             Application.ApplicationExit += Application_ApplicationExit;
 
             var dummy = _NativeMenu.Menu.Handle; // forces handle creation so _NativeMenu.Menu.BeginInvoke can work before the menu was ever clicked
@@ -81,7 +79,6 @@ namespace Lanayo.Vagrant_Manager {
         }
 
         void Application_ApplicationExit(object sender, EventArgs e) {
-            SharpSparkle.SharpSparkle.Cleanup();
         }
 
         #region Notification handlers

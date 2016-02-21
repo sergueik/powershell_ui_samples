@@ -208,48 +208,6 @@
     <None Include="Images\up.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Images\vagrant_logo_off-clean.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_off-flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_on-clean.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_on-flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_1-clean.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_1-flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_2-clean.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_2-flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_3-clean.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_3-flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_4-clean.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_4-flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_5-clean.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh_5-flat.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Images\vagrant_logo_highlighted.png" />
   </ItemGroup>
   <ItemGroup>
@@ -257,24 +215,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\vagrant_logo_on.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_off-refresh1.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_off-refresh2.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_off-refresh3.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_off-refresh4.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_off-refresh5.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_off-refresh6.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\vagrant_logo_refresh1.png" />
@@ -293,12 +233,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\vagrant_logo_refresh6.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SharpSparkle\SharpSparkle\SharpSparkle.csproj">
-      <Project>{dcc3f2d9-cb10-4405-a619-1bdf10d7e44c}</Project>
-      <Name>SharpSparkle</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
