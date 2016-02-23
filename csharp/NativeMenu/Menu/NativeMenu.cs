@@ -1,4 +1,4 @@
-﻿using Properties;
+﻿using HudsonClient.Properties;
 using DialogWindows;
 using System;
 using System.Collections.Generic;
@@ -37,17 +37,22 @@ namespace Menu {
             _Menu = new ContextMenuStrip();
 
             _NotifyIcon = new NotifyIcon() {
-                Icon = Icon.FromHandle(Resources.vagrant_logo_off.GetHicon()),
+            	
+            	// Icon=  Icon.FromHandle(bmp.GetHicon());
+            	Icon = new System.Drawing.Icon("sample.ico"),
+                // Icon = Icon.FromHandle(Resources.vagrant_logo_off.GetHicon()),
                 Text = "Vagrant Manager",
                 ContextMenuStrip = _Menu,
                 Visible = true,
             };
+            
+           // _NotifyIcon.Icon = Icon.FromHandle(HudsonClient.Properties.Resources.vagrant_logo_on.GetHicon());
 
             _NotifyIcon.MouseUp += NotifyIcon_MouseUp;
 
             _MenuItems = new List<NativeMenuItem>();
 
-            _Menu.Items.Add(_RefreshMenuItem);
+           // _Menu.Items.Add(_RefreshMenuItem);
 
             _TopMachineSeparator = new ToolStripSeparator();
 

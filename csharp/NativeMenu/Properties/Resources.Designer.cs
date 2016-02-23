@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Properties {
+namespace HudsonClient.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Lanayo.Vagrant_Manager.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HudsonClient.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -205,6 +205,7 @@ namespace Properties {
         /// </summary>
         internal static System.Drawing.Bitmap vagrant_logo_off {
             get {
+                resourceCulture = System.Globalization.CultureInfo.CurrentCulture;
                 object obj = ResourceManager.GetObject("vagrant_logo_off", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }

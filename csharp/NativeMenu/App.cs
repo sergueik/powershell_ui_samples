@@ -9,12 +9,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Menu;
 using System.IO;
-using Properties;
+using HudsonClient.Properties;
 
+namespace HudsonClient {
     public enum VagrantMachineState { UnknownState, NotCreatedState, PowerOffState, SavedState, RunningState, RestoringState }
     public enum PossibleVmStates { running, suspended, off };
-
+    
     class App :  MenuDelegate {
+    	public String ProductVersion = "0.1";
         private NativeMenu _NativeMenu;
         
         private bool IsRefreshingVagrantMachines;
@@ -38,17 +40,17 @@ using Properties;
             _NativeMenu = new NativeMenu();
             _NativeMenu.Delegate = this;
 
-            if (Properties.Settings.Default.Guid.Length == 0) {
-                Properties.Settings.Default.Guid = System.Guid.NewGuid().ToString();
-                Properties.Settings.Default.Save();
-            }
+//            if (Properties.Settings.Default.Guid.Length == 0) {
+//                Properties.Settings.Default.Guid = System.Guid.NewGuid().ToString();
+//                Properties.Settings.Default.Save();
+//            }
 
             
             Application.ApplicationExit += Application_ApplicationExit;
 
             var dummy = _NativeMenu.Menu.Handle; // forces handle creation so _NativeMenu.Menu.BeginInvoke can work before the menu was ever clicked
 
-            this.VerifyVBoxManagePath();
+            // this.VerifyVBoxManagePath();
 
             this.RefreshTimerState();
 
@@ -91,3 +93,4 @@ using Properties;
 
         
     }
+}

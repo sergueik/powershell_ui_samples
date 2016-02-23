@@ -1,4 +1,4 @@
-﻿using Properties;
+﻿using HudsonClient.Properties;
 using DialogWindows;
 using System;
 using System.Collections.Generic;
