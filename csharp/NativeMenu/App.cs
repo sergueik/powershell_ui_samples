@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Menu;
 using System.IO;
-using HudsonClient.Properties;
+// using HudsonClient.Properties;
 
 namespace HudsonClient {
     public enum VagrantMachineState { UnknownState, NotCreatedState, PowerOffState, SavedState, RunningState, RestoringState }
@@ -19,7 +19,6 @@ namespace HudsonClient {
     	public String ProductVersion = "0.1";
         private NativeMenu _NativeMenu;
         
-        private bool IsRefreshingVagrantMachines;
         private int QueuedRefreshes;
         private static App _Instance;
         public Timer RefreshTimer { get; set; }

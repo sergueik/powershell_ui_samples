@@ -44,7 +44,7 @@
             this.ClientSize = new System.Drawing.Size(430, 183);
             this.Controls.Add(this.WebBrowser);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+     //        this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AboutWindow";
             this.Text = "About Us";
             this.Load += new System.EventHandler(this.AboutWindow_Load);

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using HudsonClient.Properties;
 
 namespace DialogWindows {
     public partial class AboutWindow : Form {
@@ -16,11 +17,11 @@ namespace DialogWindows {
         }
 
         private void AboutWindow_Load(object sender, EventArgs e) {
-            string str = "<div style=\"text-align:center;font-family:Arial;font-size:13px;\">Copyright &copy;{YEAR} Lanayo Tech<br><br>Vagrant Manager {VERSION}<br><br>For more information visit:<br><a href=\"{URL}\">{URL}</a><br><br>or check us out on GitHub:<br><a href=\"{GITHUB_URL}\">{GITHUB_URL}</a></div>"
+            string str = "<div style=\"text-align:center;font-family:Arial;font-size:13px;\">For more information visit:<br><a href=\"{URL}\">{URL}</a><br><br>or check us out on GitHub:<br><a href=\"{GITHUB_URL}\">{GITHUB_URL}</a></div>"
                 .Replace("{YEAR}", DateTime.Now.Year.ToString())
                 .Replace("{VERSION}", Application.ProductVersion)
-                .Replace("{URL}", HudsonClient.Properties.Settings.Default.AboutUrl)
-                .Replace("{GITHUB_URL}", HudsonClient.Properties.Settings.Default.GithubUrl)
+                .Replace("{URL}", "URL")
+                .Replace("{GITHUB_URL}", "URL")
                 .Replace("\n", "<br>");
 
             WebBrowser.DocumentText = str;

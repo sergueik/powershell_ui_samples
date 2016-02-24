@@ -1,4 +1,4 @@
-﻿using HudsonClient.Properties;
+﻿// using HudsonClient.Properties;
 using DialogWindows;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace Menu {
 
         private ContextMenuStrip _Menu;
         private NotifyIcon _NotifyIcon;
-        private ToolStripMenuItem _RefreshMenuItem;
+//        private ToolStripMenuItem _RefreshMenuItem;
         private List<NativeMenuItem> _MenuItems;
 
         private ToolStripSeparator _TopMachineSeparator;
@@ -38,8 +38,8 @@ namespace Menu {
 
             _NotifyIcon = new NotifyIcon() {
             	
-            	// Icon=  Icon.FromHandle(bmp.GetHicon());
             	Icon = new System.Drawing.Icon("sample.ico"),
+            	// TODO:
                 // Icon = Icon.FromHandle(Resources.vagrant_logo_off.GetHicon()),
                 Text = "Vagrant Manager",
                 ContextMenuStrip = _Menu,
@@ -51,6 +51,7 @@ namespace Menu {
             _NotifyIcon.MouseUp += NotifyIcon_MouseUp;
 
             _MenuItems = new List<NativeMenuItem>();
+            
 
            // _Menu.Items.Add(_RefreshMenuItem);
 
@@ -65,10 +66,19 @@ namespace Menu {
             allMachinesMenuItem.DropDownItems.AddRange(new ToolStripMenuItem[] {
             });
             _Menu.Items.Add(allMachinesMenuItem);
+            _Menu.Items.Add(MakeBlankToolstripMenuItem("About", AboutMenuItem_Click));
+
+            _Menu.Items.Add(MakeBlankToolstripMenuItem("Exit", ExitMenuItem_Click));
         }
 
         
         #region Control
+
+        public static ToolStripMenuItem MakeBlankToolstripMenuItem(string Name, EventHandler onClick) {
+            ToolStripMenuItem menuItem = new ToolStripMenuItem(Name);
+            menuItem.Click += onClick;
+            return menuItem;
+        }
 
         public void RebuildMenu() {
             _MenuItems.ForEach(item => item.Refresh());
@@ -90,9 +100,9 @@ namespace Menu {
                 _Menu.Items.Remove(_TopMachineSeparator);
             }
 
-            if (_MenuItems.Count > 0) {
-                _Menu.Items.Insert(_Menu.Items.IndexOf(_RefreshMenuItem) + 1, _TopMachineSeparator);
-            }
+//            if (_MenuItems.Count > 0) {
+//                _Menu.Items.Insert(_Menu.Items.IndexOf(_RefreshMenuItem) + 1, _TopMachineSeparator);
+//            }
             
         }
 
@@ -100,29 +110,29 @@ namespace Menu {
             //_CheckForUpdatesMenuItem.Image = updatesAvailable ? Resources.status_icon_problem : null;
         }
 
-        private void SetIsRefreshing(bool isRefreshing) {
-            _RefreshMenuItem.Enabled = !isRefreshing;
-            _RefreshMenuItem.Text = isRefreshing ? "Refreshing..." : "Refresh";
+//        private void SetIsRefreshing(bool isRefreshing) {
+//            _RefreshMenuItem.Enabled = !isRefreshing;
+//            _RefreshMenuItem.Text = isRefreshing ? "Refreshing..." : "Refresh";
+//
+//            if (isRefreshing) {
+//                _RefreshIconFrame = 1;
+//                _RefreshTimer = new Timer();
+//                _RefreshTimer.Interval = 200;
+//                _RefreshTimer.Tick += UpdateRefreshIcon;
+//                _RefreshTimer.Start();
+//            } else {
+//                _RefreshTimer.Stop();
+//                _RefreshTimer = null;
+//            }
+//        }
 
-            if (isRefreshing) {
-                _RefreshIconFrame = 1;
-                _RefreshTimer = new Timer();
-                _RefreshTimer.Interval = 200;
-                _RefreshTimer.Tick += UpdateRefreshIcon;
-                _RefreshTimer.Start();
-            } else {
-                _RefreshTimer.Stop();
-                _RefreshTimer = null;
-            }
-        }
-
-        private void UpdateRefreshIcon(object s, EventArgs args) {
-            _NotifyIcon.Icon = Icon.FromHandle((Resources.ResourceManager.GetObject(String.Format("vagrant_logo_refresh{0}", _RefreshIconFrame)) as Bitmap).GetHicon());
-
-            if(++_RefreshIconFrame > 6) {
-                _RefreshIconFrame = 1;
-            }
-        }
+//        private void UpdateRefreshIcon(object s, EventArgs args) {
+//            _NotifyIcon.Icon = Icon.FromHandle((Resources.ResourceManager.GetObject(String.Format("vagrant_logo_refresh{0}", _RefreshIconFrame)) as Bitmap).GetHicon());
+//
+//            if(++_RefreshIconFrame > 6) {
+//                _RefreshIconFrame = 1;
+//            }
+//        }
 
         #endregion
 
