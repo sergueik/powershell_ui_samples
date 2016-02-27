@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using HudsonClient.Properties;
 
 namespace DialogWindows {
     public partial class AboutWindow : Form {

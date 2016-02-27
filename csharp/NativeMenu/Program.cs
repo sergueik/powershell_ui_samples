@@ -20,7 +20,7 @@ namespace HudsonClient {
             Mutex mutex = new System.Threading.Mutex(true, appGuid, out OK);
 
             if (!OK) {
-                MessageBox.Show("Another instance of Vagrant Manager is already running");
+                MessageBox.Show("Another instance is already running");
                 return;
             }
             

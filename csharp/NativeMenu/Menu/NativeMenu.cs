@@ -1,4 +1,4 @@
-﻿// using HudsonClient.Properties;
+﻿using YamlDotNet.Core;
 using DialogWindows;
 using System;
 using System.Collections.Generic;
@@ -19,16 +19,12 @@ namespace Menu {
 
         private ContextMenuStrip _Menu;
         private NotifyIcon _NotifyIcon;
-//        private ToolStripMenuItem _RefreshMenuItem;
         private List<NativeMenuItem> _MenuItems;
 
         private ToolStripSeparator _TopMachineSeparator;
         private ToolStripSeparator _BottomMachineSeparator;
 
-       
-        private int _RefreshIconFrame;
-        private Timer _RefreshTimer;
-
+      
         public ContextMenuStrip Menu { get { return _Menu; } }
 
         public NativeMenu() {
@@ -72,8 +68,6 @@ namespace Menu {
         }
 
         
-        #region Control
-
         public static ToolStripMenuItem MakeBlankToolstripMenuItem(string Name, EventHandler onClick) {
             ToolStripMenuItem menuItem = new ToolStripMenuItem(Name);
             menuItem.Click += onClick;
@@ -109,32 +103,6 @@ namespace Menu {
         private void SetUpdatesAvailable(bool updatesAvailable) {
             //_CheckForUpdatesMenuItem.Image = updatesAvailable ? Resources.status_icon_problem : null;
         }
-
-//        private void SetIsRefreshing(bool isRefreshing) {
-//            _RefreshMenuItem.Enabled = !isRefreshing;
-//            _RefreshMenuItem.Text = isRefreshing ? "Refreshing..." : "Refresh";
-//
-//            if (isRefreshing) {
-//                _RefreshIconFrame = 1;
-//                _RefreshTimer = new Timer();
-//                _RefreshTimer.Interval = 200;
-//                _RefreshTimer.Tick += UpdateRefreshIcon;
-//                _RefreshTimer.Start();
-//            } else {
-//                _RefreshTimer.Stop();
-//                _RefreshTimer = null;
-//            }
-//        }
-
-//        private void UpdateRefreshIcon(object s, EventArgs args) {
-//            _NotifyIcon.Icon = Icon.FromHandle((Resources.ResourceManager.GetObject(String.Format("vagrant_logo_refresh{0}", _RefreshIconFrame)) as Bitmap).GetHicon());
-//
-//            if(++_RefreshIconFrame > 6) {
-//                _RefreshIconFrame = 1;
-//            }
-//        }
-
-        #endregion
 
 
         private void AboutMenuItem_Click(object sender, EventArgs e) {
