@@ -1,6 +1,0 @@
-http://www.dotnet-geek.co.uk/index.php/integrating-automated-selenium-tests-with-teamcity/
-
-http://selenium-release.storage.googleapis.com/index.html?path=2.42/
-
-http://msdn.microsoft.com/en-us/library/ms182487.aspx
-http://msdn.microsoft.com/en-us/library/ms182489.aspxyu8oo
