@@ -1,3 +1,4 @@
+# origin: http://poshcode.org/6321
 $VerbosePreference = 'continue'
 # Get Start Time
 $StartTime = (Get-Date)
