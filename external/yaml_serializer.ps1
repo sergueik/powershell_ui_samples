@@ -1,4 +1,4 @@
-#Copyright (c) 2015 Serguei Kouzmine
+#Copyright (c) 2015,2016 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -18,14 +18,13 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-
-
+# May want to use 
+# https://github.com/scottmuc/PowerYaml/blob/master/Functions/YamlDotNet-Integration.ps1
 # https://www.simple-talk.com/sysadmin/powershell/getting-data-into-and-out-of--powershell-objects/
 # ConvertTo-YAML, ConvertTo-PSON in Powershell
 # https://yaml.svn.codeplex.com/svn 
 # parser
 # http://www.codeproject.com/Articles/28720/YAML-Parser-in-C 
-
 
 function load_shared_assemblies {
 
@@ -33,10 +32,12 @@ function load_shared_assemblies {
     [string]$shared_assemblies_path = 'c:\developer\sergueik\csharp\SharedAssemblies',
 
     [string[]]$shared_assemblies = @(
-      'YamlDotNet.dll', # https://github.com/aaubry/YamlDotNet
+      'YamlDotNet.dll', # https://www.nuget.org/packages/YamlDotNet
       'YamlSerializer.dll', # https://www.nuget.org/packages/YAML-Serializer/
+      # use nuget package manager to download YamlDotNet.dll, YamlSerializer.dll
+      # http://stackoverflow.com/questions/14894864/how-to-download-a-nuget-package-without-nuget-exe-or-visual-studio-extension
       'nunit.core.dll',
-      'nunit.framework.dll'
+      'nunit.framework.dll'  # 'nunit.framework.dll' may not be needed for Nuget 3.X 
     )
   )
   pushd $shared_assemblies_path
@@ -51,7 +52,22 @@ function load_shared_assemblies {
 
 load_shared_assemblies
 
-# Get a sample object
+$sample_hiera_object = @{
+'appdynamics:product_version' = @{ 
+'4.18' = @{
+'config' = 'sertupconfig.xml';
+'installed' = 'DotNetAgentSetup.msi';
+}
+};
+'configuration' = @{
+'instrument_iis' = $false;
+'standalone_apps'  = @();
+};
+}
+
+$sample_hiera_object | ConvertTo-Json -Depth 10
+
+# Get a sample object from the system
 $events_object = @()
 $last_hour = (Get-Date) - (New-TimeSpan -Hour 1)
 $events = Get-WinEvent -FilterHashtable @{ logname = "Microsoft-Windows-TaskScheduler/Operational"; level = "4"; StartTime = $last_hour }
@@ -63,58 +79,28 @@ $sample_event_object = $events_object[0]
 $sample_event_object | ConvertTo-Json -Depth 10
 
 
-Write-Output 'Serializing to YAML:'
+Write-Output 'Serializing to YAML (naive, broken):'
 
 $serializer = New-Object -TypeName System.Yaml.Serialization.YamlSerializer
+# Write-Output ('Provider: {0}.{1}' -f $serializer.getType().Namespace,$serializer.getType().Name)
+$serializer.Serialize($sample_hiera_object)
+
+
+Write-Output 'Serializing to YAML:'
+$serializer = New-Object YamlDotNet.Serialization.Serializer ([YamlDotNet.Serialization.SerializationOptions]::EmitDefaults,$null)
 Write-Output ('Provider: {0}.{1}' -f $serializer.getType().Namespace,$serializer.getType().Name)
-$serializer.Serialize($sample_event_object)
+$serializer.Serialize([System.Console]::Out,$sample_hiera_object)
 
 
 Write-Output 'Serializing to YAML:'
 
-# cannot rely on optional arguments in Powershell:
+# NOTE: cannot rely on optional arguments in Powershell:
 # new-object : A constructor was not found. Cannot find an appropriate constructor for type YamlDotNet.Serialization.Serializer.
 # https://dotnetfiddle.net/QlqGDV
+
 $serializer = New-Object YamlDotNet.Serialization.Serializer ([YamlDotNet.Serialization.SerializationOptions]::EmitDefaults,$null)
 Write-Output ('Provider: {0}.{1}' -f $serializer.getType().Namespace,$serializer.getType().Name)
 $serializer.Serialize([System.Console]::Out,$sample_event_object)
-
-
-
-# May want to use https://github.com/scottmuc/PowerYaml/blob/master/Functions/YamlDotNet-Integration.ps1
-# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed	
-
-function Get-ScriptDirectory
-
-{
-  $Invocation = (Get-Variable MyInvocation -Scope 1).Value
-  if ($Invocation.PSScriptRoot) {
-    $Invocation.PSScriptRoot
-  }
-  elseif ($Invocation.MyCommand.Path) {
-    Split-Path $Invocation.MyCommand.Path
-  } else {
-    $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf(''))
-  }
-}
-
-# https://github.com/sergueik/powershell_ui_samples/blob/3813d0932fc902195fe34ad56652eb7afadbc5b3/external/yaml_serializer.ps1
-$shared_assemblies_path = Get-ScriptDirectory
-# http://stackoverflow.com/questions/14894864/how-to-download-a-nuget-package-without-nuget-exe-or-visual-studio-extension
-[string[]]$shared_assemblies = @(
-  'YamlDotNet.dll',# http://www.nuget.org/api/v2/package/YamlDotNet/3.7.0 -> rename yamldotnet.3.7.0.nupkg
-  'YamlSerializer.dll' # http://www.nuget.org/api/v2/package/YAML-Serializer/1.2.0-beta
-  # 'nunit.core.dll' # http://www.nuget.org/api/v2/package/NUnit.Core.Engine/3.0.0-beta-4
-  # 'nunit.framework.dll' # TODO - check if still needed when 3.0 
-)
-pushd $shared_assemblies_path
-
-$shared_assemblies | ForEach-Object {
-  Unblock-File -Path $_
-  # Write-Debug $_
-  Add-Type -Path $_
-}
-popd
 
 
 $filename = 'previous_run_report.yaml'
@@ -124,7 +110,7 @@ $stringReader = New-Object System.IO.StringReader ($data)
 $yamlStream = New-Object YamlDotNet.RepresentationModel.YamlStream
 $yamlStream.Load([System.IO.TextReader]$stringReader)
 
-# need custom 
+# Custom 'parser' 
 $rootNode = $yamlStream.RootNode
 $item_values = $rootNode.Value
 0..($item_values.count - 1) | ForEach-Object {
@@ -154,16 +140,11 @@ $item_values = $rootNode.Value
       # $data2.Value[11]
       # write-output  $item_values[$cnt].Value['changed']
       <#
-
-@(
-
-changed
-
-out_of_sync
-
-skipped)
-
-#>
+      @(
+      changed
+      out_of_sync
+      skipped)
+      #>
     }
   }
 
