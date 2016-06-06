@@ -1,5 +1,5 @@
 # origin : http://poshcode.org/6369
-
+# https://habrahabr.ru/post/276059/
 # Removes windows 10 apps for current user.
 
 Get-AppxPackage -Name '*3dbuilder*' | Remove-AppxPackage
