@@ -19,23 +19,40 @@
 #THE SOFTWARE.
 
 
-
+# http://poshcode.org/2887
 # http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
 function Get-ScriptDirectory
 {
+  [string]$MyDir = $null
+  if ($host.Version.Major -gt 2) {
+    $MyDir = Split-Path -Parent $PSCommandPath
+    if ($Mydir -ne $null) {
+      return $MyDir;
+    } else {
+      $MyDir = $PSScriptRoot
+    }
+  }
+  if ($Mydir -ne $null) {
+    return $MyDir;
+  }
+  $MyDir = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+  if ($Mydir -ne $null) {
+    return $MyDir;
+  }
   $Invocation = (Get-Variable MyInvocation -Scope 1).Value
   if ($Invocation.PSScriptRoot)
   {
-    $Invocation.PSScriptRoot
+    $MyDir = $Invocation.PSScriptRoot
   }
   elseif ($Invocation.MyCommand.Path)
   {
-    Split-Path $Invocation.MyCommand.Path
+    $MyDir = Split-Path $Invocation.MyCommand.Path
   }
   else
   {
-    $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
+    $MyDir = $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
   }
+  return $MyDir
 }
 
 
