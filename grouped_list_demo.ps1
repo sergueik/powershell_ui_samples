@@ -58,19 +58,6 @@ public class Win32Window : IWin32Window
 "@ -ReferencedAssemblies 'System.Windows.Forms.dll'
 
 
-# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
-function Get-ScriptDirectory {
-  $invocation = (Get-Variable MyInvocation -Scope 1).Value
-  if ($invocation.PSScriptRoot) {
-    $invocation.PSScriptRoot
-  }
-  elseif ($invocation.MyCommand.Path) {
-    Split-Path $invocation.MyCommand.Path
-  } else {
-    $invocation.InvocationName.Substring(0,$invocation.InvocationName.LastIndexOf(""))
-  }
-}
-
 $shared_assemblies = @{
   'nunit.core.dll' = $null;
   'nunit.framework.dll' = $null;

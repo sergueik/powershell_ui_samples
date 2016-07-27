@@ -20,20 +20,44 @@
 #requires -version 2
 Add-Type -AssemblyName PresentationFramework
 
+# http://poshcode.org/2887
+# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
+# https://msdn.microsoft.com/en-us/library/system.management.automation.invocationinfo.pscommandpath%28v=vs.85%29.aspx
 function Get-ScriptDirectory
 {
-  $Invocation = (Get-Variable MyInvocation -Scope 1).Value;
-  if ($Invocation.PSScriptRoot)
-  {
-    $Invocation.PSScriptRoot;
-  }
-  elseif ($Invocation.MyCommand.Path)
-  {
-    Split-Path $Invocation.MyCommand.Path
-  }
-  else
-  {
-    $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf("\"));
+  [string]$scriptDirectory = $null
+
+  if ($host.Version.Major -gt 2) {
+    $scriptDirectory = (Get-Variable PSScriptRoot).Value
+    Write-Debug ('$PSScriptRoot: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.PSCommandPath)
+    Write-Debug ('$MyInvocation.PSCommandPath: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+
+    $scriptDirectory = Split-Path -Parent $PSCommandPath
+    Write-Debug ('$PSCommandPath: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+  } else {
+    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+    $Invocation = (Get-Variable MyInvocation -Scope 1).Value
+    if ($Invocation.PSScriptRoot) {
+      $scriptDirectory = $Invocation.PSScriptRoot
+    } elseif ($Invocation.MyCommand.Path) {
+      $scriptDirectory = Split-Path $Invocation.MyCommand.Path
+    } else {
+      $scriptDirectory = $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
+    }
+    return $scriptDirectory
   }
 }
 

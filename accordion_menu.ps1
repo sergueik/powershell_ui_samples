@@ -22,24 +22,52 @@ param(
   [switch]$debug
 )
 
+# http://poshcode.org/2887
+# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
+# https://msdn.microsoft.com/en-us/library/system.management.automation.invocationinfo.pscommandpath%28v=vs.85%29.aspx
+function Get-ScriptDirectory
+{
+  [string]$scriptDirectory = $null
+
+  if ($host.Version.Major -gt 2) {
+    $scriptDirectory = (Get-Variable PSScriptRoot).Value
+    Write-Debug ('$PSScriptRoot: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.PSCommandPath)
+    Write-Debug ('$MyInvocation.PSCommandPath: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+
+    $scriptDirectory = Split-Path -Parent $PSCommandPath
+    Write-Debug ('$PSCommandPath: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+  } else {
+    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+    $Invocation = (Get-Variable MyInvocation -Scope 1).Value
+    if ($Invocation.PSScriptRoot) {
+      $scriptDirectory = $Invocation.PSScriptRoot
+    } elseif ($Invocation.MyCommand.Path) {
+      $scriptDirectory = Split-Path $Invocation.MyCommand.Path
+    } else {
+      $scriptDirectory = $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
+    }
+    return $scriptDirectory
+  }
+}
+
+
 $global:button_panel_height = 25
 $global:button_panel_width = 200
 $global:up_arrow = New-Object System.Drawing.Bitmap ([System.IO.Path]::Combine((Get-ScriptDirectory),'up.png'))
 $global:down_arrow = New-Object System.Drawing.Bitmap ([System.IO.Path]::Combine((Get-ScriptDirectory),'down.png'))
-# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
-function Get-ScriptDirectory
-{
-  $Invocation = (Get-Variable MyInvocation -Scope 1).Value
-  if ($Invocation.PSScriptRoot) {
-    $Invocation.PSScriptRoot
-  }
-  elseif ($Invocation.MyCommand.Path) {
-    Split-Path $Invocation.MyCommand.Path
-  } else {
-    $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf(""))
-  }
-}
-
 
 Add-Type -TypeDefinition @"
 

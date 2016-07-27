@@ -1,4 +1,4 @@
-#Copyright (c) 2015 Serguei Kouzmine
+#Copyright (c) 2015,2016 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -18,43 +18,46 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-
 # http://poshcode.org/2887
 # http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
+# https://msdn.microsoft.com/en-us/library/system.management.automation.invocationinfo.pscommandpath%28v=vs.85%29.aspx
 function Get-ScriptDirectory
 {
-  [string]$MyDir = $null
-  if ($host.Version.Major -gt 2) {
-    $MyDir = Split-Path -Parent $PSCommandPath
-    if ($Mydir -ne $null) {
-      return $MyDir;
-    } else {
-      $MyDir = $PSScriptRoot
-    }
-  }
-  if ($Mydir -ne $null) {
-    return $MyDir;
-  }
-  $MyDir = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-  if ($Mydir -ne $null) {
-    return $MyDir;
-  }
-  $Invocation = (Get-Variable MyInvocation -Scope 1).Value
-  if ($Invocation.PSScriptRoot)
-  {
-    $MyDir = $Invocation.PSScriptRoot
-  }
-  elseif ($Invocation.MyCommand.Path)
-  {
-    $MyDir = Split-Path $Invocation.MyCommand.Path
-  }
-  else
-  {
-    $MyDir = $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
-  }
-  return $MyDir
-}
+  [string]$scriptDirectory = $null
 
+  if ($host.Version.Major -gt 2) {
+    $scriptDirectory = (Get-Variable PSScriptRoot).Value
+    Write-Debug ('$PSScriptRoot: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.PSCommandPath)
+    Write-Debug ('$MyInvocation.PSCommandPath: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+
+    $scriptDirectory = Split-Path -Parent $PSCommandPath
+    Write-Debug ('$PSCommandPath: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+  } else {
+    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+    $Invocation = (Get-Variable MyInvocation -Scope 1).Value
+    if ($Invocation.PSScriptRoot) {
+      $scriptDirectory = $Invocation.PSScriptRoot
+    } elseif ($Invocation.MyCommand.Path) {
+      $scriptDirectory = Split-Path $Invocation.MyCommand.Path
+    } else {
+      $scriptDirectory = $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
+    }
+    return $scriptDirectory
+  }
+}
 
 
 @( 'System.Drawing','System.Windows.Forms') | ForEach-Object { [void][System.Reflection.Assembly]::LoadWithPartialName($_) }
@@ -356,8 +359,6 @@ if ($max_cnt -gt $MAX_EVENTLOG_ENTRIES) {
   $cnt = $_
   $event_item = $event_set.Entries[$cnt]
 
-  # Two calls below are equivalent for mock, only 
-
   [void]$data_source.Tables['Events'].Rows.Add(
     @(
       $event_item.EntryType,
@@ -368,6 +369,8 @@ if ($max_cnt -gt $MAX_EVENTLOG_ENTRIES) {
       $event_item.Index
     )
   )
+  Write-output ($event_item | format-list)
+
   <#
   [void]$data_source.Tables['Events'].Rows.Add(
     @(
@@ -434,6 +437,8 @@ $data_gridview.add_CellFormatting({
           $e.Value = [System.Drawing.Image]::FromFile(('{0}\{1}' -f (Get-ScriptDirectory),'Message.gif'))
         }
         default {
+        
+          $e.Value = [System.Drawing.Image]::FromFile(('{0}\{1}' -f (Get-ScriptDirectory),'NotFound.gif'))
         }
       }
     }
