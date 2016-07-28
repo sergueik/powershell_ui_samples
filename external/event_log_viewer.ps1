@@ -71,10 +71,10 @@ function generate_event_filter {
     $display_filters += "(EventType='Error')"
   }
   if ($button_warnings.Checked) {
-    $display_filters += "(EventType='Warning')"
+    $display_filters += "(EventType='Notice')"
   }
   if ($button_messages.Checked) {
-    $display_filters += "(EventType='Information')"
+    $display_filters += "(EventType='Info')"
   }
   <# TODO:
         ' If none of the buttons are pressed, this means they want none of these displayed
@@ -259,7 +259,7 @@ $nothing_found.Visible = $false
 #
 $data_gridview.AllowUserToAddRows = $false
 $data_gridview.AllowUserToDeleteRows = $false
-$data_gridview.AllowUserToResizeColumns = $false
+$data_gridview.AllowUserToResizeColumns = $true
 $data_gridview.AllowUserToResizeRows = $false
 $data_gridview.Anchor = [System.Windows.Forms.AnchorStyles]::Top `
    -bor [System.Windows.Forms.AnchorStyles]::Bottom `
@@ -318,35 +318,52 @@ $event_set.Add_EntryWritten({
 $data_source = New-Object System.Data.DataSet ('EventLog Entries')
 [void]$data_source.Tables.Add('Events')
 $t = $data_source.Tables['Events']
-[void]$t.Columns.Add('EventType')
+# intend to hide 
+ [void]$t.Columns.Add('EventType')
 [void]$t.Columns.Add('Date/Time')
-
-$t.Columns['Date/Time'].DataType = [System.DateTime]
-[void]$t.Columns.Add('Message')
+# "String was not recognized as a valid DateTime.Couldn't store <16-07-26 11:05:50> in Date/Time Column.
+# $t.Columns['Date/Time'].DataType = [System.DateTime]
 [void]$t.Columns.Add('Source')
-[void]$t.Columns.Add('Category')
-[void]$t.Columns.Add('EventID')
+[void]$t.Columns.Add('Message')
+
+# Fields  appropriate to cloud-init.log :
 $event_set_mock = @{ 'Entries' = @(
+   @{
+      'EntryType' = 'Notice';
+      'Message' = 'ensure: created.';
+      'ReplacementStrings' = '{}';
+      'Source' = '/Stage[main]/Orm/File[C:\pce\or]/';
+      'TimeGenerated' = '16-07-26 11:05:50';
+    },
+     @{
+      'EntryType' = 'Notice';
+      'Message' = 'Scheduling refresh of Exec[activate_windows.';
+      'ReplacementStrings' = '{}';
+      'Source' = 'Class[Wfdomain::Slmgr]:';
+      'TimeGenerated' = '16-07-26 11:05:50';
+    },   
     @{
-      'Index' = '32607';
-      'EntryType' = 'Information';
-      'InstanceId' = '0';
-      'Message' = 'PowerEvent handled successfully by the service.';
-      'Category' = '(0)';
-      'CategoryNumber' = '0';
-      'ReplacementStrings' = '{PowerEvent handled successfully by the service.}';
-      'Source' = 'winws';
-      'TimeGenerated' = '5/14/2015 7:27:48 PM';
-      'TimeWritten' = '5/14/2015 7:27:48 PM';
-      'UserName' = '';
-    })
+      'EntryType' = 'Notice';
+      'Message' = "Triggered 'refresh' from 1 events.";
+      'ReplacementStrings' = '{}';
+      'Source' = '/Stage[main]/Wfdomain/Reboot[after_domain_membership]:';
+      'TimeGenerated' = '16-07-26 11:05:50';
+    },
+    @{
+      'EntryType' = 'Info';
+      'Message' = 'Creating state file C:/ProgramData/PuppetLabs/puppet/cache/state/state.yaml';
+      'ReplacementStrings' = '{}';
+      'Source' = '';
+      'TimeGenerated' = '16-07-26 11:05:50';
+    }    )
 }
-# $event_set = $event_set_mock
+
+$event_set = $event_set_mock
 
 $counts = @{
   'Error' = 0;
   'Warning' = 0;
-  'Information' = 0;
+  'Info' = 0;
 }
 
 $MAX_EVENTLOG_ENTRIES = 10
@@ -359,14 +376,13 @@ if ($max_cnt -gt $MAX_EVENTLOG_ENTRIES) {
   $cnt = $_
   $event_item = $event_set.Entries[$cnt]
 
+# added by position
   [void]$data_source.Tables['Events'].Rows.Add(
     @(
       $event_item.EntryType,
       $event_item.TimeGenerated,
-      $event_item.Message,
       $event_item.Source,
-      $event_item.Category,
-      $event_item.Index
+      $event_item.Message
     )
   )
   Write-output ($event_item | format-list)
@@ -377,9 +393,7 @@ if ($max_cnt -gt $MAX_EVENTLOG_ENTRIES) {
       $event_item['EntryType'],
       $event_item['TimeGenerated'],
       $event_item['Message'],
-      $event_item['Source'],
-      $event_item['Category'],
-      $event_item['Index']
+      $event_item['Source']
     )
   )
 #>
@@ -392,8 +406,8 @@ if ($max_cnt -gt $MAX_EVENTLOG_ENTRIES) {
     'Warning' {
       $counts['Warning']++
     }
-    'Information' {
-      $counts['Information']++
+    'Info' {
+      $counts['Info']++
     }
     default {
     }
@@ -402,12 +416,12 @@ if ($max_cnt -gt $MAX_EVENTLOG_ENTRIES) {
   # Update the buttons text
   $button_errors.ToolTipText = $button_errors.Text = ('{0} Errors' -f $counts['Error'])
   $button_warnings.ToolTipText = $button_warnings.Text = ('{0} Warnings' -f $counts['Warning'])
-  $button_messages.ToolTipText = $button_messages.Text = ('{0} Messages' -f $counts['Information'])
+  $button_messages.ToolTipText = $button_messages.Text = ('{0} Messages' -f $counts['Info'])
 
 }
 [System.Windows.Forms.BindingSource]$bs = New-Object System.Windows.Forms.BindingSource ($data_source,'Events')
 $data_gridview.DataSource = $bs
-
+# want 
 $data_gridview.add_CellFormatting({
     param(
       [object]$sender,
@@ -416,6 +430,7 @@ $data_gridview.add_CellFormatting({
     $columns = $data_gridview.Columns
 
     # Convert Event Type to matching image 
+    # intend to hide the eventtype column and show only the eventimage
     if ($columns[$e.ColumnIndex].Name.Equals('EventImage') -and $data_gridview.Columns.Contains('EventType')) {
 
 
@@ -433,7 +448,7 @@ $data_gridview.add_CellFormatting({
         }
 
 
-        'Information' {
+        'Info' {
           $e.Value = [System.Drawing.Image]::FromFile(('{0}\{1}' -f (Get-ScriptDirectory),'Message.gif'))
         }
         default {
@@ -528,4 +543,5 @@ $client.DownloadStringAsync((New-Object System.Uri ($URL)))
 
 
 $f.Dispose()
+
 
