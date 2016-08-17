@@ -1,4 +1,4 @@
-#Copyright (c) 2015 Serguei Kouzmine
+#Copyright (c) 2015,2016 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,21 @@
 # http://tech.pro/tutorial/803/csharp-tutorial-using-the-built-in-oledb-csv-parser
 # http://www.codeproject.com/Articles/27802/Using-OleDb-to-Import-Text-Files-tab-CSV-custom
 # http://www.cosmonautdreams.com/2013/09/06/Parse-Excel-Quickly-With-Powershell.html
-# for singlee column spreadsheets see also
+# for single-column spreadsheets see also
 # http://blogs.technet.com/b/heyscriptingguy/archive/2008/09/11/how-can-i-read-from-excel-without-using-excel.aspx
+
+# 32-bit
+# NOTE:  Microsoft.Jet.OLEDB.4.0 a.k.a. Deprecated MDAC/WDAC Components has 64Bit compatibility problem
+# http://www.codicode.com/art/64_bit_version_of_microsoft_jet.aspx
+# https://social.msdn.microsoft.com/Forums/en-US/d5b29496-d6a1-4ecf-b1a4-5550d80b84b6/microsoftjetoledb40-32bit-and-64bit?forum=adodotnetdataproviders
+
+# 32 or 64 bit:
+# Microsoft Access Database Engine 2010 Redistributable
+# https://www.microsoft.com/en-us/download/details.aspx?id=13255
+# choose AccessDatabaseEngine_X64.exe or AccessDatabaseEngine.exe 
+# as appropriate for the target architecture
+# http://www.codeproject.com/Articles/1118991/Work-with-Excel-Documents-on-the-Server
+
 
 param(
   [string]$format = 'excel',
@@ -66,14 +79,18 @@ function initialize_data_reader {
   switch ($format)
   {
     'excel' {
-      [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+      [string]$oledb_provider = 'Provider=Microsoft.ACE.OLEDB.12.0'
+      # 32-bit instances only:
+      # [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
       [string]$data_source = "Data Source = ${datafile_fullpath}"
-      [string]$ext_arg = "Extended Properties=Excel 8.0"
+      [string]$ext_arg = 'Extended Properties=Excel 8.0;IMEX=1;'
       [string]$table = $sheet_name
     }
     'csv' {
-      [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
-      [string]$ext_arg = "Extended Properties='text;HDR=Yes;FMT=Delimited(,)';"
+      [string]$oledb_provider = 'Provider=Microsoft.ACE.OLEDB.12.0'
+      # 32-bit instances only:
+      # [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+      [string]$ext_arg = 'Extended Properties="Text;IMEX=1;HDR=Yes;FMT=Delimited(,)";'
       [string]$data_source = "Data Source = ${$datafile_directory}"
       [string]$table = $datafile_filename
     }
@@ -176,9 +193,9 @@ function update_single_field {
   # $command.Prepare()
 
   $local:result = $local:command.ExecuteNonQuery()
-  Write-output ('prepare: {0}' -f $sql ) 
-  Write-output ('where column SQL: {0}' -f $where_column_name ) 
-  Write-output ('update column: {0}' -f $update_column_name) 
+  Write-Output ('prepare: {0}' -f $sql)
+  Write-Output ('where column SQL: {0}' -f $where_column_name)
+  Write-Output ('update column: {0}' -f $update_column_name)
   Write-Output ('Update query: {0}' -f (($sql -replace $update_column_name,$update_column_value) -replace $where_column_name,$where_column_value))
   Write-Output ('Update result: {0}' -f $local:result)
 
@@ -233,8 +250,8 @@ foreach ($data_record in $data_table) {
 $global:data_reader.close()
 $target_record_id = 7
 
-$new_guid = ([guid]::NewGuid()).ToString() 
-write-output ('Setting guild to {0} for id = {1}' -f $new_guid,  $target_record_id )
+$new_guid = ([guid]::NewGuid()).ToString()
+Write-Output ('Setting guild to {0} for id = {1}' -f $new_guid,$target_record_id)
 
 update_single_field `
    -connection $connection `
@@ -250,7 +267,7 @@ update_single_field `
    -update_column_name '@booking_url' `
    -update_column_value 'http://www.carnival.com/itinerary/2-day-baja-mexico-cruise/los-angeles/imagination/2-days/la0/?numGuests=2&destination=all-destinations&dest=any&datFrom=032015&datTo=042017' `
    -where_column_name '@guid' `
-   -where_column_type_ref ([ref][System.Data.OleDb.OleDbType]::Varchar) `
+   -where_column_type_ref ([ref][System.Data.OleDb.OleDbType]::VarChar) `
    -where_column_value $new_guid
 
 # TODO : multiple columns
@@ -265,11 +282,11 @@ update_single_field `
    -update_column_value $true `
    -update_column_type_ref ([ref][System.Data.OleDb.OleDbType]::Boolean) `
    -where_column_name '@guid' `
-   -where_column_type_ref ([ref][System.Data.OleDb.OleDbType]::Varchar) `
+   -where_column_type_ref ([ref][System.Data.OleDb.OleDbType]::VarChar) `
    -where_column_value $new_guid
 
-@destinations_ports   = @('Miami, FL' = @('Caribean', 'Bermuda'); ) 
-return 
+$destinations_ports = @{ 'Miami, FL' = @( 'Caribean','Bermuda'); }
+return
 # cartesian products
 
 
