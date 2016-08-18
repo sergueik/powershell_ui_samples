@@ -13,12 +13,12 @@ public class Excel_Data
 public static void ImportCsvFile(string filename)
 {
     FileInfo file = new FileInfo(filename);
-    String x = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=\"" +
+    String x = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"" +
             file.DirectoryName + "\";" +
             "Extended Properties='text;HDR=Yes;FMT=Delimited(,)';";
      Console.WriteLine(x);
      using (OleDbConnection con = 
-            new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=\"" +
+            new OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"" +
             file.DirectoryName + "\";" +
             "Extended Properties='text;HDR=Yes;FMT=Delimited(,)';"))
     {

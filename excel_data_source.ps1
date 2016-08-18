@@ -25,6 +25,8 @@
 # for single-column spreadsheets see also
 # http://blogs.technet.com/b/heyscriptingguy/archive/2008/09/11/how-can-i-read-from-excel-without-using-excel.aspx
 
+# http://www.codeproject.com/Articles/1118991/Work-with-Excel-Documents-on-the-Server
+
 # 32-bit
 # NOTE:  Microsoft.Jet.OLEDB.4.0 a.k.a. Deprecated MDAC/WDAC Components has 64Bit compatibility problem
 # http://www.codicode.com/art/64_bit_version_of_microsoft_jet.aspx
@@ -33,11 +35,7 @@
 # 32 or 64 bit:
 # Microsoft Access Database Engine 2010 Redistributable
 # https://www.microsoft.com/en-us/download/details.aspx?id=13255
-# choose AccessDatabaseEngine_X64.exe or AccessDatabaseEngine.exe 
-# as appropriate for the target architecture
-# http://www.codeproject.com/Articles/1118991/Work-with-Excel-Documents-on-the-Server
-
-
+# install AccessDatabaseEngine_X64.exe or AccessDatabaseEngine.exe 
 param(
   [string]$format = 'excel',
   [switch]$pause,
@@ -80,7 +78,7 @@ function initialize_data_reader {
   {
     'excel' {
       [string]$oledb_provider = 'Provider=Microsoft.ACE.OLEDB.12.0'
-      # 32-bit instances only:
+      # 32-bit instances only, included with core image for Windows XP, Server 2013
       # [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
       [string]$data_source = "Data Source = ${datafile_fullpath}"
       [string]$ext_arg = 'Extended Properties=Excel 8.0;IMEX=1;'

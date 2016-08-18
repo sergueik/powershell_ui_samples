@@ -1,4 +1,4 @@
-#Copyright (c) 2014, 2015 Serguei Kouzmine
+#Copyright (c) 2014, 2015, 2016 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,7 @@ param(
 # http://www.cosmonautdreams.com/2013/09/06/Parse-Excel-Quickly-With-Powershell.html
 # for singlee column spreadsheets see also
 # http://blogs.technet.com/b/heyscriptingguy/archive/2008/09/11/how-can-i-read-from-excel-without-using-excel.aspx
-#
- http://poshcode.org/2887
+# http://poshcode.org/2887
 # http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
 # https://msdn.microsoft.com/en-us/library/system.management.automation.invocationinfo.pscommandpath%28v=vs.85%29.aspx
 function Get-ScriptDirectory
@@ -96,7 +95,7 @@ function PromptListView
   $select_button.Size = New-Object System.Drawing.Size (70,23)
   $select_button.Text = 'Select'
   $select_button.add_click({
-      # TODO: implementation 
+      # TODO: implementation
       # select_sailing ($script:Item)
     })
 
@@ -271,9 +270,12 @@ $data_name = 'Sailings.xls'
 [string]$filename = ('{0}\{1}' -f (Get-ScriptDirectory),$data_name)
 
 $sheet_name = 'Sailings$'
-[string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+[string]$oledb_provider = 'Provider=Microsoft.ACE.OLEDB.12.0'
+# 32-bit instances only, included with core image for Windows XP, Server 2013
+# [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+
 $data_source = ('Data Source = {0}' -f $filename)
-$ext_arg = "Extended Properties=Excel 8.0"
+$ext_arg = 'Extended Properties=Excel 8.0'
 # TODO: sample queries
 [string]$query = "Select * from [${sheet_name}] where [id] <> 0"
 [System.Data.OleDb.OleDbConnection]$connection = New-Object System.Data.OleDb.OleDbConnection ("$oledb_provider;$data_source;$ext_arg")

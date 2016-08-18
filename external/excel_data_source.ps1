@@ -1,4 +1,4 @@
-#Copyright (c) 2015 Serguei Kouzmine
+#Copyright (c) 2015,2016 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -67,13 +67,17 @@ function initialize_data_reader {
   switch ($format)
   {
     'excel' {
-      [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+      [string]$oledb_provider = 'Provider=Microsoft.ACE.OLEDB.12.0'
+      # 32-bit instances only, included with core image for Windows XP, Server 2013
+      # [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0
       [string]$data_source = "Data Source = ${datafile_fullpath}"
       [string]$ext_arg = "Extended Properties=Excel 8.0"
       [string]$table = $sheet_name
     }
     'csv' {
-      [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+      [string]$oledb_provider = 'Provider=Microsoft.ACE.OLEDB.12.0'
+      # 32-bit instances only, included with core image for Windows XP, Server 2013
+      # [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0
       [string]$ext_arg = "Extended Properties='text;HDR=Yes;FMT=Delimited(,)';"
       [string]$data_source = "Data Source = ${$datafile_directory}"
       [string]$table = $datafile_filename

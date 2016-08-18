@@ -1,4 +1,4 @@
-#Copyright (c) 2015 Serguei Kouzmine
+#Copyright (c) 2015,2016 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -19,8 +19,13 @@
 #THE SOFTWARE.
 
 
+# http://www.codeproject.com/Articles/1118991/Work-with-Excel-Documents-on-the-Server
+# http://forums.asp.net/t/1976281.aspx?OdbcConnection+Microsoft+Excel+Driver+reading+only+first+row+first+column
+#
 # http://www.codeproject.com/Articles/37055/Working-with-MS-Excel-xls-xlsx-Using-MDAC-and-Oled
-#  http://forums.asp.net/t/1976281.aspx?OdbcConnection+Microsoft+Excel+Driver+reading+only+first+row+first+column
+# Microsoft Access Database Engine 2010 Redistributable
+# https://www.microsoft.com/en-us/download/details.aspx?id=13255
+# install AccessDatabaseEngine_X64.exe or AccessDatabaseEngine.exe
 
 param(
   [string]$format = 'excel',
@@ -74,7 +79,10 @@ $data_name = 'TestConfiguration.xls'
 [string]$filename = ('{0}\{1}' -f (Get-ScriptDirectory),$data_name)
 
 $sheet_name = 'Sailings$'
-[string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+[string]$oledb_provider = 'Provider=Microsoft.ACE.OLEDB.12.0'
+# 32-bit instances only, included with core image for Windows XP, Server 2013
+# [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+
 $data_source = ('Data Source = {0}' -f $filename)
 $ext_arg = "Extended Properties=Excel 8.0"
 # HDR=YES

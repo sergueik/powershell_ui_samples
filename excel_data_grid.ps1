@@ -1,4 +1,4 @@
-#Copyright (c) 2014, 2015 Serguei Kouzmine
+#Copyright (c) 2015,2016 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -17,6 +17,13 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
+
+# 
+# http://www.codeproject.com/Articles/37055/Working-with-MS-Excel-xls-xlsx-Using-MDAC-and-Oled
+# dependency: Microsoft Access Database Engine 2010 Redistributable
+# https://www.microsoft.com/en-us/download/details.aspx?id=13255
+# install AccessDatabaseEngine_X64.exe or AccessDatabaseEngine.exe 
+
 param(
   [switch]$show,
   [switch]$debug
@@ -140,9 +147,14 @@ $data_name = 'Servers.xls'
 [string]$filename = ('{0}\{1}' -f (Get-ScriptDirectory),$data_name)
 
 $sheet_name = 'ServerList$'
-[string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+
+
+[string]$oledb_provider = 'Provider=Microsoft.ACE.OLEDB.12.0'
+# 32-bit instances only, included with core image for Windows XP, Server 2013
+# [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
+
 $data_source = ('Data Source = {0}' -f $filename )
-$ext_arg = "Extended Properties=Excel 8.0"
+$ext_arg = 'Extended Properties=Excel 8.0'
 # TODO: sample queries
 [string]$query = "Select * from [${sheet_name}] where [id] <> 0"
 [System.Data.OleDb.OleDbConnection]$connection = New-Object System.Data.OleDb.OleDbConnection ("$oledb_provider;$data_source;$ext_arg")
