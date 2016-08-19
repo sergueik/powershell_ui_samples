@@ -1,6 +1,6 @@
 # origin: http://poshcode.org/3740
 # http://poshcode.org/6479
-# http://powertoe.wordpress.com
+# https://powertoe.wordpress.com/category/windows8/metroapps/
 # http://stackoverflow.com/questions/12925748/iapplicationactivationmanageractivateapplication-in-c
 
 Add-Type -TypeDefinition @"
