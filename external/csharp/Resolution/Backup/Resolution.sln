@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+# SharpDevelop 5.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resolution", "Resolution.csproj", "{79D95B8E-3F7C-4623-8546-7DE2A28DA0F5}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{79D95B8E-3F7C-4623-8546-7DE2A28DA0F5}.Debug.ActiveCfg = Debug|.NET
+		{79D95B8E-3F7C-4623-8546-7DE2A28DA0F5}.Debug.Build.0 = Debug|.NET
+		{79D95B8E-3F7C-4623-8546-7DE2A28DA0F5}.Release.ActiveCfg = Release|.NET
+		{79D95B8E-3F7C-4623-8546-7DE2A28DA0F5}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
