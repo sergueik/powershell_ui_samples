@@ -13,6 +13,10 @@ Individual Scripts
 
 There is around 100 individual scripts, most of which are practical and can be easily used for common operations tasks. 
 
+Technical details
+=================
+Most scripts incorporate
+an embedded C# class that implements  the `IWin32Window` method `Win32Window` described in [poshcode](http://poshcode.org/2002) to block execution of the caller while the form is displayed. Some scripts use more advanced techniques like [Powershell Runspaces](https://blogs.technet.microsoft.com/heyscriptingguy/2015/11/26/beginning-use-of-powershell-runspaces-part-1/) to do the same. 
 
 Author
 ------
