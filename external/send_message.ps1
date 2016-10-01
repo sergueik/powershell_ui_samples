@@ -1,169 +1,161 @@
 # origin: https://habrahabr.ru/post/138008/
+# https://github.com/foxmuldercp/shell_scripts/tree/master/PowerShell
 
 $ErrorActionPreference = 'silentlycontinue'
 $DebugPreference = 'Continue'
 
-Add-Type -assembly System.Windows.Forms
+Add-Type -Assembly System.Windows.Forms
 
-$Server        = @('target_server')
-$User          = @("*")
-$global:Message       = 'Sample Message.'
+$f = New-Object System.Windows.Forms.Form
 
-$Sign          = @("Signature 1", 'Signature2')
+$tt = New-Object System.Windows.Forms.ToolTip
+$tt.BackColor = [System.Drawing.Color]::LightGoldenrodYellow
+$tt.IsBalloon = $true
+# $tt.InitialDelay = 500
+# $tt.ReshowDelay = 500
 
-Function SendMessage {
-        param ($Server, $User, $Message, $Sign)
-        If ($TestRunCheckBox.Checked -eq 1 ) { Write-Host $TestRunCheckBox.Checked; $Server="localhost"; $User = "Console" }
-        ForEach ($Item in $Server) {
-            ForEach ($UserN in $User) {
-                    $UserTrim = $UserN.Trim()
-                    $ServerTrim = $Item.Trim()
-                    $MsgTrim = $Message.Trim()
-                    $SignTrim = $SignX.Trim()
-                    c:\windows\system32\msg.exe $UserTrim /Server:$ServerTrim $MsgTrim $SignTrim
-                }
-        }
-     # Confirm
+$f.StartPosition = 'CenterScreen'
+$f.Text = 'Broadcast messages to users'
+$f.Width = 420
+$f.Height = 220
+
+$l1 = New-Object System.Windows.Forms.Label
+$l1.Location = New-Object System.Drawing.Point (10,12)
+$l1.Text = 'Servers:'
+
+$l2 = New-Object System.Windows.Forms.Label
+$l2.Location = New-Object System.Drawing.Point (10,42)
+$l2.Text = 'Users:'
+$l2.AutoSize = 1
+
+$l4 = New-Object System.Windows.Forms.Label
+$l4.Location = New-Object System.Drawing.Point (10,73)
+$l4.Text = 'Message'
+$l4.AutoSize = 1
+# $tt.SetToolTip($l4, '')
+
+$l3 = New-Object System.Windows.Forms.Label
+$l3.Location = New-Object System.Drawing.Point (10,103)
+$l3.Text = 'Signature'
+$l3.AutoSize = 1
+$tt.SetToolTip($l3,'author is required')
+
+$t1 = New-Object System.Windows.Forms.ComboBox
+$t1.Location = New-Object System.Drawing.Point (90,10)
+$t1.DataSource = @( 'target_hostname' )
+$t1.Width = 300
+$t1.add_TextChanged({ $target_servers = $t1.Text })
+$t1.TabIndex = 1
+$tt.SetToolTip($t1,'destination servers')
+
+$t2 = New-Object System.Windows.Forms.ComboBox
+$t2.Location = New-Object System.Drawing.Point (90,40)
+$t2.DataSource = @( '*' ) # '*' means everybody 
+$t2.Text = $recipients_array[1]
+$t2.add_click({ $t2.SelectAll() })
+$t2.add_TextChanged({ $recipients = $t2.Text })
+$t2.Width = 300
+$t2.TabIndex = 2
+$tt.SetToolTip($t2,'recipients')
+
+$t4 = New-Object System.Windows.Forms.TextBox
+$t4.Location = New-Object System.Drawing.Point (90,70)
+$t4.Text = 'Sample Message.'
+$t4.add_click({ $t4.SelectAll() })
+$t4.add_TextChanged({ $global:Message = $t4.Text })
+$t4.Width = 300
+$t4.TabIndex = 3
+$tt.SetToolTip($t4,'what is the message?')
+
+$t3 = New-Object System.Windows.Forms.ComboBox
+$t3.Location = New-Object System.Drawing.Point (90,103)
+$t3.DataSource = @( 'Administrator','Sender Signature')
+$t3.Text = $signature[1]
+$t3.add_TextChanged({ $signature = $t3.Text })
+$t3.Width = 300
+$t3.TabIndex = 4
+$tt.SetToolTip($t3,"sender's signature")
+
+$global:testrun = New-Object System.Windows.Forms.CheckBox
+$global:testrun.Location = New-Object System.Drawing.Point (200,150)
+$global:testrun.Text = 'Test'
+$global:testrun.Checked = 1
+$global:testrun.AutoSize = 1
+$global:testrun.TabIndex = 6
+$tt.SetToolTip($global:testrun,'Test: localhost only')
+
+$b1 = New-Object System.Windows.Forms.Button
+$b1.Location = New-Object System.Drawing.Point (10,150)
+$b1.Text = 'Send'
+$b1.AutoSize = 1
+$b1.TabIndex = 5
+
+function SendMessage {
+  param(
+    [string[]]$target_servers = @( 'localhost'),
+    [string]$recipients = 'Console',
+    [string]$Message,
+    [string]$signature,
+    [bool]$Test = $false
+  )
+
+  $message = $message.Trim()
+  $signature = $signature.Trim()
+  $target_servers | ForEach-Object {
+    $server = $_
+    $recipients |
+    ForEach-Object {
+      $user = $_
+      Write-Debug "c:\windows\system32\msg.exe ${user} /Server:${server} ${message} ${signature}"
+      c:\windows\system32\msg.exe $user /Server:$server $message $signature
     }
+  }
+  # TODO: Confirm
+}
 
-Function Confirm {
-        $ConfirmWin = New-Object System.Windows.Forms.Form
-        $ConfirmWin.StartPosition  = "CenterScreen"
-        $ConfirmWin.Text = 'Confirmation'
-        $ConfirmWin.Width = 200
-        $ConfirmWin.Height = 120
-        $ConfirmWin.ControlBox = 0
-        $ConfirmWinOKButton = New-Object System.Windows.Forms.Button
-        $ConfirmWinOKButton.add_click({ $MainSendWindow.Close(); $ConfirmWin.Close() })
-        $ConfirmWinOKButton.Text = 'Close'
-        
-        $ConfirmWinOKButton.AutoSize = 1
-        $ConfirmWinOKButton.Location        = New-Object System.Drawing.Point(50,50)
+function Confirm {
+  $f = New-Object System.Windows.Forms.Form
+  $f.StartPosition = 'CenterScreen'
+  $f.Text = 'Confirmation'
+  $f.Width = 200
+  $f.Height = 120
+  $f.ControlBox = 0
+  $b = New-Object System.Windows.Forms.Button
+  $b.add_click({ $f.Close(); $f.Close() })
+  $b.Text = 'Close'
 
-        $ConfirmLabel = New-Object System.Windows.Forms.Label
-        $ConfirmLabel.Text = 'Message was sent'
-        $ConfirmLabel.AutoSize = 1
-        $ConfirmLabel.Location = New-Object System.Drawing.Point(10,10)
-        $ConfirmWin.Controls.Add($ConfirmLabel)
-        $ConfirmWin.Controls.Add($ConfirmWinOKButton)
-        $ConfirmWin.ShowDialog() | Out-Null
+  $b.AutoSize = 1
+  $b.Location = New-Object System.Drawing.Point (50,50)
+
+  $t = New-Object System.Windows.Forms.Label
+  $t.Text = 'Message was sent'
+  $t.AutoSize = 1
+  $t.Location = New-Object System.Drawing.Point (10,10)
+  $f.Controls.Add($t)
+  $f.Controls.Add($b)
+  $f.ShowDialog() | Out-Null
+}
+
+$b1.add_click({ $recipients = $t2.Text.Split(',');
+    $target_servers = $t1.Text.Split(','); $signature = $t3.Text;
+    if ($global:testrun.Checked -eq 1) {
+      Write-Debug 'Test run'
+      $target_servers = @( 'localhost')
+      $recipients = 'Console'
+      Write-Debug "SendMessage -test $true -target_servers ${target_servers} -recipients ${recipients} -Message ${global:Message} $signatureX"
     }
-    
-$MainSendWindow                = New-Object System.Windows.Forms.Form
-$ToolTip = New-Object System.Windows.Forms.ToolTip
+    SendMessage -Test $true -target_servers $target_servers -recipients $recipients -Message $global:Message -signature $signature
+  })
+# $tt.SetToolTip($b1, '')
 
-$ToolTip.BackColor = [System.Drawing.Color]::LightGoldenrodYellow
-$ToolTip.IsBalloon = $true
-# $ToolTip.InitialDelay = 500
-# $ToolTip.ReshowDelay = 500
+$b2 = New-Object System.Windows.Forms.Button
+$b2.Location = New-Object System.Drawing.Point (315,150)
+$b2.Text = 'Close'
+$b2.add_click({ $f.Close() })
+$b2.AutoSize = 1
+$b2.TabIndex = 7
+$tt.SetToolTip($b2,'Quit')
 
-$SendButton                    = New-Object System.Windows.Forms.Button
-$CloseButton                   = New-Object System.Windows.Forms.Button
-$TestRunCheckBox               = New-Object System.Windows.Forms.CheckBox
+$f.Controls.AddRange(@( $b1,$b2,$t1,$t2,$t3,$t4,$l1,$l2,$l3,$l4,$global:testrun))
 
-$ServerTextBox                 = New-Object System.Windows.Forms.ComboBox
-$UserTextBox                   = New-Object System.Windows.Forms.ComboBox
-$MessageTextBox                = New-Object System.Windows.Forms.TextBox
-$SignTextBox                   = New-Object System.Windows.Forms.ComboBox
-
-$ServerTextBoxLabel            = New-Object System.Windows.Forms.Label
-$UserTextBoxLabel              = New-Object System.Windows.Forms.Label
-$MessageTextBoxLabel           = New-Object System.Windows.Forms.Label
-$SignTextBoxLabel              = New-Object System.Windows.Forms.Label
-
-$MainSendWindow.StartPosition  = "CenterScreen"
-$MainSendWindow.Text           = 'Broadcast messages to users' 
-$MainSendWindow.Width          = 470
-$MainSendWindow.Height         = 220
-
-$ServerTextBoxLabel.Location   = New-Object System.Drawing.Point(10,12)
-$ServerTextBoxLabel.Text       = 'Servers:'
-
-
-$UserTextBoxLabel.Location     = New-Object System.Drawing.Point(10,42)
-$UserTextBoxLabel.Text         = 'Users:'
-$UserTextBoxLabel.Autosize     = 1
-
-$MessageTextBoxLabel.Location  = New-Object System.Drawing.Point(10,73)
-$MessageTextBoxLabel.Text      = 'Message'
-$MessageTextBoxLabel.Autosize  = 1
-# $ToolTip.SetToolTip($MessageTextBoxLabel, "")
-
-$SignTextBoxLabel.Location     = New-Object System.Drawing.Point(10,103)
-$SignTextBoxLabel.Text         = 'Signature'
-$SignTextBoxLabel.Autosize     = 1
-$ToolTip.SetToolTip($SignTextBoxLabel, 'author is required')
-
-$ServerTextBox.Location        = New-Object System.Drawing.Point(140,10)
-$ServerTextBox.DataSource      = $Server
-$ServerTextBox.Width           = 300
-$ServerTextBox.add_TextChanged({ $Server = $ServerTextBox.Text })
-$ServerTextBox.TabIndex        = 1
-$ToolTip.SetToolTip($ServerTextBox, 'destination servers')
-
-$UserTextBox.Location          = New-Object System.Drawing.Point(140,40)
-$UserTextBox.DataSource        = $User
-$UserTextBox.Text              = $User[1]
-$UserTextBox.add_click({ $UserTextBox.SelectAll() })
-$UserTextBox.add_TextChanged({ $UserX = $UserTextBox.Text })
-$UserTextBox.Width             = 300
-$UserTextBox.TabIndex          = 2
-$ToolTip.SetToolTip($UserTextBox, "choose recipients")
-
-$MessageTextBox.Location       = New-Object System.Drawing.Point(140,70)
-$MessageTextBox.Text           = $Message
-$MessageTextBox.add_click({ $MessageTextBox.SelectAll() })
-$MessageTextBox.add_TextChanged( { $global:Message = $MessageTextBox.Text })
-$MessageTextBox.Width          = 300
-$MessageTextBox.TabIndex       = 3
-$ToolTip.SetToolTip($MessageTextBox, "what is the mesage?")
-
-$SignTextBox.Location          = New-Object System.Drawing.Point(140,103)
-$SignTextBox.DataSource        = $Sign
-$SignTextBox.Text              = $Sign[1]
-$SignTextBox.add_TextChanged({ $Sign = $SignTextBox.Text })
-$SignTextBox.Width             = 300
-$SignTextBox.TabIndex          = 4
-$ToolTip.SetToolTip($SignTextBox, "choose sender")
-
-$SendButton.Location           = New-Object System.Drawing.Point(10,150)
-$SendButton.Text               = 'Send'
-$SendButton.add_click({ $User  = $UserTextBox.Text.Split(","); 
-$Server = $ServerTextBox.Text.Split(","); $SignX = $SignTextBox.Text; 
-SendMessage $Server $User $global:Message $SignX
-} )
-$SendButton.Autosize           = 1
-$SendButton.TabIndex           = 5
-# $ToolTip.SetToolTip($SendButton, "")
-
-
-$TestRunCheckBox.Location      = New-Object System.Drawing.Point(200,150)
-$TestRunCheckBox.Text          = 'Test'
-$TestRunCheckBox.Checked       = 1
-$TestRunCheckBox.AutoSize      = 1
-$TestRunCheckBox.TabIndex      = 6
-$ToolTip.SetToolTip($TestRunCheckBox, 'Test: localhost only')
-
-$CloseButton.Location          = New-Object System.Drawing.Point(315,150)
-$CloseButton.Text              = 'Close'
-$CloseButton.add_click({ $MainSendWindow.Close() })
-$CloseButton.Autosize          = 1
-$CloseButton.TabIndex          = 7
-$ToolTip.SetToolTip($CloseButton, 'Quit')
-
-$MainSendWindow.Controls.Add($SendButton)
-$MainSendWindow.Controls.Add($TestRunCheckBox)
-$MainSendWindow.Controls.Add($CloseButton)
-
-$MainSendWindow.Controls.Add($ServerTextBox)
-$MainSendWindow.Controls.Add($UserTextBox)
-$MainSendWindow.Controls.Add($MessageTextBox)
-$MainSendWindow.Controls.Add($SignTextBox)
-
-$MainSendWindow.Controls.Add($ServerTextBoxLabel)
-$MainSendWindow.Controls.Add($UserTextBoxLabel)
-$MainSendWindow.Controls.Add($MessageTextBoxLabel)
-$MainSendWindow.Controls.Add($SignTextBoxLabel)
-
-$MainSendWindow.ShowDialog() | Out-Null
-# Confirm
+$f.ShowDialog() | Out-Null
