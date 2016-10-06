@@ -1,0 +1,475 @@
+// origin:  http://poshcode.org/6167
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Reflection;
+using System.Globalization;
+using System.Management.Automation;
+using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
+
+[assembly: CLSCompliant(false)]
+
+[assembly: AssemblyTitle("Strings")]
+[assembly: AssemblyDescription("Get-Strings")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Strings")]
+[assembly: AssemblyCopyright("Copyright (C) 2010-2015 greg zakharov")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+
+[assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+
+namespace Strings {
+  internal sealed class Utils {
+    private Utils() {}
+    
+    internal static Boolean IsDirectory(String file) {
+      return (File.GetAttributes(file) & FileAttributes.Directory) == FileAttributes.Directory;
+    }
+    
+    internal static String FormatString(String form, params Object[] args) {
+      return String.Format(CultureInfo.InvariantCulture, form, args);
+    }
+  }
+  
+  [Cmdlet(VerbsCommon.Get, "Strings", DefaultParameterSetName="Path")]
+  public sealed class GetStringsCommand : PSCmdlet {
+    private String[] _paths;
+    private UInt32   _bytesToProcess;
+    private UInt32   _bytesOffset;
+    private UInt32   _stringLength;
+    private Boolean  _stringOffset;
+    private Boolean  _unicode;
+    private Boolean  _wildcards;
+    private Encoding _encoding;
+    private Regex    _regex;
+    
+    [Parameter(
+      ParameterSetName="Path",
+      Mandatory=true,
+      Position=0,
+      ValueFromPipeline=true,
+      ValueFromPipelineByPropertyName=true
+    )]
+    [ValidateNotNullOrEmpty]
+    public String[] Path {
+      get { return _paths; }
+      set {
+        _wildcards = true;
+        _paths = value;
+      }
+    }
+    
+    [Parameter(
+      ParameterSetName="LiteralPath",
+      Mandatory=true,
+      Position=0,
+      ValueFromPipeline=false,
+      ValueFromPipelineByPropertyName=true
+    )]
+    [ValidateNotNullOrEmpty]
+    [Alias("PSPath")]
+    public String[] LiteralPath {
+      get { return _paths; }
+      set { _paths = value; }
+    }
+    
+    [Parameter]
+    [Alias("b")]
+    public UInt32 BytesToProcess {
+      get { return _bytesToProcess; }
+      set { _bytesToProcess = value; }
+    }
+    
+    [Parameter]
+    [Alias("f")]
+    public UInt32 BytesOffset {
+      get { return _bytesOffset; }
+      set { _bytesOffset = value; }
+    }
+    
+    [Parameter]
+    [Alias("n")]
+    public UInt32 StringLength {
+      get { return _stringLength; }
+      set { _stringLength = value; }
+    }
+    
+    [Parameter]
+    [Alias("o")]
+    public SwitchParameter StringOffset {
+      get { return _stringOffset; }
+      set { _stringOffset = value; }
+    }
+    
+    [Parameter]
+    [Alias("u")]
+    public SwitchParameter Unicode {
+      get { return _unicode; }
+      set { _unicode = value; }
+    }
+    
+    protected override void BeginProcessing() {
+      _stringLength = _stringLength < 3 ? (UInt32)3 : _stringLength;
+      _encoding = _unicode ? Encoding.Unicode : Encoding.UTF7;
+      _regex = new Regex(@"[\x20-\x7E]{" + _stringLength + ",}");
+    }
+    
+    protected override void ProcessRecord() {
+      ProviderInfo pi;
+      FileStream fs = null;
+      Byte[] buf;
+      
+      (from p in _paths
+      select new {
+        FilePath = (_wildcards
+        ? this.SessionState.Path.GetResolvedProviderPathFromPSPath(p, out pi)[0]
+        : this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(p)
+        )
+      })
+      .Select(p => p.FilePath)
+      .Where(p => !Utils.IsDirectory(p))
+      .ToList()
+      .ForEach(p => {
+        try {
+          fs = File.OpenRead(p);
+          
+          if (_bytesToProcess > fs.Length || _bytesOffset > fs.Length) {
+            throw new IOException("Out of stream.");
+          }
+          
+          if (_bytesOffset > 0) {
+            fs.Seek(_bytesOffset, SeekOrigin.Begin);
+          }
+          
+          buf = _bytesToProcess > 0 ? new Byte[_bytesToProcess] : new Byte[fs.Length];
+          fs.Read(buf, 0, buf.Length);
+          
+          (from Match _match in _regex.Matches(_encoding.GetString(buf))
+            select new {
+              Index = _match.Index,
+              Value = _match.Value
+            }
+          )
+          .ToList()
+          .ForEach(m => {
+            WriteObject(_stringOffset ? Utils.FormatString("{0}:{1}", m.Index, m.Value) : m.Value);
+          });
+        }
+        catch (IOException e) {
+          WriteError(new ErrorRecord(
+            e, "IOException", ErrorCategory.InvalidOperation, fs
+          ));
+        }
+        finally {
+          if (fs != null) {
+            fs.Dispose();
+            fs.Close();
+          }
+        }
+      });
+    }
+  } //GetStringsCommand
+}
+
+/*
+***** Strings.dll-Help.xml *****
+***** Generated by MamlGraph *****
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems schema="maml">
+   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+                    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+                    xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+      <command:details>
+         <command:name>Get-Strings</command:name>
+         <maml:description>
+            <maml:para>Get strings from a file.</maml:para>
+         </maml:description>
+         <maml:copyright>
+            <maml:para />
+         </maml:copyright>
+         <command:verb>Get</command:verb>
+         <command:noun>Strings</command:noun>
+         <dev:version></dev:version>
+      </command:details>
+      <maml:description>
+         <maml:para>The Get-Strings cmdlet returns strings (Ascii and/or Unicode) from a file. This cmdlet is useful for dumping strings from binary file and was designed to replicate the functionality of strings.exe from Sysinternals Suite.</maml:para>
+      </maml:description>
+      <!-- Cmdlet syntax section -->
+      <command:syntax>
+         <command:syntaxItem>
+            <maml:name>Get-Strings</maml:name>
+            <command:parameter required="true" globbing="true" pipelineInput="true (ByValue, ByPropertyName)" position="0">
+               <maml:name>Path</maml:name>
+               <maml:description>
+                  <maml:para>Specifies the path to an item. Wildcards are permitted. This parameter is required, but the parameter name ("Path") is optional.</maml:para>
+               </maml:description>
+               <command:parameterValue required="true">String[]</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>BytesToProcess</maml:name>
+               <maml:description>
+                  <maml:para>Specifies bytes of file to scan.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">UInt32</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>BytesOffset</maml:name>
+               <maml:description>
+                  <maml:para>Specifies file offset at which start scanning.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">UInt32</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>StringLength</maml:name>
+               <maml:description>
+                  <maml:para>Specifies minimum string length.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">UInt32</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>StringOffset</maml:name>
+               <maml:description>
+                  <maml:para>Indicates that offset in a file string was located should be printed.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">Boolean</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>Unicode</maml:name>
+               <maml:description>
+                  <maml:para>Indicates that only Unicode strings should be searched.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">Boolean</command:parameterValue>
+            </command:parameter>
+         </command:syntaxItem>
+         <command:syntaxItem>
+            <maml:name>Get-Strings</maml:name>
+            <command:parameter required="true" globbing="false" pipelineInput="true (ByPropertyName)" position="0">
+               <maml:name>LiteralPath</maml:name>
+               <maml:description>
+                  <maml:para>Specifies the path to the item. Unlike Path, the value of LiteralPath is used exactly as it is typed. No characters are interpreted as wildcards. If the path includes escape characters, enclose it in single quotation marks. Single quotation marks tell Windows PowerShell not to interpret any characters as escape sequnces.</maml:para>
+               </maml:description>
+               <command:parameterValue required="true">String[]</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>BytesToProcess</maml:name>
+               <maml:description>
+                  <maml:para>Specifies bytes of file to scan.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">UInt32</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>BytesOffset</maml:name>
+               <maml:description>
+                  <maml:para>Specifies file offset at which start scanning.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">UInt32</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>StringLength</maml:name>
+               <maml:description>
+                  <maml:para>Specifies minimum string length.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">UInt32</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>StringOffset</maml:name>
+               <maml:description>
+                  <maml:para>Indicates that offset in a file string was located should be printed.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">Boolean</command:parameterValue>
+            </command:parameter>
+            <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+               <maml:name>Unicode</maml:name>
+               <maml:description>
+                  <maml:para>Indicates that only Unicode strings should be searched.</maml:para>
+               </maml:description>
+               <command:parameterValue required="false">Boolean</command:parameterValue>
+            </command:parameter>
+         </command:syntaxItem>
+      </command:syntax>
+      <!-- Cmdlet parameter section -->
+      <command:parameters>
+         <command:parameter required="true" globbing="true" pipelineInput="true (ByValue, ByPropertyName)" position="0">
+            <maml:name>Path</maml:name>
+            <maml:description>
+               <maml:para>Specifies the path to an item. Wildcards are permitted. This parameter is required, but the parameter name ("Path") is optional.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true">String[]</command:parameterValue>
+            <dev:type>
+               <maml:name>String[]</maml:name>
+               <maml:uri />
+            </dev:type>
+            <dev:defaultValue />
+         </command:parameter>
+         <command:parameter required="true" globbing="false" pipelineInput="true (ByPropertyName)" position="0">
+            <maml:name>LiteralPath</maml:name>
+            <maml:description>
+               <maml:para>Specifies the path to the item. Unlike Path, the value of LiteralPath is used exactly as it is typed. No characters are interpreted as wildcards. If the path includes escape characters, enclose it in single quotation marks. Single quotation marks tell Windows PowerShell not to interpret any characters as escape sequnces.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true">String[]</command:parameterValue>
+            <dev:type>
+               <maml:name>String[]</maml:name>
+               <maml:uri />
+            </dev:type>
+            <dev:defaultValue />
+         </command:parameter>
+         <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+            <maml:name>BytesToProcess</maml:name>
+            <maml:description>
+               <maml:para>Specifies bytes of file to scan.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true">UInt32</command:parameterValue>
+            <dev:type>
+               <maml:name>UInt32</maml:name>
+               <maml:uri />
+            </dev:type>
+            <dev:defaultValue />
+         </command:parameter>
+         <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+            <maml:name>BytesOffset</maml:name>
+            <maml:description>
+               <maml:para>Specifies file offset at which start scanning.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true">UInt32</command:parameterValue>
+            <dev:type>
+               <maml:name>UInt32</maml:name>
+               <maml:uri />
+            </dev:type>
+            <dev:defaultValue />
+         </command:parameter>
+         <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+            <maml:name>StringLength</maml:name>
+            <maml:description>
+               <maml:para>Specifies minimum string length.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true">UInt32</command:parameterValue>
+            <dev:type>
+               <maml:name>UInt32</maml:name>
+               <maml:uri />
+            </dev:type>
+            <dev:defaultValue>3</dev:defaultValue>
+         </command:parameter>
+         <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+            <maml:name>StringOffset</maml:name>
+            <maml:description>
+               <maml:para>Indicates that offset in a file string was located should be printed.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true">Boolean</command:parameterValue>
+            <dev:type>
+               <maml:name>SwitchParameter</maml:name>
+               <maml:uri />
+            </dev:type>
+            <dev:defaultValue />
+         </command:parameter>
+         <command:parameter required="false" globbing="false" pipelineInput="false" position="named">
+            <maml:name>Unicode</maml:name>
+            <maml:description>
+               <maml:para>Indicates that only Unicode strings should be searched.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true">Boolean</command:parameterValue>
+            <dev:type>
+               <maml:name>SwitchParameter</maml:name>
+               <maml:uri />
+            </dev:type>
+            <dev:defaultValue />
+         </command:parameter>
+      </command:parameters>
+      <!-- Input - Output section -->
+      <command:inputTypes>
+         <command:inputType>
+            <dev:type>
+               <maml:name>System.String</maml:name>
+               <maml:uri />
+               <maml:description />
+            </dev:type>
+            <maml:description>
+               <maml:para>You can pipe a string that contains a path to Get-Strings.</maml:para>
+            </maml:description>
+         </command:inputType>
+      </command:inputTypes>
+      <command:returnValues>
+         <command:returnValue>
+            <dev:type>
+               <maml:name>String</maml:name>
+               <maml:uri />
+               <maml:description />
+            </dev:type>
+            <maml:description>
+               <maml:para>Get-Strings returns the strings that it gets from a file.</maml:para>
+            </maml:description>
+         </command:returnValue>
+      </command:returnValues>
+      <!-- Error section -->
+      <command:terminatingErrors />
+      <command:nonTerminatingErrors />
+      <!-- Notes section -->
+      <maml:alertSet>
+         <maml:title></maml:title>
+         <maml:alert>
+            <maml:para>Author: greg zakharov</maml:para>
+         </maml:alert>
+      </maml:alertSet>
+      <!-- Example section -->
+      <command:examples>
+         <command:example>
+            <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+            <maml:introduction>
+               <maml:para>C:\PS&gt;</maml:para>
+            </maml:introduction>
+            <dev:code>Get-Strings C:\Windows\System32\ntdll.dll</dev:code>
+            <dev:remarks>
+               <maml:para>Description</maml:para>
+               <maml:para>--------------</maml:para>
+               <maml:para>Dump Ascii and Unicode strings of ntdll.dll.</maml:para>
+               <maml:para ></maml:para>
+               <maml:para></maml:para>
+            </dev:remarks>
+         </command:example>
+         <command:example>
+            <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+            <maml:introduction>
+               <maml:para>C:\PS&gt;</maml:para>
+            </maml:introduction>
+            <dev:code>Get-ChildItem -Filter *.dll -Recurse | Get-Strings -Unicode</dev:code>
+            <dev:remarks>
+               <maml:para>Description</maml:para>
+               <maml:para>--------------</maml:para>
+               <maml:para>Dump Unicode strings of every dll located on C:\ drive.</maml:para>
+               <maml:para></maml:para>
+               <maml:para></maml:para>
+            </dev:remarks>
+         </command:example>
+      </command:examples>
+      <!-- Link section -->
+      <maml:relatedLinks>
+         <maml:navigationLink>
+            <maml:linkText>Sysinternals strings.exe tool:</maml:linkText>
+            <maml:uri>https://technet.microsoft.com/en-us/sysinternals/strings</maml:uri>
+         </maml:navigationLink>
+      </maml:relatedLinks>
+   </command:command>
+</helpItems>
+*/
+/*
+***** Strings.psd1 *****
+***** Manifest module *****
+@{
+  GUID               = 'c8b3760c-ea30-47c9-b6aa-e7b63760de19'
+  Author             = 'greg zakharov'
+  CompanyName        = ''
+  Copyright          = 'Copyright (C) 2010-2015 greg zakharov'
+  ModuleVersion      = '1.0.0.0'
+  PowerShellVersion  = ''
+  CLRVersion         = ''
+  NestedModules      = 'Strings.dll'
+  RequiredAssemblies = Join-Path $PSScriptRoot Strings.dll
+  CmdletsToExport    = 'Get-Strings'
+}
+*/
