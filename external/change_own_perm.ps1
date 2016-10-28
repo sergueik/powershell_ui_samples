@@ -1,4 +1,4 @@
-# based on: https://social.technet.microsoft.com/Forums/windowsserver/en-US/e718a560-2908-4b91-ad42-d392e7f8f1ad/take-ownership-of-a-registry-key-and-change-permissions?forum=winserverpowershell
+# based on: http://shrekpoint.blogspot.com/2012/08/taking-ownership-of-dcom-registry.html
 [string]$regPath = 'SOFTWARE\Classes\CLSID\{20D04FE0-3AEA-1069-A2D8-08002B30309D}'
 [string]$domainAccount = 'BUILTIN\Administrators'
 
