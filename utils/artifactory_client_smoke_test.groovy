@@ -1,5 +1,3 @@
-// download http-builder and dependency jars from  http://snapshots.repository.codehaus.org/org/codehaus/groovy/modules/htxtp-builder/http-builder/0.5.2-SNAPSHOT/
-// and populate $GROOVY_HOME/lib
 package artifactory
 
 import groovy.text.SimpleTemplateEngine
@@ -9,13 +7,12 @@ import groovy.json.JsonOutput
 import groovy.transform.Field
 import groovy.time.*
 
-
 /**
  * Minimal version of Jettro Coenradie's  artifactory REST Client groovy class
  */
 public class Artifactory {
 
-
+  def printErr = System.err.&println
 	def engine = new SimpleTemplateEngine()
 	def config
 	def applications = []
@@ -25,7 +22,6 @@ public class Artifactory {
 		this.config = config
 		config.rootpath = '/artifactory/api/repositories'
 	}
-
 
 	/**
 	 * Print information about all the available repositories in the configured Artifactory
@@ -53,21 +49,12 @@ public class Artifactory {
 		}
 	}
 
-
-
 	private RESTClient obtainServerConnection() {
 		def server = new RESTClient(config.server)
 		server.auth.basic config.user, config.password
-		server.parser.
-		'application/vnd.org.jfrog.artifactory.storage.FolderInfo+json' = server.parser.
-		'application/json'
-		server.parser.
-		'application/vnd.org.jfrog.artifactory.storage.FileInfo+json' = server.parser.
-		'application/json'
-
-		server.parser.
-		'application/vnd.org.jfrog.artifactory.repositories.RepositoryDetailsList+json' = server.parser.
-		'application/json'
+		server.parser.'application/vnd.org.jfrog.artifactory.storage.FolderInfo+json' = server.parser.'application/json'
+		server.parser.'application/vnd.org.jfrog.artifactory.storage.FileInfo+json' = server.parser.'application/json'
+		server.parser.'application/vnd.org.jfrog.artifactory.repositories.RepositoryDetailsList+json' = server.parser.'application/json'
 		return server
 	}
 }
