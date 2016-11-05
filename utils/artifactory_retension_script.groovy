@@ -17,19 +17,19 @@ import groovy.time.*
 */
 private class Artifactory {
 
-def printErr = System.err.&println  
+def printErr = System.err.&println
 def engine = new SimpleTemplateEngine()
 def config
-def applications = [] 
-def findfolder_result 
-def artifactory_entries = [] 
+def applications = []
+def findfolder_result
+def artifactory_entries = []
 def Artifactory(config) {
 	this.config = config
     config.rootpath = '/artifactory/api/repositories'
 }
-  
+
  /**
- * TODO: wrapper around Artifactory File Statistics REST API  
+ * TODO: wrapper around Artifactory File Statistics REST API
  * {
  *   "uri": "http://localhost:8080/artifactory/api/storage/libs-release-local/org/acme/foo/1.0/foo-1.0.jar",
  *   "lastDownloaded": Timestamp (ms),
@@ -40,17 +40,17 @@ def Artifactory(config) {
  def fstat_entries() {
    // TODO
  }
-  
-  
-// TODO refactor 
+
+
+// TODO refactor
 def my_delete_entries()  {
-  // read the Artifactory urls of the resources scheduled for deletion from csv file 
+  // read the Artifactory urls of the resources scheduled for deletion from csv file
   new File('a.csv').eachLine { line ->
-  def (created, symbol, count, path, uri) = line.tokenize( '|' )
-  if (symbol =~ /\*/){
-     println( sprintf('Removing "%s"' , path ))
-     removeItem2(path)
-  }
+    def (created, symbol, count, path, uri) = line.tokenize( '|' )
+    if (symbol =~ /\*/){
+       println( sprintf('Removing "%s"' , path ))
+       removeItem2(path)
+    }
   }
 }
  /**
@@ -63,11 +63,11 @@ def print_entries() {
 	Integer last_count = this.artifactory_entries.size.toInteger()
 	last_count -= config.keep_builds.toInteger()
     def data = []
-	// NOTE: whitespace-sensitive 
+	// NOTE: whitespace-sensitive
 	artifactory_entries.sort {
 		a, b -> a.created <=> b.created
 	}.each {
-		// only count the jars -  will delete full path 
+		// only count the jars -  will delete full path
 		def symbol = (count < last_count) ? '*' : ' '
 		data <<= sprintf('%s|%s|%s|%s|%s', it.created, symbol, count, it.path, it.uri)
 		count++
@@ -95,10 +95,10 @@ def printRepositories() {
 	server = obtainServerConnection()
   } catch (all){
     printErr "FATAL: no server connection"
-    throw new Exception() 
+    throw new Exception()
   }
 
-  def rootpath = config.rootpath 
+  def rootpath = config.rootpath
 
 	def resp = server.get(path: rootpath)
 	if (resp.status != 200) {
@@ -107,12 +107,12 @@ def printRepositories() {
 	}
 	JSON json = resp.data
 	json.each {
-      applications << it.key 
+      applications << it.key
       printErr(sprintf("key : %s\r\ntype :%s\r\ndescription :%s\r\nurl :%s\r\n", it.key, it.type , it.description, it.url ))
 	}
 }
-  
-  
+
+
   /**
 * Return information about the provided path for the configured artifactory and server.
 *
@@ -133,7 +133,7 @@ def JSON folderInfo(path) {
 	}
 	return resp.data
 }
-  
+
 /**
 * http://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API
 *
@@ -148,7 +148,7 @@ def JSON fileInfo(path) {
 	def server = obtainServerConnection()
     /*
        Caught: org.codehaus.groovy.runtime.typehandling.GroovyCastException: Cannot cast object 'java.io.ByteArrayInputStream@19e09a4' with class 'java.io.ByteArrayInputStream' to class 'net.sf.json.JSON'
-    */ 
+    */
 	def resp = server.get(path: query)
 	if (resp.status != 200) {
 		printErr "ERROR: problem obtaining folder info: " + resp.status
@@ -156,24 +156,24 @@ def JSON fileInfo(path) {
 		System.exit(-1)
 	}
 
-    // println(groovy.json.JsonOutput.prettyPrint(resp.data.toString()))  
+    // println(groovy.json.JsonOutput.prettyPrint(resp.data.toString()))
 	return resp.data
 }
-  
+
   def exploredFolders(String path){
   	JSON json = folderInfo(path)
     printErr json
 	json.children.each {
 		child ->
-        
+
 		if ( child.folder.toBoolean() ) {
           applications << path + child.uri
-          
+
         }
     }
 
   }
-  
+
 def findFolders(String target_folder_name, String path, Integer browse_level) {
 	def result
 	if (browse_level > config.browse_max_level ) {
@@ -182,23 +182,23 @@ def findFolders(String target_folder_name, String path, Integer browse_level) {
 	}
 	// TODO: terminator
 	if (path =~ /\b${target_folder_name}\b/  ) {
-      result = path 
-      browse_level = config.browse_max_level + 1 
-      findfolder_result = result 
+      result = path
+      browse_level = config.browse_max_level + 1
+      findfolder_result = result
       printErr ('set findfolder_result to ' + findfolder_result )
       return
     }
 
 	JSON json = folderInfo(path)
-    
+
 	json.children.each {
 		child ->
-        
+
 		if ( child.folder.toBoolean() ) {
-          return findFolders(target_folder_name, path + child.uri, browse_level + 1) 
+          return findFolders(target_folder_name, path + child.uri, browse_level + 1)
         }
     }
-    
+
 }
 /**
 * Recursively removes all folders containing builds that start with the configured paths.
@@ -206,38 +206,38 @@ def findFolders(String target_folder_name, String path, Integer browse_level) {
 * @param path String containing the folder to check and use the childs to recursively check as well.
 * @return Number with the amount of folders that were removed.
 */
-  
+
 def cleanArtifactsRecursive(path) {
     // TODO : browse_max_level too?
 	def deleteCounter = 0
 	JSON json = folderInfo(path)
-    
+
 	json.children.each {
 		child ->
         def child_is_folder = child.folder.toBoolean()
 		if ( child_is_folder   == true ) {
            assert child_is_folder
 			if (isBuildFolder(child)) {
-				// build folder logic 
+				// build folder logic
 				config.versionsToRemove.each {
-					toRemove -> 
+					toRemove ->
 					if (child.uri.startsWith(toRemove)) {
 						removeItem(path, child)
 						deleteCounter++
 					}
 				}
 			} else {
-                // confinue recursing 
+                // confinue recursing
 				if (!child.uri.contains("ro-scripts")) {
 					deleteCounter += cleanArtifactsRecursive(path + child.uri)
 				}
-           
+
 			}
         } else {
           // file
           try {
             JSON fileinfo_json = fileInfo(path + child.uri)
-            
+
             def artifact_entry = ['path' : fileinfo_json.path,'repo' : fileinfo_json.repo, 'uri' : fileinfo_json.uri, 'created' : fileinfo_json.created ]
             artifactory_entries.push ( artifact_entry )
           } catch(all){}
@@ -246,7 +246,7 @@ def cleanArtifactsRecursive(path) {
 	}
 	return deleteCounter
 }
-  
+
 private RESTClient obtainServerConnection() {
 	def server = new RESTClient(config.server)
 	server.auth.basic config.user, config.password
@@ -262,13 +262,13 @@ private RESTClient obtainServerConnection() {
 	'application/json'
 	return server
 }
-  
-// http://codebeautify.org/javaviewer 
+
+// http://codebeautify.org/javaviewer
 private def isBuildFolder(child) {
 	child.uri.contains("-build-")
 }
-  
-  
+
+
 
 private def removeItem2(path) {
 	if (config.powerless.toBoolean()) {
@@ -290,10 +290,10 @@ private def removeItem2(path) {
 					throw (e)
 				}
 			}
-			/* 
+			/*
 			catch(Exception e) {
 			     println( e.getClass())
-			} 
+			}
 			*/
 			finally {
 				// TODO
@@ -301,9 +301,9 @@ private def removeItem2(path) {
 		}
 	}
 }
-  
-// TODO - refactor 
-  
+
+// TODO - refactor
+
 private def removeItem(path, child) {
 	if (config.powerles) {
 		println "folder: " + path + child.uri + " DELETE"
@@ -319,7 +319,7 @@ private def removeItem(path, child) {
 		}
 	}
 }
-  
+
 
 }
 
@@ -327,7 +327,7 @@ private def removeItem(path, child) {
 @Field std_env = System.getenv()
 
 if (std_env['JOB_DEBUG'].toBoolean()){
-  println 'Run in debug mode: JOB_DEBUG = true'  
+  println 'Run in debug mode: JOB_DEBUG = true'
 }
 
 
@@ -360,7 +360,7 @@ all_env <<= std_env
 // Lock to Windows OS, just for fun
 assert all_env.containsKey('USERPROFILE')
 
-// assert all required parameters are present 
+// assert all required parameters are present
 required_params.each {
 	setting -> assert all_env.containsKey(setting)
 
@@ -389,39 +389,39 @@ if (std_env['JOB_DEBUG'].toBoolean()) {
 	 powerless: all_env['POWERLESS']
   ]
 
- // TODO: 
+ // TODO:
  println 'Started.'
  def artifactory = new Artifactory(config)
 /*
 // this is wrong level
 if ( std_env['LIST_APPLICATIONS_ROOTFOLDERS'].toBoolean() || std_env['ITERATE_ALL'].toBoolean()) {
-   artifactory.applications = [] 
-   artifactory.printRepositories() 
+   artifactory.applications = []
+   artifactory.printRepositories()
   if ( std_env['LIST_APPLICATIONS_ROOTFOLDERS'].toBoolean()){
-    // possibly some other code 
+    // possibly some other code
     return
       } else {
     artifactory.applications.each {
       start_folder->
         println start_folder
     }
-    
+
     return
   }
 }
-  
+
 */
- 
+
  if (std_env['ITERATE_ALL'].toBoolean()) {
-   
-   artifactory.applications = [] 
+
+   artifactory.applications = []
    artifactory.exploredFolders(config.rootfolder)
-   
+
     artifactory.applications.each {
       start_folder->
         println start_folder
     }
-   
+
     return
   }
 

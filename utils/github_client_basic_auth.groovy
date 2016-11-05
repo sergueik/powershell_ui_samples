@@ -4,18 +4,17 @@ package gihubclient
 import groovy.grape.Grape
 @Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7')
 
-// if an error java.lang.RuntimeException: Error grabbing Grapes -- [download failed - 
-// review versions, possibly, recycle ~/.groovy/grapes and retry 
-// In the past, alternative to using grape was put into $GROOVY_HOME/lib the http-builder and dependency jars from  
+// if an error java.lang.RuntimeException: Error grabbing Grapes -- [download failed -
+// review versions, possibly, recycle ~/.groovy/grapes and retry
+// alternatively, one may let maven download the necesswary jars e.g.
+// https://mvnrepository.com/artifact/org.codehaus.groovy.modules.http-builder/http-builder/0.5.0-RC2
+// using a dummy project pom.xml and copy the jar file from .m2 into the groovy environment
+// In the past, alternative to using grape was put into $GROOVY_HOME/lib the http-builder and dependency jars from
 // http://snapshots.repository.codehaus.org/org/codehaus/groovy/modules/htxtp-builder/http-builder/0.5.2-SNAPSHOT/
 // however since codehaus.org has been effectively shut down as an artifact repository,
 // https://support.sonatype.com/hc/en-us/articles/217611787-codehaus-org-Repositories-Should-Be-Removed-From-Your-Nexus-Instance
-// also, one may let maven download the necesswary jars using a dummy project pom.xml
-// and copy them the files into groovy environment 
 
 import groovyx.net.http.*
-// import groovyx.net.http.RESTClient
-//import groovyx.net.http.HttpResponseException;
 import groovyx.net.http.ContentType.*
 import groovyx.net.http.Method.*
 import net.sf.json.*
@@ -23,7 +22,7 @@ import groovy.text.SimpleTemplateEngine
 import groovy.json.JsonOutput
 import groovy.transform.Field
 
-// origin https://gist.githubusercontent.com/kyleboon/5705380/raw/51b6a2ed1f0ff55b0ae7fc33e51ec061733cd6f1/GithubClient.groovy
+// origin: https://gist.githubusercontent.com/kyleboon/5705380/raw/51b6a2ed1f0ff55b0ae7fc33e51ec061733cd6f1/GithubClient.groovy
 public class GithubClient {
 
   def printErr = System.err.&println
@@ -40,7 +39,7 @@ public class GithubClient {
     this.owner = config.user
     this.repository = config.repository
 	}
-      
+
   String fetchFileContents(String filePath) {
 		request("${repoUrl}contents/${filePath}").content.decodeBase64()
 	}
