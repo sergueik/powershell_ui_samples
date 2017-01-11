@@ -27,78 +27,9 @@ param(
 
 Set-StrictMode -Version 2
 
-$shared_assemblies = @{
-  'nunit.core.dll' = $null;
-  'nunit.framework.dll' = $null;
-  'Growl.Connector.dll' = $null;
-	'Growl.CoreLibrary.dll'  = $null;
-}
+$appPath = Get-ItemProperty -Path 'HKCU:\Software\Growl' -Name '(default)' | Select-Object -ExpandProperty '(default)'
 
-
-if (($env:SHARED_ASSEMBLIES_PATH -ne $null) -and ($env:SHARED_ASSEMBLIES_PATH -ne '')) {
-  $shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
-} else {
-  $shared_assemblies_path = 'c:\developer\sergueik\csharp\SharedAssemblies'
-}
-
-pushd $shared_assemblies_path
-$shared_assemblies.Keys | ForEach-Object {
-  # http://all-things-pure.blogspot.com/2009/09/assembly-version-file-version-product.html
-  $assembly = $_
-  $assembly_path = [System.IO.Path]::Combine($shared_assemblies_path,$assembly)
-  $assembly_version = [Reflection.AssemblyName]::GetAssemblyName($assembly_path).Version
-  $assembly_version_string = ('{0}.{1}' -f $assembly_version.Major,$assembly_version.Minor)
-  # reg add hklm\software\microsoft\.netframework /v OnlyUseLatestCLR /t REG_DWORD /d 1
-  # reg add hklm\software\wow6432node\microsoft\.netframework /v OnlyUseLatestCLR /t REG_DWORD /d 1
-  if ($shared_assemblies[$assembly] -ne $null) {
-    if (-not ($shared_assemblies[$assembly] -match $assembly_version_string)) {
-      Write-Output ('Need {0} {1}, got {2}' -f $assembly,$shared_assemblies[$assembly],$assembly_path)
-      Write-Output $assembly_version
-      throw ('invalid version :{0}' -f $assembly)
-    }
-  }
-
-  if ($host.Version.Major -gt 2) {
-    Unblock-File -Path $_;
-  }
-  Write-Debug $_
-  [Reflection.Assembly]::LoadFrom($assembly_path) | Out-Null
-  Add-Type -Path $_
-}
-popd
-
-Add-Type -TypeDefinition @"
-
-using System.Collections.Generic;
-using System.Text;
-using Growl.Connector;
-using System;
-
-public class Test
-{
-	private GrowlConnector growl;
-	private NotificationType notificationType;
-	private Growl.Connector.Application application;
-	private string sampleNotificationType = "SAMPLE_NOTIFICATION";
-  private string Text;
-
-	public void Run()
-	{
-		this.growl = new GrowlConnector();
-		this.Text = "Notification Test";
-		application = new Growl.Connector.Application("Application Name");
-		this.notificationType = new NotificationType(sampleNotificationType, "Sample Notification");
-		Notification notification = new Notification(this.application.Name, this.notificationType.Name, DateTime.Now.Ticks.ToString(), this.Text, this.Text);
-		CallbackContext callbackContext = new CallbackContext("some fake information", "fake data");
-
-		this.growl.Notify(notification, callbackContext);
-	}
-}
-"@ -ReferencedAssemblies @( 'System.dll','System.Security.dll','System.Core.dll',([System.IO.Path]::Combine($shared_assemblies_path,'Growl.Connector.dll')),([System.IO.Path]::Combine($shared_assemblies_path,'Growl.CoreLibrary.dll')))
-
-$appPath = get-ItemProperty -path 'HKCU:\Software\Growl' -name '(default)' |select-object -expandproperty '(default)'
-
-[Reflection.Assembly]::LoadFrom([System.IO.Path]::Combine((split-path -path $appPath -Parent),'Growl.Connector.dll')) | Out-Null
+[Reflection.Assembly]::LoadFrom([System.IO.Path]::Combine((Split-Path -Path $appPath -Parent),'Growl.Connector.dll')) | Out-Null
 
 $script:appName = 'PowerGrowler'
 
@@ -112,34 +43,34 @@ function Register-GrowlType {
   param(
     [string]$AppName,
     [string]$Name,
-	  [Parameter(Mandatory = $false)]
-		# [ValidateScript( {($Icon -eq $null ) -or (test-path -path $Icon) } )]
+    [Parameter(Mandatory = $false)]
+    # [ValidateScript( {($Icon -eq $null ) -or (test-path -path $Icon) } )]
     [string]$Icon = $null,
     [string]$DisplayName = $Name,
     [string]$MachineName,
-	  [Parameter(Mandatory = $true)]
-		# [ValidateScript( {($AppIcon -eq $null ) -or (test-path -path $AppIcon) } )]
+    [Parameter(Mandatory = $true)]
+    # [ValidateScript( {($AppIcon -eq $null ) -or (test-path -path $AppIcon) } )]
     [string]$AppIcon
   )
 
-  [Growl.Connector.NotificationType]$Notice = $Name
+  [Growl.Connector.NotificationType]$Notice = New-Object Growl.Connector.NotificationType ($Name,$true)
   $Notice.DisplayName = $DisplayName
-	if ($icon) {
+  if ($icon) {
     $Notice.Icon = Convert-Path (Resolve-Path $Icon)
   }
   if ($MachineName) {
     $Notice.MachineName = $MachineName
   }
   if (!$global:PowerGrowlerNotices.Contains($AppName)) {
-    $global:PowerGrowlerNotices.Add($AppName,([Growl.Connector.Application]$AppName))
+    $global:PowerGrowlerNotices.Add($AppName,(New-Object Growl.Connector.Application ($AppName)))
 
     $global:PowerGrowlerNotices.$AppName = Add-Member -input $global:PowerGrowlerNotices.$AppName -Name Notices -Type NoteProperty -Value (New-Object hashtable) -PassThru
     $global:PowerGrowlerNotices.$AppName.Icon = Convert-Path (Resolve-Path $AppIcon)
   }
-  if ($global:PowerGrowlerNotices.$AppName.Notices.ContainsKey($Name)){
+  if ($global:PowerGrowlerNotices.$AppName.Notices.ContainsKey($Name)) {
     $global:PowerGrowlerNotices.$AppName.Notices.Add($Name,$Notice)
   }
-	
+
   $script:PowerGrowler.Register($global:PowerGrowlerNotices.$AppName,[Growl.Connector.NotificationType[]]@( $global:PowerGrowlerNotices.$AppName.Notices.Values))
 }
 
@@ -164,6 +95,7 @@ function Register-GrowlCallback {
   )
   Register-ObjectEvent $script:PowerGrowler NotificationCallback -Action $Handler
 }
+
 function Send-Growl {
   [CmdletBinding(DefaultParameterSetName = 'DataCallback')]
   param(
@@ -188,21 +120,25 @@ function Send-Growl {
   if ($Icon) { $notice.Icon = Convert-Path (Resolve-Path $Icon) }
   if ($Priority) { $notice.Priority = $Priority }
 
-  if ($DebugPreference -gt "SilentlyContinue") { Write-Output $notice }
+  if ($DebugPreference -gt 'SilentlyContinue') { Write-Output $notice }
   if ($Url) {
-	# does not seem to work correctly
-  # if (Test-Path Variable:Local:Url) {
     $context = New-Object Growl.Connector.CallbackContext
-    ## These two things aren't used? Probably shouldn't so all this work :)
-    $context.Data = $(if (Test-Path Variable:Local:CallbackData) { $CallbackData } else { $Url.ToString() })
-    $context.Type = $(if (Test-Path Variable:Local:CallbackType) { $CallbackType } else { "$NoticeType+Url" })
+    if ($CallbackData) {
+      $context.Data = $CallbackData
+    } else {
+      $context.Data = $Url.ToString()
+    }
+    if ($CallbackType) {
+      $context.Type = $CallbackType
+    } else {
+      $context.Type = "$NoticeType+Url"
+    }
     $urlCb = New-Object Growl.Connector.UrlCallbackTarget
     Write-Host $Url -Fore Cyan
     $urlCb.Url = $Url
     $context.SetUrlCallbackTarget($urlcb)
     $script:PowerGrowler.Notify($notice,$context)
-		} elseif (($CallbackData ) -and ($CallbackType)) {
-    # } elseif ((Test-Path Variable:Local:CallbackData) -and (Test-Path Variable:Local:CallbackType)) {
+  } elseif (($CallbackData) -and ($CallbackType)) {
     $context = New-Object Growl.Connector.CallbackContext
     $context.Data = $CallbackData
     $context.Type = $CallbackType
