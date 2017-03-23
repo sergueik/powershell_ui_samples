@@ -14,7 +14,6 @@ if /i "%IS_ECHO%" == "on." echo ON
 @goto :eof
 */
 
-
 import System;
 import System.Collections;
 import System.Collections.Generic;
@@ -49,27 +48,27 @@ class ParameterEcho  {
 
     protected var _Param : String;
 
- function get Param() : String  {  return this._Param ; }  
+ function get Param() : String  {  return this._Param ; }
           function set Param(s : String) {   this._Param  = s ; }
 
   function  get Result ( ) : String {return this._Param ;}
 
-    public function Execute() : System.Boolean { 
+    public function Execute() : System.Boolean {
           Console.WriteLine("\"{0}\"",  this._Param );
           // parameter handling stub.
           return( true );
-        }    
+        }
    }
 
      public class MyTask extends Task {
-           
+
               private var  _Servers : Hashtable = new Hashtable(5);
               private var  _Param : String = String.Empty;
 
               function get Param() : String   { return this._Param; }
               function  set Param (value: String)  { this._Param = value; }
-     
-              public function Execute() : System.Boolean  { 
+
+              public function Execute() : System.Boolean  {
               /* In clean and slow C# there isn't any syntactic hashtable constructor?  */
               _Servers .Add("h", "CHPLANB");
               _Servers .Add("o", "FTLPLANB02");
@@ -84,14 +83,14 @@ class ParameterEcho  {
                    var _Server : String =  String.Empty;
                    var _Letter : String =  String.Empty;
                    for ( var i :  int = 0; i < m.Count; i++ ){
-                          _Number  = m[i].Groups[1].Value.ToString(); 
-                          _Letter = m[i].Groups[2].Value.ToString().ToLower(); 
+                          _Number  = m[i].Groups[1].Value.ToString();
+                          _Letter = m[i].Groups[2].Value.ToString().ToLower();
                           try {
                               _Server = _Servers [_Letter].ToString();
                           }   catch (e) {Debug.Assert(e != null);
                               _Server = "FTLPLANB";
                      }
-                  
+
                   var  doc : XPathDocument = new XPathDocument(new XmlTextReader(
                   "http://" + _Server + "/planb1.2/rssjobs.pl?"+ _Number ));
 
@@ -103,27 +102,27 @@ class ParameterEcho  {
                       var itemNav : XPathNavigator = iter.Current;
 
                       var itemIter : XPathNodeIterator = itemNav.SelectChildren(XPathNodeType.Element);
-                
+
                       while (itemIter.MoveNext()){
                        if (itemIter.Current.Name.ToUpper() == "TITLE") {
                        Console.WriteLine("Job: {0} {1}", _Number,  itemIter.Current.Value);}
                       }
 
-                  } 
+                  }
 
              }
 
-            } 
+            }
          else { /* no matches */
-             return; 
+             return;
          }
         }
     }
 }
 
-/* 
+/*
 
-QUERYRSS.CMD IS LIKE QUERYJOB -C 
+QUERYRSS.CMD IS LIKE QUERYJOB -C
 
 
 Every Job status is written by Planb 1.2 /1.4  in a xml.
@@ -133,7 +132,7 @@ Plabn B monitor uses it.
 
 QUERYRSS.CMD is a stripped down command line version of PlanB monitor, with a familiar syntax.
 
-It features: 
+It features:
 
 Speed:
 
@@ -156,16 +155,16 @@ Job: 516 "CPSSDK Ohio retail (job 516)" at 136511#109612#132350#33669 Finished -
 Job: 532 "ACM Pinehurst for Ohio (job 532)" at 136524#64141#39228 Finished - SUCCESS
 
 
-Reliability: 
+Reliability:
 
 >queryrss 922o
 
 Job: 922 "Win64/X64 Client 900 K2 Retail (job 922)" at 110404#32903#34153#83293 Finished - FAILURE
 
->queryjob 922o -c 
+>queryjob 922o -c
 Job: 922 (Win64/X64 Client 900 K2 Retail) currently red at 110404#32903#34153#83293
 
-Simplicity:  <100 lines 
+Simplicity:  <100 lines
 
 It lacks:  one "detail"  Client View   : ftlbld024p1-mps-ohio_build-x64-retail
 */

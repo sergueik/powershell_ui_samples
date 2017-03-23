@@ -11,7 +11,7 @@ REM Everett.
 set ORIGINAL_PATH=%PATH%
 PATH=%PATH%;%SYSTEMROOT%\Microsoft.NET\Framework\v1.1.4322
 PATH=%ORIGINAL_PATH%
-REM Whidbey 
+REM Whidbey
 set ORIGINAL_PATH=%PATH%
 PATH=%PATH%;%SYSTEMROOT%\Microsoft.NET\Framework\v2.0.50727
 REM if %1. == . goto :USAGE
