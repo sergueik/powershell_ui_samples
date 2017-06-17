@@ -19,6 +19,7 @@
 #THE SOFTWARE.
 
 # May want to use 
+# https://github.com/scottmuc/PowerYaml
 # https://github.com/scottmuc/PowerYaml/blob/master/Functions/YamlDotNet-Integration.ps1
 # https://www.simple-talk.com/sysadmin/powershell/getting-data-into-and-out-of--powershell-objects/
 # ConvertTo-YAML, ConvertTo-PSON in Powershell
