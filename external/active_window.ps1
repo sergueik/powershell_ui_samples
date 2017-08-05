@@ -37,6 +37,78 @@ Class mBox
 End Class
 '@
 )
+<#
+# additional snippets / alternative
+$script = @'
+Imports System.Windows.Forms
+Imports System.Drawing
+Imports System.Runtime.InteropServices
+ 
+Public Class Saver
+ 
+ 
+    Public Declare Auto Function GetWindowRect Lib "user32.dll" (hwnd As IntPtr, ByRef rectangle As Rect) As Boolean
+    <DllImport("user32.dll", SetLastError:=True)>
+    Private Shared Function GetActiveWindow() As IntPtr
+    End Function
+    Public Sub Save(path As String)
+ 
+        Dim winrect As Rect
+        GetWindowRect(GetActiveWindow, winrect)
+        Dim bm As New Bitmap(winrect.Right - winrect.Left, winrect.Bottom - winrect.Top)
+        Dim g As Graphics = Graphics.FromImage(bm)
+        g.CopyFromScreen(New Point(winrect.Left, winrect.Top), New Point(0, 0), bm.Size)
+        bm.Save(path, Imaging.ImageFormat.Png)
+        g.Dispose()
+        bm.Dispose()
+    End Sub
+ 
+    Public Structure Rect
+        Public Property Left As Integer
+        Public Property Top As Integer
+        Public Property Right As Integer
+        Public Property Bottom As Integer
+ 
+    End Structure
+End Class
+"@
+
+$type=@"
+using System;
+using System.Net;
+using System.Runtime.InteropServices;
+ 
+public class WIN32
+{
+        
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
+    
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    public static extern bool GetWindowRect(IntPtr hwnd, ref RECT rectangle);
+    
+    [DllImport("user32.dll")]
+    public static extern bool PrintWindow(IntPtr hWnd, IntPtr hdcBlt, int nFlags);
+    
+}
+ 
+ public struct RECT
+{
+    public int Left; // x position of upper-left corner
+    public int Top; // y position of upper-left corner
+    public int Right; // x position of lower-right corner
+    public int Bottom; // y position of lower-right corner
+}
+ 
+"@
+ 
+Add-Type $type
+add-type -AssemblyName system.drawing
+$handle=[WIN32]::GetForegroundWindow()
+$RECT= New-Object RECT
+[WIN32]::GetWindowRect($handle,[ref]$RECT)|Out-Null
+
+#>
 $mAssembly = $results.CompiledAssembly
 $mAssembly.CreateInstance('mBox').main()
 
