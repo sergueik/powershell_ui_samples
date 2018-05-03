@@ -1,4 +1,6 @@
+
 # https://github.com/aaubry/YamlDotNet
+# see also https://www.codeproject.com/Articles/28720/YAML-Parser-in-C
 # https://github.com/scottmuc/PowerYaml
 function load_shared_assemblies {
 
@@ -131,21 +133,46 @@ $landing_pages = @{
 }
 
 $reverse_result = @{}
+# only collect what we can process
+$match_exporession = ('(?:{0})' -f ([String]::join('|', ($short_names.keys | foreach-object { $_ = $_ -replace '\-', '\-'; write-output $_ ;} ))))
+$environments = @{}
+$branch_names = @{}
+$datacenters = @{}
+$roles = @{}
 $result.keys | foreach-object {
  
   $hostname = $_;
   if ($result[$hostname]['consul_node_name'] -ne $null) {
-    if ($result[$hostname]['consul_node_name'] -match '(?:identity|discovery|publisher|store|manager)') {
-      $node_name = $short_names[$result[$hostname]['consul_node_name']]
-      $key = ('{0}|{1}|{2}|{3}' -f $result[$hostname]['environment'], $result[$hostname]['branch_name'], $result[$hostname]['consul_node_name'], $result[$hostname]['datacenter']);
-      # $key
-      $protocol = $protocols[$node_name] 
-      $landing_page = $landing_pages[$node_name] 
-      $port = $ports[$node_name] 
-      
-      $reverse_result[$key] = ('{0}://{1}:{2}/{3}'-f $protocol, $hostname,$port,$landing_page) 
+    if ($result[$hostname]['consul_node_name'] -match $match_exporession ) {
+      $node_name = $result[$hostname]['consul_node_name']
+      $short_node_name = $short_names[$result[$hostname]['consul_node_name']]
+      $environment = $result[$hostname]['environment']
+      $datacenter = $result[$hostname]['datacenter']
+      $branch_name = $result[$hostname]['branch_name']
+      $key = ('{0}|{1}|{2}|{3}' -f $environment, $branch_name, $result[$hostname]['consul_node_name'], $datacnter );
+      try { 
+        $protocol = $protocols[$short_node_name] 
+        $landing_page = $landing_pages[$short_node_name] 
+        $port = $ports[$short_node_name]  
+        $reverse_result[$key] = ('{0}://{1}:{2}/{3}'-f $protocol, $hostname,$port,$landing_page)       
+        $roles[$node_name] = 1 
+      } catch [Exception] { 
+        write-output ('Failed to process "{0}"|"{1}"' -f $node_name, $short_node_name)
+      }
+        $environments[$environment] = 1
+        $datacenters[$datacenter] = 1 
+        $branch_names[$branch_name] = 1
     }
   }
 }
+write-output 'Results for lookup:'
+$reverse_result | format-list
 
-$reverse_result | format-table
+write-output 'Datacenters:'
+$datacenters.keys | format-list
+
+write-output 'Environments:'
+$environments.keys | format-table
+
+write-output 'Roles:'
+$roles.keys | format-table
