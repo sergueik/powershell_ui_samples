@@ -1,4 +1,4 @@
-`#Copyright (c) 2018 Serguei Kouzmine
+#Copyright (c) 2018 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the 'Software'), to deal
@@ -74,8 +74,10 @@ function ComboInputBox {
     }
   }
   $script:result = @{ 'text' = ''; 'status' = $null; }
-  $script:result.status = [System.Windows.Forms.DialogResult]::None;
+  $script:result.status = [System.Windows.Forms.DialogResult]::None
 
+  $script:browser = 'chrome.exe'
+  # $script:browser = 'firefox.exe'
   $script:launch_browser = $false
   $form = New-Object System.Windows.Forms.Form
   $label_prompt = New-Object System.Windows.Forms.Label
@@ -84,19 +86,19 @@ function ComboInputBox {
   $eCombobox = New-Object System.Windows.Forms.ComboBox
   $dcCombobox = New-Object System.Windows.Forms.ComboBox
   $rCombobox = New-Object System.Windows.Forms.ComboBox
-  
-  
+
+
   $checkBox1 = New-Object System.Windows.Forms.CheckBox
-  # checkBox1   
+  # checkBox1
   $checkBox1.Location = New-Object System.Drawing.Point (12,28)
   $checkBox1.Name = 'checkBox1'
   $checkBox1.TabIndex = 1
   $checkBox1.Text = 'launch browser'
-  $checkBox1.add_click( { 
-    if ($checkBox1.Checked -eq $true) { 
-      $script:launch_browser = $true 
-    } else { 
-      $script:launch_browser = $false 
+  $checkBox1.add_click( {
+    if ($checkBox1.Checked -eq $true) {
+      $script:launch_browser = $true
+    } else {
+      $script:launch_browser = $false
     }
     # write-host ('Toggle launch broswer {0}' -f $script:launch_browser )
   })
@@ -112,30 +114,34 @@ function ComboInputBox {
   $label_prompt.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,0)
   $okBtn.DialogResult = [System.Windows.Forms.DialogResult]::OK
   $okBtn.FlatStyle = [System.Windows.Forms.FlatStyle]::Standard
-  $okBtn.Location = New-Object System.Drawing.Point (326,8)
+  $okBtn.Location = New-Object System.Drawing.Point (366,8)
   $okBtn.Name = 'btnOK'
   $okBtn.Size = New-Object System.Drawing.Size (64,24)
   $okBtn.TabIndex = 1
-  $okBtn.Text = '&OK'
+  $okBtn.Text = 'L&aunch'
   $okBtn.Add_Click({
     param([object]$sender,[System.EventArgs]$e)
     $script:result.status = [System.Windows.Forms.DialogResult]::OK
     $environment = $eCombobox.Text
     $node_name = $rCombobox.Text
     $datacenter = $dcCombobox.Text
-    $key = ('{0}|{1}|{2}' -f $environment, $node_name, $datacnter );
+    $key = ('{0}|{1}|{2}' -f $environment, $node_name, $datacnter )
     $script:result.Text =$result[$key]
-    write-host $script:result.Text
-    if ($launch_browser) {     
-      if ($script:IE -eq $null) {
-        $script:IE = new-object -com 'internetexplorer.application'
-      }
+    write-host ( "Result: " + $script:result.Text )
+    if ($launch_browser) {
       # TODO: HTTP URL encode
       $target_url = ( "https://www.google.com/search?q={0}&oq={0}" -f $script:result.Text )
-      $script:IE.navigate2($target_url)
-      $script:IE.visible = $true
+      Start-Process 'firefox.exe' $target_url      
+      # The 'internetexplorer.application' COM object is not needed for the current task. may be useful for other
+      <# 
+        if ($script:IE -eq $null) {
+          $script:IE = new-object -com 'internetexplorer.application'
+        }
+        $script:IE.navigate2($target_url)
+        $script:IE.visible = $true
+      #>
+      # older, non-working version borrowed from the Powershell/ Windows Forms snippets that embedded WebBrowser
       <#
-        # non-working version borrowed from the snippets that embedded WebBrowser
         $browser = new-object System.Windows.Forms.WebBrowser
         write-host $browser
         // $browser.Dock = [System.Windows.Forms.DockStyle]::Fill
@@ -144,7 +150,7 @@ function ComboInputBox {
         $browser.Size = new-object System.Drawing.Size(600, 600)
         $browser.TabIndex = 0
         $target_url = 'https://www.google.com'
-        $browser.Navigate($target_url);
+        $browser.Navigate($target_url)
         $browser.visible = $true
       #>
     }
@@ -153,11 +159,11 @@ function ComboInputBox {
   $okBtn.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,0)
   $cclBtn.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
   $cclBtn.FlatStyle = [System.Windows.Forms.FlatStyle]::Standard
-  $cclBtn.Location = New-Object System.Drawing.Point (326,60)
+  $cclBtn.Location = New-Object System.Drawing.Point (366,60)
   $cclBtn.Name = 'btnCancel'
   $cclBtn.Size = New-Object System.Drawing.Size (64,24)
   $cclBtn.TabIndex = 2
-  $cclBtn.Text = '&Cancel'
+  $cclBtn.Text = 'C&lose'
   $cclBtn.Add_Click({
     param([object] $sender,[System.EventArgs] $e )
     $script:result.status = [System.Windows.Forms.DialogResult]::Cancel
@@ -214,7 +220,7 @@ function ComboInputBox {
 
   $rCombobox.Location = New-Object System.Drawing.Point (135,60)
   $rCombobox.Name = 'CmBxComboBox'
-  $rCombobox.Size = New-Object System.Drawing.Size (190,20)
+  $rCombobox.Size = New-Object System.Drawing.Size (220,20)
   $rCombobox.TabIndex = 0
   $rCombobox.Text = ''
   $rCombobox.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
@@ -233,7 +239,7 @@ function ComboInputBox {
   })
 
   $form.AutoScaleBaseSize = New-Object System.Drawing.Size (5,13)
-  $form.ClientSize = New-Object System.Drawing.Size (398,88)
+  $form.ClientSize = New-Object System.Drawing.Size (438,88)
   $form.Controls.AddRange(@( $eCombobox, $dcCombobox, $rCombobox, $cclBtn, $okBtn, $label_prompt, $checkBox1))
   $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
   $form.MaximizeBox = $false
@@ -311,23 +317,23 @@ function Get-ScriptDirectory
     $scriptDirectory = (Get-Variable PSScriptRoot).Value
     Write-Debug ('$PSScriptRoot: {0}' -f $scriptDirectory)
     if ($scriptDirectory -ne $null) {
-      return $scriptDirectory;
+      return $scriptDirectory
     }
     $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.PSCommandPath)
     Write-Debug ('$MyInvocation.PSCommandPath: {0}' -f $scriptDirectory)
     if ($scriptDirectory -ne $null) {
-      return $scriptDirectory;
+      return $scriptDirectory
     }
 
     $scriptDirectory = Split-Path -Parent $PSCommandPath
     Write-Debug ('$PSCommandPath: {0}' -f $scriptDirectory)
     if ($scriptDirectory -ne $null) {
-      return $scriptDirectory;
+      return $scriptDirectory
     }
   } else {
     $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
     if ($scriptDirectory -ne $null) {
-      return $scriptDirectory;
+      return $scriptDirectory
     }
     $Invocation = (Get-Variable MyInvocation -Scope 1).Value
     if ($Invocation.PSScriptRoot) {
@@ -360,7 +366,7 @@ $yaml_obj = $deserializer.Deserialize([System.IO.TextReader]$stringReader)
 # http://stackoverflow.com/questions/3740128/pscustomobject-to-hashtable
 $result = @{}
 $yaml_obj.Keys | foreach-object {
-  $hostname = $_;
+  $hostname = $_
   $data = $yaml_obj[$_]
   $pscustom_obj = new-object -typeName 'PSObject' -Property $data
   # $pscustom_obj
