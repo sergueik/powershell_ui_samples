@@ -1,0 +1,42 @@
+{
+  "ad8c3125": {
+    "datacenter": "wec",
+    "consul_node_name": "service-discovery-server-0",
+    "branch_name": "cert",
+    "environment": "prod",
+    "unused1": null,
+    "unused2": null,
+    "unused3": null,
+    "unused4": null
+  },
+  "e530095c": {
+    "datacenter": "wec",
+    "consul_node_name": "service-discovery-server-1",
+    "branch_name": "cert",
+    "environment": "prod",
+    "unused1": null,
+    "unused2": null,
+    "unused3": null,
+    "unused4": null
+  },
+  "e577775c": {
+    "datacenter": "oxdc",
+    "consul_node_name": "apim-ap-manager-publisher-0",
+    "branch_name": "sand",
+    "environment": "test",
+    "unused1": null,
+    "unused2": null,
+    "unused3": null,
+    "unused4": null
+  },
+  "node_to_ignore": {
+    "datacenter": "wec",
+    "branch_name": "cert",
+    "environment": "prod",
+    "server_role": "internal",
+    "unused1": null,
+    "unused2": null,
+    "unused3": null,
+    "unused4": null
+  }
+}

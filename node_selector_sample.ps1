@@ -1,4 +1,4 @@
-#Copyright (c) 2018 Serguei Kouzmine
+`#Copyright (c) 2018 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the 'Software'), to deal
@@ -276,7 +276,7 @@ function ComboInputBox {
 
 $caller = New-Object Win32Window -ArgumentList ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
 
-### generate_patameters_json.ps1
+### generate_patameters_yaml.ps1
 
 # https://github.com/aaubry/YamlDotNet
 # see also https://www.codeproject.com/Articles/28720/YAML-Parser-in-C
@@ -365,11 +365,11 @@ $yaml_obj.Keys | foreach-object {
   $pscustom_obj = new-object -typeName 'PSObject' -Property $data
   # $pscustom_obj
   # Convert the PSCustomObject back to a hashtable
-  $hash2_obj = @{}
+  $data_hash_obj = @{}
   $pscustom_obj.psobject.properties | where-object { $_ -match '(?:datacenter|branch_name|consul_node_name|environment)' } | foreach-Object {
-    $hash2_obj[$_.Name] = $_.Value
+    $data_hash_obj[$_.Name] = $_.Value
   }
-  $result[$hostname] = $hash2_obj
+  $result[$hostname] = $data_hash_obj
 }
 
 
@@ -458,7 +458,7 @@ $environments.keys | format-table
 
 write-output 'Roles:'
 $roles.keys | format-table
-###
+###  end generate_patameters_yaml.ps1
 
 $script:IE = $null
 $prompt_message = 'Select or Enter the Env/DC/Role'
