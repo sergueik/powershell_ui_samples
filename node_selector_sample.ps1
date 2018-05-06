@@ -72,7 +72,7 @@ function ComboInputBox {
     for ($i = 0; $i -lt $comboBoxItems.Length; $i++) {
       $str = $comboBoxItems[$i]
       if ($str -ne $null) {
-        $comboBoxRef.Value.Items.Add($str)
+        $comboBoxRef.value.Items.Add($str)
       }
     }
   }
@@ -84,8 +84,12 @@ function ComboInputBox {
   $script:launch_browser = $false
   $form = New-Object System.Windows.Forms.Form
   $label_prompt = New-Object System.Windows.Forms.Label
-  $okBtn = New-Object System.Windows.Forms.Button
-  $cclBtn = New-Object System.Windows.Forms.Button
+  $projectBrowseButton = New-Object System.Windows.Forms.Button
+  $projectTextBox = New-Object System.Windows.Forms.TextBox
+
+
+  $launchButton = New-Object System.Windows.Forms.Button
+  $closeButton = New-Object System.Windows.Forms.Button
   $eCombobox = New-Object System.Windows.Forms.ComboBox
   $dcCombobox = New-Object System.Windows.Forms.ComboBox
   $rCombobox = New-Object System.Windows.Forms.ComboBox
@@ -97,14 +101,14 @@ function ComboInputBox {
   $checkBox1.Name = 'checkBox1'
   $checkBox1.TabIndex = 1
   $checkBox1.Text = 'launch browser'
-  $checkBox1.add_click( {
-    if ($checkBox1.Checked -eq $true) {
-      $script:launch_browser = $true
-    } else {
-      $script:launch_browser = $false
-    }
-    # write-host ('Toggle launch broswer {0}' -f $script:launch_browser )
-  })
+  $checkBox1.add_click({
+      if ($checkBox1.Checked -eq $true) {
+        $script:launch_browser = $true
+      } else {
+        $script:launch_browser = $false
+      }
+      # write-host ('Toggle launch broswer {0}' -f $script:launch_browser )
+    })
 
   $form.SuspendLayout()
   $label_prompt.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
@@ -115,36 +119,72 @@ function ComboInputBox {
   $label_prompt.Size = New-Object System.Drawing.Size (302,12)
   $label_prompt.TabIndex = 3
   $label_prompt.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,0)
-  $okBtn.DialogResult = [System.Windows.Forms.DialogResult]::OK
-  $okBtn.FlatStyle = [System.Windows.Forms.FlatStyle]::Standard
-  $okBtn.Location = New-Object System.Drawing.Point (366,8)
-  $okBtn.Name = 'btnOK'
-  $okBtn.Size = New-Object System.Drawing.Size (64,24)
-  $okBtn.TabIndex = 1
-  $okBtn.Text = 'L&aunch'
-  $okBtn.Add_Click({
-    param([object]$sender,[System.EventArgs]$e)
-    $script:result.status = [System.Windows.Forms.DialogResult]::OK
-    $environment = $eCombobox.Text
-    $node_name = $rCombobox.Text
-    $datacenter = $dcCombobox.Text
-    $key = ('{0}|{1}|{2}' -f $environment, $node_name, $datacnter )
-    $script:result.Text =$result[$key]
-    write-host ( "Result: " + $script:result.Text )
-    if ($launch_browser) {
-      # TODO: HTTP URL encode
-      $target_url = ( "https://www.google.com/search?q={0}&oq={0}" -f $script:result.Text )
-      Start-Process 'firefox.exe' $target_url      
-      # The 'internetexplorer.application' COM object is not needed for the current task. may be useful for other
-      <# 
+
+  $projectTextBox.Location = New-Object System.Drawing.Point (10,100)
+  $projectTextBox.Size = New-Object System.Drawing.Size (270,20)
+  $projectTextBox.Text = ''
+  $projectTextBox.Name = 'txtProject'
+  # http://blog.danskingdom.com/powershell-multi-line-input-box-dialog-open-file-dialog-folder-browser-dialog-input-box-and-message-box/
+
+  # Show an Open Folder Dialog and return the directory selected by the user.
+  function Read-FolderBrowserDialog ([string]$Message,[string]$InitialDirectory,[switch]$NoNewFolderButton)
+  {
+    $browseForFolderOptions = 0
+    if ($NoNewFolderButton) { $browseForFolderOptions += 512 }
+
+    $app = New-Object -ComObject Shell.Application
+    $folder = $app.BrowseForFolder(0,$Message,$browseForFolderOptions,$InitialDirectory)
+    if ($folder) { $selectedDirectory = $folder.Self.Path } else { $selectedDirectory = '' }
+    [System.Runtime.Interopservices.Marshal]::ReleaseComObject($app) > $null
+    return $selectedDirectory
+  }
+
+
+  $projectBrowseButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Standard
+  $projectBrowseButton.Location = New-Object System.Drawing.Point (290,100)
+  $projectBrowseButton.Name = 'browse'
+  $projectBrowseButton.Size = New-Object System.Drawing.Size (64,24)
+  $projectBrowseButton.TabIndex = 3
+  $projectBrowseButton.Text = 'B&owse'
+  $projectBrowseButton.add_click({
+      $selectedDirectory = Read-FolderBrowserDialog -Message 'select project directory' -initialDirectory $env:userprofile -noNewFolderButton
+      if ($selectedDirectory -ne $null) {
+        $projectTextBox.Text = $selectedDirectory
+      }
+      return $null
+    })
+
+
+  $launchButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
+  $launchButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Standard
+  $launchButton.Location = New-Object System.Drawing.Point (10,130)
+  $launchButton.Name = 'btnOK'
+  $launchButton.Size = New-Object System.Drawing.Size (64,24)
+  $launchButton.TabIndex = 1
+  $launchButton.Text = 'L&aunch'
+  $launchButton.add_click({
+      param([object]$sender,[System.EventArgs]$e)
+      $script:result.status = [System.Windows.Forms.DialogResult]::OK
+      $environment = $eCombobox.Text
+      $node_name = $rCombobox.Text
+      $datacenter = $dcCombobox.Text
+      $key = ('{0}|{1}|{2}' -f $environment,$node_name,$datacnter)
+      $script:result.Text = $result[$key]
+      Write-Host ("Result: " + $script:result.Text)
+      if ($launch_browser) {
+        # TODO: HTTP URL encode
+        $target_url = ("https://www.google.com/search?q={0}&oq={0}" -f $script:result.Text)
+        Start-Process 'firefox.exe' $target_url
+        # The 'internetexplorer.application' COM object is not needed for the current task. may be useful for other
+        <# 
         if ($script:IE -eq $null) {
           $script:IE = new-object -com 'internetexplorer.application'
         }
         $script:IE.navigate2($target_url)
         $script:IE.visible = $true
       #>
-      # older, non-working version borrowed from the Powershell/ Windows Forms snippets that embedded WebBrowser
-      <#
+        # older, non-working version borrowed from the Powershell/ Windows Forms snippets that embedded WebBrowser
+        <#
         $browser = new-object System.Windows.Forms.WebBrowser
         write-host $browser
         // $browser.Dock = [System.Windows.Forms.DockStyle]::Fill
@@ -156,24 +196,24 @@ function ComboInputBox {
         $browser.Navigate($target_url)
         $browser.visible = $true
       #>
-    }
-    return $null
-  })
-  $okBtn.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,0)
-  $cclBtn.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
-  $cclBtn.FlatStyle = [System.Windows.Forms.FlatStyle]::Standard
-  $cclBtn.Location = New-Object System.Drawing.Point (366,60)
-  $cclBtn.Name = 'btnCancel'
-  $cclBtn.Size = New-Object System.Drawing.Size (64,24)
-  $cclBtn.TabIndex = 2
-  $cclBtn.Text = 'C&lose'
-  $cclBtn.Add_Click({
-    param([object] $sender,[System.EventArgs] $e )
-    $script:result.status = [System.Windows.Forms.DialogResult]::Cancel
-    $script:result.Text = ''
-    $form.Dispose()
-  })
-  $cclBtn.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,0)
+      }
+      return $null
+    })
+  $launchButton.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,0)
+  $closeButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+  $closeButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Standard
+  $closeButton.Location = New-Object System.Drawing.Point (90,130)
+  $closeButton.Name = 'btnCancel'
+  $closeButton.Size = New-Object System.Drawing.Size (64,24)
+  $closeButton.TabIndex = 2
+  $closeButton.Text = 'C&lose'
+  $closeButton.add_click({
+      param([object]$sender,[System.EventArgs]$e)
+      $script:result.status = [System.Windows.Forms.DialogResult]::Cancel
+      $script:result.Text = ''
+      $form.Dispose()
+    })
+  $closeButton.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,0)
 
   $eCombobox.Location = New-Object System.Drawing.Point (8,60)
   $eCombobox.Name = 'CmBxComboBox'
@@ -182,21 +222,21 @@ function ComboInputBox {
   $eCombobox.Text = ''
   $eCombobox.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
   $eCombobox.Add_TextChanged({
-    param(
-      [object]$sender,[System.EventArgs]$e )
-    # no op
-  })
+      param(
+        [object]$sender,[System.EventArgs]$e)
+      # no op
+    })
 
   $eCombobox.Add_KeyPress({
-    param(
-      [object]$sender,[System.Windows.Forms.KeyPressEventArgs] $e )
-    # no op
-  })
+      param(
+        [object]$sender,[System.Windows.Forms.KeyPressEventArgs]$e)
+      # no op
+    })
   $eCombobox.Add_TextChanged({
-    param(
-      [object]$sender,[System.EventArgs] $e )
-    # no op
-  })
+      param(
+        [object]$sender,[System.EventArgs]$e)
+      # no op
+    })
 
   $dcCombobox.Location = New-Object System.Drawing.Point (75,60)
   $dcCombobox.Name = 'CmBxComboBox'
@@ -205,21 +245,21 @@ function ComboInputBox {
   $dcCombobox.Text = ''
   $dcCombobox.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
   $dcCombobox.Add_TextChanged({
-    param(
-      [object]$sender,[System.EventArgs]$e
-    )
-  })
+      param(
+        [object]$sender,[System.EventArgs]$e
+      )
+    })
 
   $dcCombobox.Add_KeyPress({
-    param(
-      [object]$sender,[System.Windows.Forms.KeyPressEventArgs]$e
-    )
-  })
+      param(
+        [object]$sender,[System.Windows.Forms.KeyPressEventArgs]$e
+      )
+    })
   $dcCombobox.Add_TextChanged({
-    param(
-      [object]$sender,[System.EventArgs]$e
-    )
-  })
+      param(
+        [object]$sender,[System.EventArgs]$e
+      )
+    })
 
   $rCombobox.Location = New-Object System.Drawing.Point (135,60)
   $rCombobox.Name = 'CmBxComboBox'
@@ -228,28 +268,28 @@ function ComboInputBox {
   $rCombobox.Text = ''
   $rCombobox.Font = New-Object System.Drawing.Font ('Arial',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
   $rCombobox.Add_TextChanged({
-    param([object]$sender,[System.EventArgs]$e)
-  })
+      param([object]$sender,[System.EventArgs]$e)
+    })
 
   $rCombobox.Add_KeyPress({
-    param(
-      [object]$sender,[System.Windows.Forms.KeyPressEventArgs]$e )
+      param(
+        [object]$sender,[System.Windows.Forms.KeyPressEventArgs]$e)
 
-  })
+    })
   $rCombobox.Add_TextChanged({
-    param(
-      [object]$sender,[System.EventArgs]$e )
-  })
+      param(
+        [object]$sender,[System.EventArgs]$e)
+    })
 
   $form.AutoScaleBaseSize = New-Object System.Drawing.Size (5,13)
-  $form.ClientSize = New-Object System.Drawing.Size (438,88)
-  $form.Controls.AddRange(@( $eCombobox, $dcCombobox, $rCombobox, $cclBtn, $okBtn, $label_prompt, $checkBox1))
+  $form.ClientSize = New-Object System.Drawing.Size (438,158)
+  $form.Controls.AddRange(@( $eCombobox,$dcCombobox,$rCombobox,$closeButton,$launchButton,$projectBrowseButton,$projectTextBox,$label_prompt,$checkBox1))
   $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
   $form.MaximizeBox = $false
   $form.MinimizeBox = $false
   $form.Name = 'ComboBoxDialog'
   $form.ResumeLayout($false)
-  $form.AcceptButton = $okBtn
+  $form.AcceptButton = $launchButton
   $script:result.status = [System.Windows.Forms.DialogResult]::Ignore
   $script:result.status = ''
   PopulateCombo -comboBoxItems $environments -comboBoxRef ([ref]$eCombobox)
@@ -268,13 +308,13 @@ function ComboInputBox {
 
   $form.Add_Shown({ $form.Activate() })
   $form.Add_Closing({
-    param(
-      [object]$sender, [System.ComponentModel.CancelEventArgs] $e
-    )
-    # prevent the Closing event from closing the form
-    # The 'Cancel' button will still do
-    $e.Cancel = $true
-  })
+      param(
+        [object]$sender,[System.ComponentModel.CancelEventArgs]$e
+      )
+      # prevent the Closing event from closing the form
+      # The 'Cancel' button will still do
+      $e.Cancel = $true
+    })
   [void]$form.ShowDialog($caller)
 
   $form.Dispose()
@@ -285,7 +325,7 @@ function ComboInputBox {
 
 $caller = New-Object Win32Window -ArgumentList ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
 
-if ($use_yaml_config)  { 
+if ($use_yaml_config) {
   ### generate_patameters_yaml.ps1
 
   # https://github.com/aaubry/YamlDotNet
@@ -304,7 +344,7 @@ if ($use_yaml_config)  {
 
     $shared_assemblies | ForEach-Object {
       Unblock-File -Path $_
-      Write-output $_
+      Write-Output $_
       Add-Type -Path $_
     }
     popd
@@ -318,7 +358,7 @@ if ($use_yaml_config)  {
     [string]$scriptDirectory = $null
 
     if ($host.Version.Major -gt 2) {
-      $scriptDirectory = (Get-Variable PSScriptRoot).Value
+      $scriptDirectory = (Get-Variable PSScriptRoot).value
       Write-Debug ('$PSScriptRoot: {0}' -f $scriptDirectory)
       if ($scriptDirectory -ne $null) {
         return $scriptDirectory
@@ -339,7 +379,7 @@ if ($use_yaml_config)  {
       if ($scriptDirectory -ne $null) {
         return $scriptDirectory
       }
-      $Invocation = (Get-Variable MyInvocation -Scope 1).Value
+      $Invocation = (Get-Variable MyInvocation -Scope 1).value
       if ($Invocation.PSScriptRoot) {
         $scriptDirectory = $Invocation.PSScriptRoot
       } elseif ($Invocation.MyCommand.Path) {
@@ -356,10 +396,10 @@ if ($use_yaml_config)  {
   $filename = 'environment.yaml'
   $data = (Get-Content -Path ([System.IO.Path]::Combine((Get-ScriptDirectory),$filename))) -join "`n"
 
-  write-debug $data
+  Write-Debug $data
   $stringReader = New-Object System.IO.StringReader ($data)
 
-  $deserializer = New-Object -TypeName 'YamlDotNet.Serialization.Deserializer' -ArgumentList $null, $null, $false
+  $deserializer = New-Object -TypeName 'YamlDotNet.Serialization.Deserializer' -ArgumentList $null,$null,$false
   $yaml_obj = $deserializer.Deserialize([System.IO.TextReader]$stringReader)
   # $yaml_obj | get-member
   # $yaml_obj.Keys |  format-list
@@ -369,15 +409,15 @@ if ($use_yaml_config)  {
 
   # http://stackoverflow.com/questions/3740128/pscustomobject-to-hashtable
   $result = @{}
-  $yaml_obj.Keys | foreach-object {
+  $yaml_obj.Keys | ForEach-Object {
     $hostname = $_
     $data = $yaml_obj[$_]
-    $pscustom_obj = new-object -typeName 'PSObject' -Property $data
+    $pscustom_obj = New-Object -TypeName 'PSObject' -Property $data
     # $pscustom_obj
     # Convert the PSCustomObject back to a hashtable
     $data_hash_obj = @{}
-    $pscustom_obj.psobject.properties | where-object { $_ -match '(?:datacenter|branch_name|consul_node_name|environment)' } | foreach-Object {
-      $data_hash_obj[$_.Name] = $_.Value
+    $pscustom_obj.psobject.properties | Where-Object { $_ -match '(?:datacenter|branch_name|consul_node_name|environment)' } | ForEach-Object {
+      $data_hash_obj[$_.Name] = $_.value
     }
     $result[$hostname] = $data_hash_obj
   }
@@ -385,107 +425,147 @@ if ($use_yaml_config)  {
   # TODO: list $data fragament
   # map exact names to short names
   $short_names = @{
-    'iam-identity-manager-initial'   = 'identity';
-    'apim-content-delivery-0'        = 'content';
-    'apim-api-manager-store-0'       = 'store';
-    'apim-api-manager-store-1'       = 'store';
-    'apim-ap-manager-publisher-0'    = 'publisher';
+    'iam-identity-manager-initial' = 'identity';
+    'apim-content-delivery-0' = 'content';
+    'apim-api-manager-store-0' = 'store';
+    'apim-api-manager-store-1' = 'store';
+    'apim-ap-manager-publisher-0' = 'publisher';
     'apim-api-manager-key-manager-0' = 'keymanager';
     'apim-api-manager-key-manager-1' = 'keymanager';
-    'service-discovery-server-0'     = 'discovery';
-    'service-discovery-server-1'     = 'discovery';
+    'service-discovery-server-0' = 'discovery';
+    'service-discovery-server-1' = 'discovery';
   }
   # TCP ports
   $ports = @{
-    'content'   = 8443;
-    'identity'  = 8443;
+    'content' = 8443;
+    'identity' = 8443;
     'discovery' = 8500;
     'publisher' = 9443;
-    'gateway'   = 9443;
+    'gateway' = 9443;
   }
   $protocols = @{
-    'identity'  = 'https';
+    'identity' = 'https';
     'discovery' = 'http';
     'publisher' = 'https';
-    'gateway'   = 'https';
+    'gateway' = 'https';
   }
   $landing_pages = @{
-    'identity'  =  '#';
+    'identity' = '#';
     'discovery' = 'ui';
     'publisher' = 'publisher';
-    'gateway'   = 'carbon';
+    'gateway' = 'carbon';
   }
 
   $reverse_result = @{}
   # only collect what we can process
-  $match_exporession = ('(?:{0})' -f ([String]::join('|', ($short_names.keys | foreach-object { $_ = $_ -replace '\-', '\-'; write-output $_ ;} ))))
+  $match_exporession = ('(?:{0})' -f ([string]::join('|',($short_names.Keys | ForEach-Object { $_ = $_ -replace '\-','\-'; Write-Output $_; }))))
 
   $environments = @{}
   $branch_names = @{}
   $datacenters = @{}
   $roles = @{}
 
-  $result.keys | foreach-object {
+  $result.Keys | ForEach-Object {
 
     $hostname = $_;
     if ($result[$hostname]['consul_node_name'] -ne $null) {
-      if ($result[$hostname]['consul_node_name'] -match $match_exporession ) {
+      if ($result[$hostname]['consul_node_name'] -match $match_exporession) {
         $node_name = $result[$hostname]['consul_node_name']
         $short_node_name = $short_names[$result[$hostname]['consul_node_name']]
         $environment = $result[$hostname]['environment']
         $datacenter = $result[$hostname]['datacenter']
         $branch_name = $result[$hostname]['branch_name']
-        $key = ('{0}|{1}|{2}' -f $environment, $node_name, $datacnter );
+        $key = ('{0}|{1}|{2}' -f $environment,$node_name,$datacnter);
         try {
           $protocol = $protocols[$short_node_name]
           $landing_page = $landing_pages[$short_node_name]
           $port = $ports[$short_node_name]
-          $reverse_result[$key] = ('{0}://{1}:{2}/{3}'-f $protocol, $hostname,$port,$landing_page)
+          $reverse_result[$key] = ('{0}://{1}:{2}/{3}' -f $protocol,$hostname,$port,$landing_page)
           $roles[$node_name] = 1
-        } catch [Exception] {
-          write-output ('Failed to process "{0}"|"{1}"' -f $node_name, $short_node_name)
+        } catch [exception]{
+          Write-Output ('Failed to process "{0}"|"{1}"' -f $node_name,$short_node_name)
         }
-          $environments[$environment] = 1
-          $datacenters[$datacenter] = 1
-          $branch_names[$branch_name] = 1
+        $environments[$environment] = 1
+        $datacenters[$datacenter] = 1
+        $branch_names[$branch_name] = 1
       }
     }
   }
-  write-output 'Results for lookup:'
-  $reverse_result | format-list
+  Write-Output 'Results for lookup:'
+  $reverse_result | Format-List
 
-  write-output 'Datacenters:'
-  $datacenters.keys | format-list
+  Write-Output 'Datacenters:'
+  $datacenters.Keys | Format-List
 
-  write-output 'Environments:'
-  $environments.keys | format-table
+  Write-Output 'Environments:'
+  $environments.Keys | Format-Table
 
-  write-output 'Roles:'
-  $roles.keys | format-table
+  Write-Output 'Roles:'
+  $roles.Keys | Format-Table
   ###  end generate_patameters_yaml.ps1
 
 }
 if ($use_json_config) {
   $filename = 'environment.json'
+  # http://poshcode.org/2887
+  # http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
+  # https://msdn.microsoft.com/en-us/library/system.management.automation.invocationinfo.pscommandpath%28v=vs.85%29.aspx
+  function Get-ScriptDirectory
+  {
+    [string]$scriptDirectory = $null
+
+    if ($host.Version.Major -gt 2) {
+      $scriptDirectory = (Get-Variable PSScriptRoot).value
+      Write-Debug ('$PSScriptRoot: {0}' -f $scriptDirectory)
+      if ($scriptDirectory -ne $null) {
+        return $scriptDirectory;
+      }
+      $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.PSCommandPath)
+      Write-Debug ('$MyInvocation.PSCommandPath: {0}' -f $scriptDirectory)
+      if ($scriptDirectory -ne $null) {
+        return $scriptDirectory;
+      }
+
+      $scriptDirectory = Split-Path -Parent $PSCommandPath
+      Write-Debug ('$PSCommandPath: {0}' -f $scriptDirectory)
+      if ($scriptDirectory -ne $null) {
+        return $scriptDirectory;
+      }
+    } else {
+      $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+      if ($scriptDirectory -ne $null) {
+        return $scriptDirectory;
+      }
+      $Invocation = (Get-Variable MyInvocation -Scope 1).value
+      if ($Invocation.PSScriptRoot) {
+        $scriptDirectory = $Invocation.PSScriptRoot
+      } elseif ($Invocation.MyCommand.Path) {
+        $scriptDirectory = Split-Path $Invocation.MyCommand.Path
+      } else {
+        $scriptDirectory = $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
+      }
+      return $scriptDirectory
+    }
+  }
 
   $data = (Get-Content -Path ([System.IO.Path]::Combine((Get-ScriptDirectory),$filename))) -join "`n"
 
-  write-debug $data
+  Write-Debug $data
 
-  $json_obj = convertfrom-json -inputobject $data
+  $json_obj = ConvertFrom-Json -InputObject $data
   # $json_obj is already a PSCustomObject
   $result = @{}
 
   # https://stackoverflow.com/questions/18779762/iterating-through-key-names-from-a-pscustomobject?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
   # Convert the PSCustomObject back to a hashtable
 
-  $json_obj | Get-Member -MemberType NoteProperty | foreach-object {
-    $hostname =  $_.Name
-    $result[$hostname]  = @{}
+  $json_obj | Get-Member -MemberType NoteProperty | ForEach-Object {
+    $hostname = $_.Name
+    $result[$hostname] = @{}
     $data = $json_obj."$($_.Name)"
     $data_hash_obj = @{}
-      $data |  get-member -MemberType NoteProperty | foreach-object {
-      $key = $_.name
+    $data | Get-Member -MemberType NoteProperty | ForEach-Object {
+      $key = $_.Name
       $value = $data."$(${key})"
       $data_hash_obj[$key] = $value
     }
@@ -494,81 +574,81 @@ if ($use_json_config) {
 
   # map exact names to short names
   $short_names = @{
-    'iam-identity-manager-initial'   = 'identity';
-    'apim-content-delivery-0'        = 'content';
-    'apim-api-manager-store-0'       = 'store';
-    'apim-api-manager-store-1'       = 'store';
-    'apim-ap-manager-publisher-0'    = 'publisher';
+    'iam-identity-manager-initial' = 'identity';
+    'apim-content-delivery-0' = 'content';
+    'apim-api-manager-store-0' = 'store';
+    'apim-api-manager-store-1' = 'store';
+    'apim-ap-manager-publisher-0' = 'publisher';
     'apim-api-manager-key-manager-0' = 'keymanager';
     'apim-api-manager-key-manager-1' = 'keymanager';
-    'service-discovery-server-0'     = 'discovery';
-    'service-discovery-server-1'     = 'discovery';
+    'service-discovery-server-0' = 'discovery';
+    'service-discovery-server-1' = 'discovery';
   }
   # TCP ports
   $ports = @{
-    'content'   = 8443;
-    'identity'  = 8443;
+    'content' = 8443;
+    'identity' = 8443;
     'discovery' = 8500;
     'publisher' = 9443;
-    'gateway'   = 9443;
+    'gateway' = 9443;
   }
   $protocols = @{
-    'identity'  = 'https';
+    'identity' = 'https';
     'discovery' = 'http';
     'publisher' = 'https';
-    'gateway'   = 'https';
+    'gateway' = 'https';
   }
   $landing_pages = @{
-    'identity'  =  '#';
+    'identity' = '#';
     'discovery' = 'ui';
     'publisher' = 'publisher';
-    'gateway'   = 'carbon';
+    'gateway' = 'carbon';
   }
 
   $reverse_result = @{}
   # only collect what we can process
-  $match_exporession = ('(?:{0})' -f ([String]::join('|', ($short_names.keys | foreach-object { $_ = $_ -replace '\-', '\-'; write-output $_ ;} ))))
+  $match_exporession = ('(?:{0})' -f ([string]::join('|',($short_names.Keys | ForEach-Object { $_ = $_ -replace '\-','\-'; Write-Output $_; }))))
   $environments = @{}
   $branch_names = @{}
   $datacenters = @{}
   $roles = @{}
-  $result.keys | foreach-object {
+  $result.Keys | ForEach-Object {
 
     $hostname = $_;
     if ($result[$hostname]['consul_node_name'] -ne $null) {
-      if ($result[$hostname]['consul_node_name'] -match $match_exporession ) {
+      if ($result[$hostname]['consul_node_name'] -match $match_exporession) {
         $node_name = $result[$hostname]['consul_node_name']
         $short_node_name = $short_names[$result[$hostname]['consul_node_name']]
         $environment = $result[$hostname]['environment']
         $datacenter = $result[$hostname]['datacenter']
         $branch_name = $result[$hostname]['branch_name']
-        $key = ('{0}|{1}|{2}|{3}' -f $environment, $branch_name, $result[$hostname]['consul_node_name'], $datacnter );
+        $key = ('{0}|{1}|{2}|{3}' -f $environment,$branch_name,$result[$hostname]['consul_node_name'],$datacnter);
         try {
           $protocol = $protocols[$short_node_name]
           $landing_page = $landing_pages[$short_node_name]
           $port = $ports[$short_node_name]
-          $reverse_result[$key] = ('{0}://{1}:{2}/{3}'-f $protocol, $hostname,$port,$landing_page)
+          $reverse_result[$key] = ('{0}://{1}:{2}/{3}' -f $protocol,$hostname,$port,$landing_page)
           $roles[$node_name] = 1
-        } catch [Exception] {
-          write-output ('Failed to process "{0}"|"{1}"' -f $node_name, $short_node_name)
+        } catch [exception]{
+          Write-Output ('Failed to process "{0}"|"{1}"' -f $node_name,$short_node_name)
         }
-          $environments[$environment] = 1
-          $datacenters[$datacenter] = 1
-          $branch_names[$branch_name] = 1
+        $environments[$environment] = 1
+        $datacenters[$datacenter] = 1
+        $branch_names[$branch_name] = 1
       }
     }
   }
-  write-output 'Results for lookup:'
-  $reverse_result | format-list
+  Write-Output 'Results for lookup:'
+  $reverse_result | Format-List
 
-  write-output 'Datacenters:'
-  $datacenters.keys | format-list
+  Write-Output 'Datacenters:'
+  $datacenters.Keys | Format-List
 
-  write-output 'Environments:'
-  $environments.keys | format-table
+  Write-Output 'Environments:'
+  $environments.Keys | Format-Table
 
-  write-output 'Roles:'
-  $roles.keys | format-table
+  Write-Output 'Roles:'
+  $roles.Keys | Format-Table
 
 }
 
@@ -576,7 +656,7 @@ $script:IE = $null
 $prompt_message = 'Select or Enter the Env/DC/Role'
 $caption = 'Browser Launch Test'
 
-$o = ComboInputBox -environments ($environments.keys) -dataCenters ($datacenters.keys) -roles ($roles.keys) -caption $caption -prompt_message $prompt_message -result ([ref] $reverse_result)
+$o = ComboInputBox -environments ($environments.Keys) -dataCenters ($datacenters.Keys) -roles ($roles.Keys) -caption $caption -prompt_message $prompt_message -result ([ref]$reverse_result)
 if ($o.status -match 'OK') {
   Write-Output $o.Text
 }
