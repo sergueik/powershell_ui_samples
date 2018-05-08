@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+# SharpDevelop 5.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Program", "Program\RealTimeEventLogReader.csproj", "{2449B411-EE58-4E93-9557-25F83CA3FCE5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2449B411-EE58-4E93-9557-25F83CA3FCE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2449B411-EE58-4E93-9557-25F83CA3FCE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2449B411-EE58-4E93-9557-25F83CA3FCE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2449B411-EE58-4E93-9557-25F83CA3FCE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3C21CA7-90AC-4119-9E10-26FC272E07AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3C21CA7-90AC-4119-9E10-26FC272E07AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3C21CA7-90AC-4119-9E10-26FC272E07AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3C21CA7-90AC-4119-9E10-26FC272E07AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
