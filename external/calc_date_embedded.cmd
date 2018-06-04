@@ -13,10 +13,13 @@ REM concatenates the argument
 REM representing a valid JS code fragment
 REM into the script executed on mshta.exe 
 REM output redirected to console
-set "SCRIPT=mshta.exe "javascript:new ActiveXObject("
-set "SCRIPT=%SCRIPT%'Scripting.FileSystemObject')"
-set "SCRIPT=%SCRIPT%.GetStandardStream(1).Write("
-set "SCRIPT=%SCRIPT%%~1);close();""
+REM the equivalent VBScript example
+REM https://stackoverflow.com/questions/28134997/can-i-run-vbscript-commands-directly-from-the-command-line-i-e-without-a-vbs-f?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+REM is harder to modify
+set "SCRIPT=mshta.exe "javascript:{"
+set "SCRIPT=%SCRIPT%new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).Write("
+set "SCRIPT=%SCRIPT%%~1"
+set "SCRIPT=%SCRIPT%);close();}""
 echo %SCRIPT%
 for /F "delims=" %%_ in ('%SCRIPT% 1 ^| more') do echo %%_
 exit /b
