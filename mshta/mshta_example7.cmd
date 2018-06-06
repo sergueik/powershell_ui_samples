@@ -19,7 +19,7 @@ REM Script below tries to save on var declaration, variable names etc. and white
 set "SCRIPT=mshta.exe "javascript:{"
 set "SCRIPT=%SCRIPT%f=new ActiveXObject('Scripting.FileSystemObject');"
 set "SCRIPT=%SCRIPT%c=f.GetStandardStream(1);"
-set "SCRIPT=%SCRIPT%h=f.OpenTextFile('pom.xml', 1, 1);"
+set "SCRIPT=%SCRIPT%h=f.OpenTextFile('pom.xml',1,1);"
 set "SCRIPT=%SCRIPT%x=new ActiveXObject('Msxml2.DOMDocument.6.0');"
 set "SCRIPT=%SCRIPT%x.async=false;"
 set "SCRIPT=%SCRIPT%x.loadXML(h.ReadAll());"
