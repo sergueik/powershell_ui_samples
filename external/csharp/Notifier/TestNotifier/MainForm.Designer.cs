@@ -1,6 +1,6 @@
 ﻿namespace TestNotifier
 {
-    partial class TestMe
+    partial class MainForm
     {
         /// <summary>
         /// Variabile di progettazione necessaria.
@@ -40,7 +40,18 @@
             this.buttonUpdate = new System.Windows.Forms.Button();
             this.numericNote = new System.Windows.Forms.NumericUpDown();
             this.notifyDiagButton = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.timeout = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.backNone = new System.Windows.Forms.RadioButton();
+            this.backApp = new System.Windows.Forms.RadioButton();
+            this.backFull = new System.Windows.Forms.RadioButton();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.inApp = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericNote)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.timeout)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textNote
@@ -53,13 +64,13 @@
             // 
             // notifyButton
             // 
-            this.notifyButton.Location = new System.Drawing.Point(11, 155);
+            this.notifyButton.Location = new System.Drawing.Point(19, 204);
             this.notifyButton.Name = "notifyButton";
-            this.notifyButton.Size = new System.Drawing.Size(196, 29);
+            this.notifyButton.Size = new System.Drawing.Size(186, 29);
             this.notifyButton.TabIndex = 1;
             this.notifyButton.Text = "Notify Me";
             this.notifyButton.UseVisualStyleBackColor = true;
-            this.notifyButton.Click += new System.EventHandler(this.notifyButton_Click);
+            this.notifyButton.Click += new System.EventHandler(this.onNotifyButtonClick);
             // 
             // label1
             // 
@@ -134,17 +145,17 @@
             // 
             // buttonUpdate
             // 
-            this.buttonUpdate.Location = new System.Drawing.Point(12, 230);
+            this.buttonUpdate.Location = new System.Drawing.Point(12, 324);
             this.buttonUpdate.Name = "buttonUpdate";
-            this.buttonUpdate.Size = new System.Drawing.Size(117, 29);
+            this.buttonUpdate.Size = new System.Drawing.Size(100, 29);
             this.buttonUpdate.TabIndex = 9;
             this.buttonUpdate.Text = "Update Note";
             this.buttonUpdate.UseVisualStyleBackColor = true;
-            this.buttonUpdate.Click += new System.EventHandler(this.buttonUpdate_Click);
+            this.buttonUpdate.Click += new System.EventHandler(this.onUpdateButtonClick);
             // 
             // numericNote
             // 
-            this.numericNote.Location = new System.Drawing.Point(143, 236);
+            this.numericNote.Location = new System.Drawing.Point(143, 330);
             this.numericNote.Minimum = new decimal(new int[] {
             1,
             0,
@@ -161,20 +172,127 @@
             // 
             // notifyDiagButton
             // 
-            this.notifyDiagButton.Location = new System.Drawing.Point(12, 190);
+            this.notifyDiagButton.Location = new System.Drawing.Point(7, 16);
             this.notifyDiagButton.Name = "notifyDiagButton";
-            this.notifyDiagButton.Size = new System.Drawing.Size(196, 29);
+            this.notifyDiagButton.Size = new System.Drawing.Size(187, 29);
             this.notifyDiagButton.TabIndex = 11;
             this.notifyDiagButton.Text = "Notify Dialog";
             this.notifyDiagButton.UseVisualStyleBackColor = true;
-            this.notifyDiagButton.Click += new System.EventHandler(this.notifyDiagButton_Click);
+            this.notifyDiagButton.Click += new System.EventHandler(this.oNotifyDialogButtonClick);
             // 
-            // TestMe
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 158);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(48, 13);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "Timeout:";
+            // 
+            // timeout
+            // 
+            this.timeout.Increment = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            this.timeout.Location = new System.Drawing.Point(11, 174);
+            this.timeout.Maximum = new decimal(new int[] {
+            5000,
+            0,
+            0,
+            0});
+            this.timeout.Name = "timeout";
+            this.timeout.Size = new System.Drawing.Size(75, 20);
+            this.timeout.TabIndex = 13;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(92, 176);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(20, 13);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "ms";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(119, 332);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(18, 13);
+            this.label5.TabIndex = 15;
+            this.label5.Text = "ID";
+            // 
+            // backNone
+            // 
+            this.backNone.AutoSize = true;
+            this.backNone.Location = new System.Drawing.Point(8, 52);
+            this.backNone.Name = "backNone";
+            this.backNone.Size = new System.Drawing.Size(51, 17);
+            this.backNone.TabIndex = 16;
+            this.backNone.Text = "None";
+            this.backNone.UseVisualStyleBackColor = true;
+            // 
+            // backApp
+            // 
+            this.backApp.AutoSize = true;
+            this.backApp.Checked = true;
+            this.backApp.Location = new System.Drawing.Point(67, 52);
+            this.backApp.Name = "backApp";
+            this.backApp.Size = new System.Drawing.Size(44, 17);
+            this.backApp.TabIndex = 17;
+            this.backApp.TabStop = true;
+            this.backApp.Text = "App";
+            this.backApp.UseVisualStyleBackColor = true;
+            // 
+            // backFull
+            // 
+            this.backFull.AutoSize = true;
+            this.backFull.Location = new System.Drawing.Point(121, 52);
+            this.backFull.Name = "backFull";
+            this.backFull.Size = new System.Drawing.Size(73, 17);
+            this.backFull.TabIndex = 18;
+            this.backFull.Text = "Fullscreen";
+            this.backFull.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.backFull);
+            this.groupBox1.Controls.Add(this.notifyDiagButton);
+            this.groupBox1.Controls.Add(this.backApp);
+            this.groupBox1.Controls.Add(this.backNone);
+            this.groupBox1.Location = new System.Drawing.Point(11, 239);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(200, 79);
+            this.groupBox1.TabIndex = 19;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Dialog Note";
+            // 
+            // inApp
+            // 
+            this.inApp.AutoSize = true;
+            this.inApp.Checked = true;
+            this.inApp.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.inApp.Location = new System.Drawing.Point(132, 174);
+            this.inApp.Name = "inApp";
+            this.inApp.Size = new System.Drawing.Size(53, 17);
+            this.inApp.TabIndex = 20;
+            this.inApp.Text = "inApp";
+            this.inApp.UseVisualStyleBackColor = true;
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(225, 273);
-            this.Controls.Add(this.notifyDiagButton);
+            this.ClientSize = new System.Drawing.Size(747, 418);
+            this.Controls.Add(this.inApp);
+            this.Controls.Add(this.notifyButton);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.timeout);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.numericNote);
             this.Controls.Add(this.buttonUpdate);
             this.Controls.Add(this.label2);
@@ -184,11 +302,15 @@
             this.Controls.Add(this.radioButtonError);
             this.Controls.Add(this.radioButtonInfo);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.notifyButton);
             this.Controls.Add(this.textNote);
-            this.Name = "TestMe";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Test Notifier";
             ((System.ComponentModel.ISupportInitialize)(this.numericNote)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.timeout)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -208,6 +330,15 @@
         private System.Windows.Forms.Button buttonUpdate;
         private System.Windows.Forms.NumericUpDown numericNote;
         private System.Windows.Forms.Button notifyDiagButton;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.NumericUpDown timeout;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.RadioButton backNone;
+        private System.Windows.Forms.RadioButton backApp;
+        private System.Windows.Forms.RadioButton backFull;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckBox inApp;
     }
 }
 

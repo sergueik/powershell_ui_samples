@@ -15,6 +15,9 @@
         {
             if (disposing && (components != null))
             {
+                if (timerResetEvent != null)
+                    timerResetEvent.Close();
+                
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -29,14 +32,15 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.labelDesc = new System.Windows.Forms.Label();
-            this.date = new System.Windows.Forms.Label();
+            this.noteContent = new System.Windows.Forms.Label();
+            this.noteDate = new System.Windows.Forms.Label();
             this.icon = new System.Windows.Forms.PictureBox();
             this.buttonClose = new System.Windows.Forms.PictureBox();
             this.buttonMenu = new System.Windows.Forms.PictureBox();
             this.menu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.titleText = new System.Windows.Forms.Label();
+            this.noteTitle = new System.Windows.Forms.Label();
+            this.idLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.icon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.buttonClose)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.buttonMenu)).BeginInit();
@@ -45,25 +49,25 @@
             // 
             // labelDesc
             // 
-            this.labelDesc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelDesc.Image = global::Notify.Properties.Resources.notifier;
-            this.labelDesc.Location = new System.Drawing.Point(42, 30);
-            this.labelDesc.Name = "labelDesc";
-            this.labelDesc.Size = new System.Drawing.Size(270, 73);
-            this.labelDesc.TabIndex = 3;
-            this.labelDesc.Text = "Description";
-            this.labelDesc.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.noteContent.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.noteContent.Image = global::Notify.Properties.Resources.notifier;
+            this.noteContent.Location = new System.Drawing.Point(43, 30);
+            this.noteContent.Name = "labelDesc";
+            this.noteContent.Size = new System.Drawing.Size(270, 73);
+            this.noteContent.TabIndex = 3;
+            this.noteContent.Text = "Description";
+            this.noteContent.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // date
             // 
-            this.date.AutoSize = true;
-            this.date.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.date.Image = global::Notify.Properties.Resources.notifier;
-            this.date.Location = new System.Drawing.Point(43, 103);
-            this.date.Name = "date";
-            this.date.Size = new System.Drawing.Size(19, 9);
-            this.date.TabIndex = 4;
-            this.date.Text = "date";
+            this.noteDate.AutoSize = true;
+            this.noteDate.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.noteDate.Image = global::Notify.Properties.Resources.notifier;
+            this.noteDate.Location = new System.Drawing.Point(11, 103);
+            this.noteDate.Name = "date";
+            this.noteDate.Size = new System.Drawing.Size(13, 9);
+            this.noteDate.TabIndex = 4;
+            this.noteDate.Text = "- -";
             // 
             // icon
             // 
@@ -82,13 +86,13 @@
             this.buttonClose.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.buttonClose.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.buttonClose.ForeColor = System.Drawing.Color.White;
-            this.buttonClose.Location = new System.Drawing.Point(2, 2);
+            this.buttonClose.Location = new System.Drawing.Point(256, 2);
             this.buttonClose.Name = "buttonClose";
-            this.buttonClose.Size = new System.Drawing.Size(320, 24);
+            this.buttonClose.Size = new System.Drawing.Size(66, 24);
             this.buttonClose.TabIndex = 1;
             this.buttonClose.TabStop = false;
             this.buttonClose.Text = " Calibrator";
-            this.buttonClose.Click += new System.EventHandler(this.buttonClose_Click);
+            this.buttonClose.Click += new System.EventHandler(this.onCloseClick);
             this.buttonClose.Paint += new System.Windows.Forms.PaintEventHandler(this.OnPaint);
             // 
             // buttonMenu
@@ -102,7 +106,7 @@
             this.buttonMenu.Size = new System.Drawing.Size(24, 24);
             this.buttonMenu.TabIndex = 5;
             this.buttonMenu.TabStop = false;
-            this.buttonMenu.Click += new System.EventHandler(this.buttonMenu_Click);
+            this.buttonMenu.Click += new System.EventHandler(this.onMenuClick);
             // 
             // menu
             // 
@@ -117,44 +121,57 @@
             this.closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
             this.closeAllToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.closeAllToolStripMenuItem.Text = "Close All";
-            this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.closeAllToolStripMenuItem_Click);
+            this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.onMenuCloseAllClick);
             // 
             // titleText
             // 
-            this.titleText.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(140)))), ((int)(((byte)(230)))));
-            this.titleText.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.titleText.ForeColor = System.Drawing.Color.White;
-            this.titleText.Location = new System.Drawing.Point(2, 2);
-            this.titleText.Name = "titleText";
-            this.titleText.Size = new System.Drawing.Size(297, 24);
-            this.titleText.TabIndex = 6;
-            this.titleText.Text = "Toast";
-            this.titleText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.titleText.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OnMouseDown);
-            this.titleText.MouseMove += new System.Windows.Forms.MouseEventHandler(this.OnMouseMove);
-            this.titleText.MouseUp += new System.Windows.Forms.MouseEventHandler(this.OnMouseUp);
+            this.noteTitle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(140)))), ((int)(((byte)(230)))));
+            this.noteTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.noteTitle.ForeColor = System.Drawing.Color.White;
+            this.noteTitle.Location = new System.Drawing.Point(2, 2);
+            this.noteTitle.Name = "titleText";
+            this.noteTitle.Size = new System.Drawing.Size(270, 24);
+            this.noteTitle.TabIndex = 6;
+            this.noteTitle.Text = "Note";
+            this.noteTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // Toast
+            // idLabel
+            // 
+            this.idLabel.AutoSize = true;
+            this.idLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.idLabel.Image = global::Notify.Properties.Resources.notifier;
+            this.idLabel.Location = new System.Drawing.Point(296, 103);
+            this.idLabel.Name = "idLabel";
+            this.idLabel.Size = new System.Drawing.Size(21, 9);
+            this.idLabel.TabIndex = 7;
+            this.idLabel.Text = "0000";
+            this.idLabel.Visible = false;
+            // 
+            // Notifier
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.White;
             this.BackgroundImage = global::Notify.Properties.Resources.notifier;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(324, 117);
+            this.Controls.Add(this.idLabel);
             this.Controls.Add(this.buttonMenu);
-            this.Controls.Add(this.titleText);
-            this.Controls.Add(this.date);
-            this.Controls.Add(this.labelDesc);
+            this.Controls.Add(this.noteTitle);
+            this.Controls.Add(this.noteDate);
+            this.Controls.Add(this.noteContent);
             this.Controls.Add(this.icon);
             this.Controls.Add(this.buttonClose);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "Toast";
+            this.Name = "Notifier";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Toast";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.OnLoad);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OnMouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.OnMouseMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.OnMouseUp);
             ((System.ComponentModel.ISupportInitialize)(this.icon)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.buttonClose)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.buttonMenu)).EndInit();
@@ -169,10 +186,11 @@
         private System.Windows.Forms.PictureBox buttonClose;
         private System.Windows.Forms.PictureBox buttonMenu;
         private System.Windows.Forms.PictureBox icon;
-        private System.Windows.Forms.Label labelDesc;
-        private System.Windows.Forms.Label date;
+        private System.Windows.Forms.Label noteContent;
+        private System.Windows.Forms.Label noteDate;
         private System.Windows.Forms.ContextMenuStrip menu;
         private System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
-        private System.Windows.Forms.Label titleText;
+        private System.Windows.Forms.Label noteTitle;
+        private System.Windows.Forms.Label idLabel;
     }
 }

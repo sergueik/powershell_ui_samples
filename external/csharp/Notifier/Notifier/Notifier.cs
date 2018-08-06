@@ -1,96 +1,158 @@
-﻿using System;
+﻿//
+//      Notifier.cs
+// 
+//      This project was born in the 2009 for a University application.
+//      Then it was resurrected in the 2015 to be part of an old system that cannot handle the
+//      3.5 framework and grows up to include more features. This is not a professional work, so
+//      the code quality it's something like "let's do something quickly".
+//      If you are looking for something professional, you can do it by yourself and of course share it!
+//      
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Notify
 {
-    // Dialog style of black background
-    public enum BackDialogStyle {None, FadedScreen, FadedApplication }
+    public enum BackDialogStyle { None,                                 // Dialog style of black background
+                                  FadedScreen, 
+                                  FadedApplication } 
 
     public partial class Notifier : Form
     {
 
-        #region GLOBALS
-        // Set the type of the Notifier
-        public enum Type { INFO, WARNING, ERROR, OK }
-        
-        // Helper class for handle Notifier position
-        class PosXY{
+#region GLOBALS      
+        public enum Type { INFO, WARNING, ERROR, OK }                   // Set the type of the Notifier
+
+        class NoteLocation                                              // Helper class to handle Note position
+        {
             internal int X;
             internal int Y;
-            // Mouse bar drag
-            internal Point firstPoint;
+
+            internal Point initialLocation;                             // Mouse bar drag helpers
             internal bool mouseIsDown = false;
 
-            public PosXY(int x, int y)
+            public NoteLocation(int x, int y)
             {
                 this.X = x;
                 this.Y = y;
             }
         }
-        static List<PosXY> posXY = new List<PosXY>();
 
-        // Keep a list of the opened Notifiers
-        static List<Notifier> Notifiers = new List<Notifier>();
-        // Current note ID (used on creations)
-        static short ID = 0x00;
+        static List<Notifier> notes             = new List<Notifier>(); // Keep a list of the opened Notifiers
 
-        // Base Notifier data
-        private String description = "";
-        private String title = "Notifier";
-        private PosXY myPos;
-        Type type = Type.INFO;
+        private NoteLocation noteLocation;                              // Note position
+        private short ID                        = 0;                    // Note ID
+        private string description              = "";                   // Note default Description
+        private string title                    = "Notifier";           // Note default Title
+        private Type type                       = Type.INFO;            // Note default Type
 
-        // Dialog data
-        bool isDialog;
-        BackDialogStyle backDialogStyle = BackDialogStyle.None;
-        private Form myCallerApp;
-        #endregion
+        private bool isDialog = false;                                  // Note is Dialog
+        private BackDialogStyle backDialogStyle = BackDialogStyle.None; // DialogNote default background
+        private Form myCallerApp;                                       // Base Application for Dialog Note
 
-        #region CONSTRUCTOR & DISPLAY
-        private Notifier(string dsc, 
-            Type type, 
-            string tit,
-            bool isDialog = false)
+        private Color Hover = Color.FromArgb(0, 0, 0, 0);               // Default Color for hover
+        private Color Leave = Color.FromArgb(0, 0, 0, 0);               // Default Color for leave
+
+        private int timeout_ms                  = 0;                    // Temporary note: timeout
+        private AutoResetEvent timerResetEvent       = null;                 // Temporary note: reset event
+
+        private Form inApp = null;                                      // In App Notifier: the note is binded to the specified container
+#endregion
+
+#region CONSTRUCTOR & DISPLAY
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Default constructor
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private Notifier(string dsc,                                    
+                         Type type, 
+                         string tit,
+                         bool isDialog = false,
+                         int timeout_ms = 0,
+                         Form insideMe = null)
         {
-            this.isDialog = isDialog;
-            this.description = dsc;
-            this.type = type;
-            this.title = tit;
-            ID++;
+            this.isDialog      = isDialog;
+            this.description   = dsc;
+            this.type          = type;
+            this.title         = tit;
+            this.timeout_ms    = timeout_ms;
+            this.inApp         = insideMe;
+            
+            InitializeComponent();                                      // Initializate the form
 
-            InitializeComponent();
+            foreach (var nt in notes)                                   // Use the latest available ID from the note list
+                if (nt.ID > ID)
+                    ID = nt.ID;
+            ID++;                                                       // Set the Note ID
+
+            if (insideMe != null && !inAppNoteExists())                 // Register the drag and resize events
+            {
+                insideMe.LocationChanged += inApp_LocationChanged;
+                insideMe.SizeChanged     += inApp_LocationChanged;
+            }
+
+            foreach (Control c in Controls)                             // Make all the note area draggable
+            {
+                if (c is Label || c.Name == "icon")
+                {
+                    c.MouseDown += OnMouseDown;
+                    c.MouseUp   += OnMouseUp;
+                    c.MouseMove += OnMouseMove;
+                }
+            }
+
+
         }
 
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Handle the drag  drop and resize location of the notes
+        //-------------------------------------------------------------------------------------------------------------------------------
+        void inApp_LocationChanged(object sender, EventArgs e)          
+        {
+            foreach (var note in notes)
+            {
+                if (note.inApp != null)
+                {
+                    NoteLocation ln = adjustLocation(note);
+                    note.Left       = ln.X;
+                    note.Top        = ln.Y;
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  On load form operations
+        //-------------------------------------------------------------------------------------------------------------------------------
         private void OnLoad(object sender, EventArgs e)
         {
-            BackColor = Color.Blue;
-            TransparencyKey = Color.FromArgb(128, 128, 128);
-            FormBorderStyle = FormBorderStyle.None;
+            BackColor       = Color.Blue;                               // Initial default graphics 
+            TransparencyKey = Color.FromArgb(128, 128, 128);            // Initial default graphics 
+            FormBorderStyle = FormBorderStyle.None;                     // Initial default graphics 
 
-            this.Tag = "__Notifier|" + ID.ToString("X4");
+            this.Tag = "__Notifier|" + ID.ToString("X4");               // Save the note identification in the Tag field
 
-            setNotifier(description, type, title);
+            setNotifier(description, type, title);  
         }
 
-        private void setNotifier(string _desc, Type noteType, string _title, bool isUpdate = false)
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Create the Note and handle its location
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private void setNotifier(string description, 
+                                 Type noteType, 
+                                 string title, 
+                                 bool isUpdate = false)
         {
-            // Fill the Notifier data
-            titleText.Text = _title;
-            labelDesc.Text = _desc;
-            date.Text = DateTime.Now + "";
-            
-            // set defaults
-            title = _title;
-            description = _desc;
-            type = noteType;
+            this.title          = title;
+            this.description    = description;
+            this.type           = noteType;
 
-            #region ADJUST COLORS
-            Color Hover = Color.FromArgb(0, 0, 0);
-            Color Leave = Color.FromArgb(0, 0, 0);
+            noteTitle.Text      = title;                                // Fill the Notifier data title
+            noteContent.Text    = description;                          // Fill the Notifier data description
+            noteDate.Text       = DateTime.Now + "";                    // Fill the Notifier data Timestamp
 
+#region ADJUST COLORS
             switch (noteType)
             {
                 case Type.ERROR:
@@ -115,221 +177,271 @@ namespace Notify
                     break;
             }
 
-            // Init color
-            buttonClose.BackColor = Leave;
-            buttonMenu.BackColor = Leave;
-            titleText.BackColor = Leave;
+            buttonClose.BackColor = Leave;                              // Init colors
+            buttonMenu.BackColor  = Leave;
+            noteTitle.BackColor   = Leave;
 
-            // Mouse over
-            this.buttonClose.MouseHover += (s, e) =>
+            this.buttonClose.MouseHover += (s, e) =>                    // Mouse hover
             {
                 this.buttonClose.BackColor = Hover;
                 this.buttonMenu.BackColor = Hover;
-                this.titleText.BackColor = Hover;
+                this.noteTitle.BackColor = Hover;
             };
             this.buttonMenu.MouseHover += (s, e) =>
             {
                 this.buttonMenu.BackColor = Hover;
                 this.buttonClose.BackColor = Hover;
-                this.titleText.BackColor = Hover;
-            }; this.titleText.MouseHover += (s, e) =>
+                this.noteTitle.BackColor = Hover;
+            }; this.noteTitle.MouseHover += (s, e) =>
             {
                 this.buttonMenu.BackColor = Hover;
                 this.buttonClose.BackColor = Hover;
-                this.titleText.BackColor = Hover;
+                this.noteTitle.BackColor = Hover;
             };
 
-            // Mouse leave
-            this.buttonClose.MouseLeave += (s, e) =>
+            this.buttonClose.MouseLeave += (s, e) =>                    // Mouse leave
             {
                 this.buttonClose.BackColor = Leave;
                 this.buttonMenu.BackColor = Leave;
-                this.titleText.BackColor = Leave;
+                this.noteTitle.BackColor = Leave;
             };
             this.buttonMenu.MouseLeave += (s, e) =>
             {
                 this.buttonMenu.BackColor = Leave;
                 this.buttonClose.BackColor = Leave;
-                this.titleText.BackColor = Leave;
+                this.noteTitle.BackColor = Leave;
             };
-            this.titleText.MouseLeave += (s, e) =>
+            this.noteTitle.MouseLeave += (s, e) =>
             {
                 this.buttonMenu.BackColor = Leave;
                 this.buttonClose.BackColor = Leave;
-                this.titleText.BackColor = Leave;
+                this.noteTitle.BackColor = Leave;
             };
+#endregion
 
+#region DIALOG NOTE
             if (isDialog)
             {
-                // Add Buttons
-                Button ok_button = new Button();
+                Button ok_button    = new Button();                     // Dialog note comes with a simple Ok button
                 ok_button.FlatStyle = FlatStyle.Flat;
                 ok_button.BackColor = Leave;
                 ok_button.ForeColor = Color.White;
-                this.Size = new Size(this.Size.Width, this.Size.Height + 50);
-                ok_button.Size = new Size(80, 40);
-                ok_button.Location = new Point(this.Size.Height / 2 + 40, this.Size.Height - 50);
-                ok_button.Text = "OK";
-                ok_button.Click += onClickButtonOK;
-                this.Controls.Add(ok_button);
-            }
-            #endregion
+                Size                = new Size(Size.Width,              // Resize the note to contain the button
+                                               Size.Height + 50);
+                ok_button.Size      = new Size(120, 40);
+                ok_button.Location  = new Point(Size.Width / 2 - ok_button.Size.Width / 2, 
+                                                Size.Height - 50);
+                ok_button.Text      = DialogResult.OK.ToString();
+                ok_button.Click     += onOkButtonClick;
+                Controls.Add(ok_button);
 
-            #region ADJUST LOCATION
-            if (!isUpdate)
+                noteDate.Location   = new Point(noteDate.Location.X,    // Shift down the date location
+                                                noteDate.Location.Y + 44); 
+
+
+                noteLocation        = new NoteLocation(Left, Top);      // Default Center Location
+            }
+#endregion
+
+#region NOTE LOCATION
+            if (!isDialog && !isUpdate)
             {
-                Rectangle rec = Screen.GetWorkingArea(Screen.PrimaryScreen.Bounds);
+                NoteLocation location = adjustLocation(this);           // Set the note location
 
-                // Add position
-                // Check for a available Position
-                int maxNot = rec.Height / this.Height;
-                int x_Pos = rec.Width - this.Width;
-
-                //int x_Shift = this.Width + 5;     // Full visible note (no overlay)
-                int x_Shift = 25;                   // Custom overlay
-                int n_columns = 0;
-                int n_max_columns = rec.Width / x_Shift;
-                bool add = false;
-                if (!isDialog)
-                {
-                    myPos = new PosXY(x_Pos, rec.Height - (this.Height * 1));
-
-                    while (!add)
-                    {
-                        for (int n_not = 1; n_not <= maxNot; n_not++)
-                        {
-                            myPos = new PosXY(x_Pos, rec.Height - (this.Height * n_not));
-
-                            if (!posXYContains(myPos))
-                            {
-                                add = true; break;
-                            }
-
-                            // X shift if no more column space
-                            if (n_not == maxNot)
-                            {
-                                n_columns++;
-                                n_not = 0;
-                                x_Pos = rec.Width - this.Width - x_Shift * n_columns;
-                            }
-
-                            // Last exit condition: the screen is full of note
-                            if (n_columns >= n_max_columns)
-                            {
-                                add = true; break;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // Positioning
-                    switch (backDialogStyle)
-                    {
-                        case BackDialogStyle.FadedScreen:
-                        case BackDialogStyle.None:
-                            // Center Screen position
-                            int X = 0, Y = 0;
-                            X = (rec.Width - this.Width) / 2;
-                            Y = (rec.Height - this.Height) / 2;
-                            myPos = new PosXY(X, Y);
-                            break;
-                        case BackDialogStyle.FadedApplication:
-                            // Center of myCallerApp
-                            int px = myCallerApp.Location.X + myCallerApp.Size.Width / 2;
-                            int py = myCallerApp.Location.Y + myCallerApp.Size.Height / 2;
-                            px = px - this.Width / 2;
-                            py = py - this.Height / 2;
-                            myPos = new PosXY(px, py);
-                            break;
-                    }
-                }
-
-                // Notifier position
-                this.Location = new Point(myPos.X, myPos.Y);
-
-                posXY.Add(myPos);
-            #endregion
+                Left = location.X;                                      // Notifier position X    
+                Top  = location.Y;                                      // Notifier position Y 
             }
+#endregion
         }
 
-        // Dialog Only
-        private void onClickButtonOK(object sender, EventArgs e)
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Find a valid position for the note into the note area:
+        //                                  1. Inside the Screen (support multiple screens)
+        //                                  2. Inside the father application (if specified)
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private NoteLocation adjustLocation(Notifier note)
         {
-            buttonClose_Click(null, null);
-        }
-        #endregion
+            Rectangle notesArea;
+            int nMaxRows    = 0, 
+                nColumn     = 0,
+                nMaxColumns = 0,
+                xShift      = 25;                                                     // Custom note overlay
+            //  x_Shift     = this.Width + 5;                                         // Full visible note (no overlay)
+            bool add = false;
 
-        #region EVENTS
-        private void buttonClose_Click(object sender, EventArgs e)
+            if (inApp != null && inApp.WindowState ==  FormWindowState.Normal)        // Get the available notes area, based on the type of note location
+            {
+                notesArea = new Rectangle(inApp.Location.X, 
+                                          inApp.Location.Y, 
+                                          inApp.Size.Width, 
+                                          inApp.Size.Height);
+            }
+            else
+            {
+                notesArea = new Rectangle(Screen.GetWorkingArea(note).Left,
+                                          Screen.GetWorkingArea(note).Top,
+                                          Screen.GetWorkingArea(note).Width,
+                                          Screen.GetWorkingArea(note).Height);
+            }
+
+            nMaxRows    = notesArea.Height / Height;                                  // Max number of rows in the available space
+            nMaxColumns = notesArea.Width  / xShift;                                  // Max number of columns in the available space
+
+            noteLocation = new NoteLocation(notesArea.Width  +                        // Initial Position X                                        
+                                            notesArea.Left   -
+                                            Width,
+                                            notesArea.Height +                        // Initial Position Y
+                                            notesArea.Top    -
+                                            Height);
+
+            while (nMaxRows > 0 && !add)                                              // Check the latest available position (no overlap)
+            {
+                for (int nRow = 1; nRow <= nMaxRows; nRow++)
+                {
+                    noteLocation.Y =    notesArea.Height +
+                                        notesArea.Top    -
+                                        Height * nRow;
+
+                    if (!isLocationAlreadyUsed(noteLocation, note))
+                    {
+                        add = true; break;
+                    }
+
+                    if (nRow == nMaxRows)                                            // X shift if no more column space
+                    {
+                        nColumn++;
+                        nRow = 0;
+
+                        noteLocation.X =  notesArea.Width           +
+                                          notesArea.Left            - 
+                                          Width - xShift * nColumn;
+                    }
+
+                    if (nColumn >= nMaxColumns)                                      // Last exit condition: the screen is full of note
+                    {
+                        add = true; break;
+                    }
+                }
+            }
+
+            noteLocation.initialLocation = new Point(noteLocation.X,                  // Init the initial Location, for drag & drop
+                                                     noteLocation.Y);             
+            return noteLocation;
+        }
+#endregion
+
+#region EVENTS
+
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Close event for the note
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private void onCloseClick(object sender, EventArgs e)
         {
             if (e == null || ((MouseEventArgs)e).Button != System.Windows.Forms.MouseButtons.Right)
             {
-                // Get the closed Notifier
-                Notifier NotifierMe = getRemovedNotifier(title, description, type);
-                if (NotifierMe != null)
-                {
-                    Notifiers.Remove(NotifierMe);
-                    posXY.Remove(myPos);
-
-                    this.Dispose();
-                    this.Close();
-                }
+                closeMe();
             }
         }
 
-        private Notifier getRemovedNotifier(string _title, string _desc, Type _type)
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Show the menu (for the menu button) event
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private void onMenuClick(object sender, EventArgs e)
         {
-            for (int i = Notifiers.Count - 1; i >= 0; i--)
+            menu.Show(buttonMenu, new Point(0, buttonMenu.Height));
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Close all the notes event
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private void onMenuCloseAllClick(object sender, EventArgs e)
+        {
+            CloseAll();
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Dialog note Only (Ok button click event)
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private void onOkButtonClick(object sender, EventArgs e)          
+        {
+            onCloseClick(null, null);        // It is the same as the close operation event
+        }      
+#endregion
+
+#region HELPERS
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Close the note event
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private void closeMe()
+        {
+            notes.Remove(this);
+            this.Close();
+      
+            if (notes.Count == 0)
+                ID = 0;                                                 // Reset the ID counter if no notes is displayed
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  get the Specified note by the specified content
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private Notifier getNote(string _title, string _desc, Type _type)
+        {
+            foreach (var note in notes)
             {
-                // Get the node
-                if (Notifiers[i].Tag != null &&
-                    Notifiers[i].description == _desc &&
-                    Notifiers[i].title == _title &&
-                    Notifiers[i].type == _type)
+                if (note.description == _desc &&
+                    note.title       == _title &&
+                    note.type        == _type)
                 {
-                    return Notifiers[i];
+                    return note;
                 }
             }
             return null;
         }
 
-        private void buttonMenu_Click(object sender, EventArgs e)
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Check if a note with an inApp capabilities is setted
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private bool inAppNoteExists()
         {
-            menu.Show(buttonMenu, new Point(0, buttonMenu.Height));
-        }
-
-        private void closeAllToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            CloseAll();
-        }
-        #endregion
-
-        #region HELPERS
-        private bool posXYContains(PosXY myPos)
-        {
-            foreach (PosXY p in posXY)
-                if (p.X == myPos.X && p.Y == myPos.Y)
+            foreach (var note in notes)
+            {
+                if (note.inApp != null)
                     return true;
+            }
             return false;
         }
 
-        public static void CloseAll()
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  check if the specified location (X, Y) is already used by another note
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private bool isLocationAlreadyUsed(NoteLocation location, Notifier note)
         {
-            for (int i = 0; i < Notifiers.Count; i++)
-            {
-                if (Notifiers[i].Tag != null &&
-                    Notifiers[i].Tag.ToString().Contains("__Notifier|"))
+            foreach (var p in notes)
+                if (p.Left == location.X &&
+                    p.Top  == location.Y)
                 {
-                    Notifiers[i].Dispose();
+                    if (note.inApp != null && 
+                        p.ID       == note.ID)
+                        return false;
+                    return true;
                 }
-            }
-            Notifiers.Clear();
-            posXY.Clear();
-            ID = 0;
+            return false;
         }
 
-        // To draw a right side close icon
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Close all the notes
+        //-------------------------------------------------------------------------------------------------------------------------------
+        public static void CloseAll()
+        {
+            for (int i = notes.Count - 1; i >= 0; i--)
+            {
+                notes[i].closeMe();
+            }
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Event used to draw a right side close icon
+        //-------------------------------------------------------------------------------------------------------------------------------
         private void OnPaint(object sender, PaintEventArgs e)
         {
             var image = Properties.Resources.close;
@@ -339,209 +451,287 @@ namespace Notify
                 var g = e.Graphics;
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                 g.DrawImage(image,
-                    buttonClose.Width - image.Width,
+                    buttonClose.Width  - image.Width,
                     buttonClose.Height - image.Height - 2,
                     image.Width,
                     image.Height);
             }
         }
-        #endregion
+#endregion
 
-        // Used to get a better MessageBox invocation style
-        #region SIMPLE NOTE CREATION AND MODIFY
-        // SIMPLE NOTES
-        public static short Show(string desc, Type type = Type.INFO, string tit = "Notifier")
+#region NOTE CREATION AND MODIFY
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Show the note: it is the startup of the creation process of the note
+        //-------------------------------------------------------------------------------------------------------------------------------
+        public static short Show(string desc, 
+                                 Type type      = Type.INFO, 
+                                 string tit     = "Notifier", 
+                                 bool isDialog  = false, 
+                                 int timeout    = 0, 
+                                 Form inApp     = null)
         {
-            // If there is already a note with the same content, update it and do not create a new one
-            short updated_note_id = 0, updated_note_occurency = 0;
+            short updated_note_id        = 0,                                       // If there is already a note with the same content
+                  updated_note_occurency = 0;                                       // update it and do not create a new one
 
-            if (NotifierAlreadyPresent(desc, type, tit, out updated_note_id, out updated_note_occurency))
+            if (NotifierAlreadyPresent(desc, 
+                                       type, 
+                                       tit, 
+                                       isDialog, 
+                                       out updated_note_id, 
+                                       out updated_note_occurency))
             {
-                ID = updated_note_id;
-                Update(ID, desc, type, "[" + updated_note_occurency + "] " + tit);
+                Update(updated_note_id, desc, type, "[" + ++updated_note_occurency + "] " + tit);
             }
             else
             {
-                // Instantiate the Notifier form
-                Notifier not = new Notifier(desc, type, tit);
-                not.Show();
+                Notifier not = new Notifier(desc,                                   // Instantiate the Note
+                                            type, 
+                                            tit, 
+                                            isDialog, 
+                                            timeout, 
+                                            inApp);           
+                not.Show();                                                         // Show the note
+           
+                if (not.timeout_ms >= 500)                                          // Start autoclose timer (if any)
+                {
+                    not.timerResetEvent      = new AutoResetEvent(false);
 
-                // Add to our collection of Notifiers, cause "OpenForms"
-                // is currently buggy
-                Notifiers.Add(not);
+                    BackgroundWorker timer   = new BackgroundWorker();
+                    timer.DoWork             += timer_DoWork;
+                    timer.RunWorkerCompleted += timer_RunWorkerCompleted;
+                    timer.RunWorkerAsync(not);                                      // Timer (temporary notes)
+                }
+
+                notes.Add(not);                                                     // Add to our collection of Notifiers
+                updated_note_id = not.ID;
             }
 
-            // Return the current ID of the created Notifier
-            return ID;
+            return updated_note_id;                                                 // Return the current ID of the created/updated Note
         }
 
-        private static bool NotifierAlreadyPresent(string desc, Type type, string tit, out short updated_note_id, out short updated_note_occurency)
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Check if the note is already present
+        //                                  Point out the ID and the occurency of the already present note
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private static bool NotifierAlreadyPresent(string desc, 
+                                                   Type type, 
+                                                   string tit, 
+                                                   bool isDiag, 
+                                                   out short updated_note_id, 
+                                                   out short updated_note_occurency)
         {
-            updated_note_id = 0;
-            updated_note_occurency = 1;
-            bool resParse = false;
+            updated_note_id         = 0;
+            updated_note_occurency  = 0;
 
-            for (int i = 0; i < Notifiers.Count; i++)
+            foreach (var note in notes)
             {
-                short occurency = 1;
-                String filteredTitle = Notifiers[i].title;
-                int indx = filteredTitle.IndexOf(']');
+                short occurency      = 0;
+                string filteredTitle = note.title;
+                int indx             = filteredTitle.IndexOf(']');
 
-                // Get occurrency from title
                 if(indx > 0)
                 {
-                    String number_occ = filteredTitle.Substring(0, indx);
-                    number_occ = number_occ.Trim(' ', ']', '[');
-                    resParse = Int16.TryParse(number_occ, out occurency);
+                    string numberOccurency = filteredTitle.Substring(0, indx);              // Get occurrency from title
+                    numberOccurency        = numberOccurency.Trim(' ', ']', '[');
+                    Int16.TryParse(numberOccurency, out occurency);
+
+                    if (occurency > 1)                                                      // This will fix the note counter due to the
+                        --occurency;                                                        // displayed note number that starts from "[2]"
                 
                     filteredTitle = filteredTitle.Substring(indx + 1).Trim();
                 }
 
-                // Get the node
-                if (Notifiers[i].Tag != null &&
-                    Notifiers[i].description == desc &&
-                    filteredTitle == tit &&
-                    Notifiers[i].type == type)
+                if (note.Tag         != null &&                                             // Get the node
+                    note.description == desc &&
+                    note.isDialog    == isDiag &&
+                    filteredTitle    == tit &&
+                    note.type        == type)
                 {
-                    // Get Notifier ID
-                    String hex_id = Notifiers[i].Tag.ToString().Split('|')[1];
-                    short id = Convert.ToInt16(hex_id, 16);
-
-                    updated_note_id = id;
-
-                    //if (resParse)
+                    string hex_id          = note.Tag.ToString().Split('|')[1];             // Get Notifier ID
+                    short id               = Convert.ToInt16(hex_id, 16);
+                    updated_note_id        = id;
                     updated_note_occurency = ++occurency;
-
                     return true;
                 }
             }
             return false;
         }
 
-        // Other Fast Generators
-        public static void Show(string desc, string tit = "Notifier", Type type = Type.INFO)
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Update the note with the new content. Reset the timeout if any
+        //-------------------------------------------------------------------------------------------------------------------------------
+        public static void Update(short ID, 
+                                  string desc, 
+                                  Type noteType, 
+                                  string title)
         {
-            Show(desc, type, tit);
-        }
-        public static void Show(string desc)
-        {
-            Show(desc, Type.INFO, "Notifier");
-        }
-
-        public static void Update(short ID, string desc, Type noteType, string title)
-        {
-            for (int i = 0; i < Notifiers.Count; i++)
+            foreach (var note in notes)
             {
-                // Get the node
-                if (Notifiers[i].Tag != null &&
-                    Notifiers[i].Tag.Equals("__Notifier|" + ID.ToString("X4")))
+                if (note.Tag != null &&                                     // Get the node
+                    note.Tag.Equals("__Notifier|" + ID.ToString("X4")))
                 {
-                    Notifier myNote = (Notifier)Notifiers[i];
-                    myNote.setNotifier(desc, noteType, title, true);
+                    if (note.timerResetEvent != null)                            // Reset the timeout timer (if any)
+                        note.timerResetEvent.Set();
+
+                    Notifier myNote = (Notifier)note;
+                    myNote.setNotifier(desc, noteType, title, true);        // Set the new note content
                 }
             }
         }
-        #endregion
+#endregion
 
-        // DIALOG NOTE - With faded background!!!
-        #region DIALOG NOTE CREATION
-        public static DialogResult ShowDialog(string desc, Type type = Type.INFO, string tit = "Notifier",
-            BackDialogStyle backDialogStyle = BackDialogStyle.FadedScreen,
-            Form obscureMe = null)
+#region TIMER
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Background Worker to handle the timeout of the note
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private static void timer_DoWork(object sender, DoWorkEventArgs e)
         {
-            if (backDialogStyle == BackDialogStyle.FadedApplication && obscureMe == null)
-                backDialogStyle = BackDialogStyle.FadedScreen;
-
-            Form back = new Form();
-            back.FormBorderStyle = FormBorderStyle.None;
-            back.BackColor = Color.FromArgb(0, 0, 0);
-            back.Opacity = 0.6;
-            int border = 200;
-
-            // Instantiate the Notifier form
-            Notifier not = new Notifier(desc, type, tit, true);
-            not.backDialogStyle = backDialogStyle;
-            bool orgTopMostSettings = false;
-            
-            // To draw it on primary screen
-            switch (not.backDialogStyle)
+            Notifier not = (Notifier)e.Argument;
+            bool timedOut = false;
+            while (!timedOut)
             {
+                if (!not.timerResetEvent.WaitOne(not.timeout_ms))
+                    timedOut = true;                                        // Time is out
+            }
+            e.Result = e.Argument;
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Background Worker to handle the timeout event
+        //-------------------------------------------------------------------------------------------------------------------------------
+        private static void timer_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            Notifier not = (Notifier) e.Result;
+            not.closeMe();                                                  // Close the note
+        }
+#endregion
+
+#region DIALOG NOTE CREATION
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Show a Dialog note: with faded background if specified
+        //-------------------------------------------------------------------------------------------------------------------------------
+        public static DialogResult ShowDialog(string content, 
+                                              Type type                       = Type.INFO, 
+                                              string title                    = "Notifier",
+                                              BackDialogStyle backDialogStyle = BackDialogStyle.FadedScreen,
+                                              Form application                = null)
+        {
+            Form back               = null;
+            int backBorder          = 200;
+            bool orgTopMostSettings = false;
+
+            if (backDialogStyle == BackDialogStyle.FadedApplication && 
+                application     == null)
+                backDialogStyle     = BackDialogStyle.FadedScreen;
+
+            if (backDialogStyle != BackDialogStyle.None)
+            {
+                back = new Form();                                              // Create the fade background
+                back.FormBorderStyle = FormBorderStyle.None;
+                back.BackColor       = Color.FromArgb(0, 0, 0);
+                back.Opacity         = 0.6;
+                back.ShowInTaskbar   = false;
+            }
+
+            Notifier note           = new Notifier(content, type, title, true);      // Instantiate the Notifier form
+            note.backDialogStyle    = backDialogStyle;
+
+            switch (note.backDialogStyle)
+            {
+                case BackDialogStyle.None:
+                    if (application != null)                                    // Set the startup position
+                    {
+                        note.Owner         = application;
+                        note.StartPosition = FormStartPosition.CenterParent;
+                    }
+                    else
+                    {
+                        note.StartPosition = FormStartPosition.CenterScreen;
+                    }
+                    break;
                 case BackDialogStyle.FadedScreen:
-                    back.Location = new System.Drawing.Point(-border, -border);
-                    back.Size = new Size(Screen.PrimaryScreen.WorkingArea.Width + border,
-                        Screen.PrimaryScreen.WorkingArea.Height + border);
-                    back.Show();
-                    back.TopMost = true;
+                    back.Location          = new System.Drawing.Point(-backBorder, -backBorder);
+                    back.Size              = new Size(Screen.PrimaryScreen.WorkingArea.Width + backBorder,
+                                                      Screen.PrimaryScreen.WorkingArea.Height + backBorder);
+
+                    if (application != null)
+                        back.Show(application);
+                    back.TopMost           = true;
+                    note.StartPosition     = FormStartPosition.CenterScreen;    // Set the startup position
                     break;
                 case BackDialogStyle.FadedApplication:
-                    not.myCallerApp = obscureMe;
-                    orgTopMostSettings = obscureMe.TopMost;
-                    obscureMe.TopMost = true;
-                    Point locationOnForm = obscureMe.PointToScreen(Point.Empty);
-                    back.Size = obscureMe.Size;
-                    back.Location = obscureMe.Location;
-                    back.StartPosition = FormStartPosition.Manual;
-                    back.Show();
-                    back.TopMost = true;
+                    note.myCallerApp       = application;
+                    orgTopMostSettings     = application.TopMost;
+                    application.TopMost    = true;
+                    back.StartPosition     = FormStartPosition.Manual;
+                    back.Size              = application.Size;
+                    back.Location          = application.Location;
+                    if (application != null)
+                        back.Show(application);
+                    back.TopMost           = true;
+                    note.StartPosition     = FormStartPosition.CenterParent;    // Set the startup position
                     break;
-                default:
-                    /*back.Location = new System.Drawing.Point(-2, -2);
-                    back.Size = new Size(1,1);
-                    back.Show();*/
-                break;
             }
-            // Add to our collection of Notifiers, cause "OpenForms"
-            // is currently buggy
-            Notifiers.Add(not);
 
-            not.ShowDialog();
+            notes.Add(note);                                                    // Add to our collection of Notifiers    
+            note.ShowInTaskbar = false;
+            note.ShowDialog();
 
-            back.Close();
-            if (obscureMe != null)
-                obscureMe.TopMost = orgTopMostSettings;
+            if (back != null)                                                   // Close the back
+                back.Close();
+
+            if (application != null)                                            // restore app window top most property
+                application.TopMost = orgTopMostSettings;
 
             return DialogResult.OK;
         }
 
-        // Other Fast Generators
-        public static void ShowDialog(string desc, string tit = "Notifier", Type type = Type.INFO)
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Show a Dialog note: fast creation
+        //-------------------------------------------------------------------------------------------------------------------------------
+        public static void ShowDialog(string content, string title = "Notifier", Type type = Type.INFO)
         {
-            ShowDialog(desc, type, tit);
+            ShowDialog(content, type, title);
         }
-        public static void ShowDialog(string desc)
-        {
-            ShowDialog(desc, Type.INFO, "Notifier");
-        }
-        #endregion
+#endregion
 
-        // To draw the note using the title bar
-        #region DRAG NOTE
+#region DRAG NOTE
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Handle the dragging event: change the position of the note
+        //-------------------------------------------------------------------------------------------------------------------------------
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (myPos.mouseIsDown)
+            if (noteLocation.mouseIsDown)
             {
-                // Get the difference between the two points
-                int xDiff = myPos.firstPoint.X - e.Location.X;
-                int yDiff = myPos.firstPoint.Y - e.Location.Y;
+                int xDiff = noteLocation.initialLocation.X - e.Location.X;      // Get the difference between the two points
+                int yDiff = noteLocation.initialLocation.Y - e.Location.Y;
 
-                // Set the new point
-                int x = this.Location.X - xDiff;
+                int x = this.Location.X - xDiff;                                // Set the new point
                 int y = this.Location.Y - yDiff;
-                this.Location = new Point(x, y);
+
+                noteLocation.X = x;                                             // Update the location
+                noteLocation.Y = y;
+                Location = new Point(x, y);
             }
         }
 
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Handle the mouse down event
+        //-------------------------------------------------------------------------------------------------------------------------------
         private void OnMouseDown(object sender, MouseEventArgs e)
         {
-            myPos.firstPoint = e.Location;
-            myPos.mouseIsDown = true;
+            noteLocation.initialLocation = e.Location;
+            noteLocation.mouseIsDown = true;
         }
-
+        
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //                                  Handle the mouse up event
+        //-------------------------------------------------------------------------------------------------------------------------------
         private void OnMouseUp(object sender, MouseEventArgs e)
         {
-            myPos.mouseIsDown = false;
+            noteLocation.mouseIsDown = false;
         }
-        #endregion
+#endregion
 
-    } /// Close Class
-} /// Close NS
+    }   // Close Class
+}       // Close NS
