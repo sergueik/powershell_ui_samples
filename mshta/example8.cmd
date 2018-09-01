@@ -25,7 +25,7 @@ ENDLOCAL
 exit /b
 
 :CALL_JAVASCRIPT
-
+REM This script illustrates browsing the child nodes to extract the gav information from pom.xml
 set "SCRIPT=mshta.exe "javascript:{"
 set "SCRIPT=%SCRIPT% var fso = new ActiveXObject('Scripting.FileSystemObject');"
 set "SCRIPT=%SCRIPT% var out = fso.GetStandardStream(1);"
