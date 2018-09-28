@@ -1,0 +1,60 @@
+<html>
+<body>
+
+https://stackoverflow.com/questions/7346563/loading-local-json-file
+https://github.com/nodeca/js-yaml
+
+https://stackoverflow.com/questions/9043765/how-to-parse-yaml-in-the-browser
+Here is a good intro on FileReader: http://www.html5rocks.com/en/tutorials/file/dndfiles/
+
+share
+
+<form id="jsonFile" name="jsonFile" enctype="multipart/form-data" method="post">
+
+  <fieldset>
+    <h2>Json File</h2>
+     <input type='file' id='fileinput'>
+     <input type='button' id='btnLoad' value='Load' onclick='loadFile();'>
+  </fieldset>
+</form>
+<script src="js-yaml.min.js"></script>
+
+
+<script type="text/javascript">
+
+function loadFile() {
+    var input, file, fr;
+
+    if (typeof window.FileReader !== 'function') {
+      alert("The file API isn't supported on this browser yet.");
+      return;
+    }
+
+    input = document.getElementById('fileinput');
+    if (!input) {
+      alert("Um, couldn't find the fileinput element.");
+    }
+    else if (!input.files) {
+      alert("This browser doesn't seem to support the `files` property of file inputs.");
+    }
+    else if (!input.files[0]) {
+      alert("Please select a file before clicking 'Load'");
+    }
+    else {
+      file = input.files[0];
+      fr = new FileReader();
+      fr.onload = receivedText;
+      fr.readAsText(file);
+    }
+
+    function receivedText(e) {
+      let lines = e.target.result;
+      var newArr = JSON.parse(lines); 
+      var doc = jsyaml.load('greeting: hello\nname: world');
+      alert('raw ' + lines + '\n'+ newArr['a'] + '\n' + doc['greeting']);
+    }
+  }
+</script>
+
+</body>
+</html>
