@@ -17,10 +17,11 @@ e530095c:
   unused2:
   unused3:
   unused4:
-0fd44821:
+'0fd44821':
   datacenter: wec
   consul_node_name: service-discovery-server-2
-  branch_name: cert
+  branch_name: cert_bcp
+  # another name for cert 
   environment: prod
   unused1:
   unused2:
@@ -29,7 +30,8 @@ e530095c:
 e577775c:
   datacenter: oxdc
   consul_node_name: apim-ap-manager-publisher-0
-  branch_name: sand
+  branch_name: sandbox
+# new environment - need to allow
   environment: test
   unused1:
   unused2:
@@ -49,6 +51,16 @@ node_to_ignore:
   branch_name: cert
   environment: prod
   server_role: 'internal'
+  unused1:
+  unused2:
+  unused3:
+  unused4:
+'3232bdc1':
+  datacenter: oxdc
+  consul_node_name: apim-ap-manager-publisher-0
+  branch_name: new_env
+# new environment - need to allow
+  environment: test
   unused1:
   unused2:
   unused3:

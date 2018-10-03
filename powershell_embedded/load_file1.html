@@ -54,17 +54,6 @@ function loadFile() {
         fr.onload = receivedText;
         fr.readAsText(file);
     }
-    /*
-
-    let rawData = "---\n" +
-    "ad8c3125:\n" +
-    "  consul_node_name: service-discovery-server-0\n" +
-    "e530095c:\n" +
-    "  consul_node_name: service-discovery-server-1\n" +
-    "";
-    console.log(rawData);
-
-    */
     function receivedText(e) {
         let lines = e.target.result;
         var yamlDoc = jsyaml.load(lines);
@@ -92,14 +81,14 @@ function loadFile() {
             }
         }
         try {
-          console.log('Nodes: ' + Object.keys(nodes).join(',').substring(0, 60) + '\nSample drilldown: ' + nodes[Object.keys(nodes)[0]]['consul_node_name']);
+          // console.log('Nodes: ' + Object.keys(nodes).join(',').substring(0, 60) + '\nSample drilldown: ' + nodes[Object.keys(nodes)[0]]['consul_node_name']);
           document.process_yaml.select_roles.options.length = 0 ;
           select_roles = {}
           let cnt = 0 ;
           for (var node_name in nodes){
-            console.log('processed node: ' + node_name ) ;
+            // console.log('processed node: ' + node_name ) ;
             let consul_role = nodes[node_name]['consul_node_name'];
-            console.log('loaded: ' + consul_role ) ;
+            // console.log('loaded: ' + consul_role ) ;
             select_roles[consul_role] = 1;
           }
           for (var consul_role in select_roles){
@@ -109,30 +98,46 @@ function loadFile() {
           document.process_yaml.select_environments.options.length = 0 ;
           select_environments = {}
           cnt = 0 ;
+          branch_names =  {    'test': 'TEST' ,
+                               'test_wec': 'TEST',
+                               'prod': 'PROD',
+                               'prod_bcp': 'PROD',
+                               'sandbox': 'SANDBOX',
+                               'cert': 'VALIDATION',
+                               'cert_bcp': 'VALIDATION',
+          };
+
           for (var node_name in nodes){
             console.log('processed node: ' + node_name ) ;
             let environment = nodes[node_name]['environment'];
             console.log('loaded: ' + environment ) ;
-            select_environments[environment] = 1;
+            select_environments[environment] = branch_names.hasOwnProperty(environment)? branch_names[environment] : environment ;
           }
-          cnt = 0 ;
-          branch_names =  {'test': 'TEST' ,
-                               'test_wec': 'TEST',
-                               'prod': 'PROD',
-                               'prod_wec': 'PROD',
-                               'sandbox': 'SANDBOX',
-                               'cert': 'VALIDATION',
-          };
-          for (var environment in select_environments ) { // NOTE: not Object.keys->() or will get 0,1,...  
-            document.process_yaml.select_environments.options[cnt] = new Option(branch_names[environment], environment, false, false);
-            cnt ++
+          branch_selects = {}
+          
+          for (var environment in select_environments ) { 
+            let environment_displayname = select_environments[environment]
+            if (branch_selects.hasOwnProperty( environment_displayname )){
+              select_environments[environment] = "";
+              console.log('will ignore: ' + environment  + '(' + environment_displayname + ') ' ) ;
+            }
+            branch_selects[environment_displayname]  = 1;
+          }
+          
+          for (var environment in select_environments ) { 
+            // NOTE: not Object.keys->() or will get 0,1,...
+            if (!(branch_names.hasOwnProperty(environment)) || select_environments[environment] != "") { 
+                document.process_yaml.select_environments.options[cnt] = new Option(branch_names.hasOwnProperty(environment)? branch_names[environment] : environment , environment, false, false);
+                cnt ++
+            }            
           }
           document.process_yaml.select_datacenters.options.length = 0 ;
           select_datacenters = {}
+          
           for (var node_name in nodes){
-            console.log('processed node: ' + node_name ) ;
+            // console.log('processed node: ' + node_name ) ;
             let datacenter = nodes[node_name]['datacenter'];
-            console.log('loaded: ' + datacenter ) ;
+            // console.log('loaded: ' + datacenter ) ;
             select_datacenters[datacenter] = 1;
           }
           datacenter_names =  {'wec': 'WEC' ,
