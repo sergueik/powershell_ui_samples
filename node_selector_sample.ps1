@@ -18,8 +18,8 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-$use_yaml_config = $false
-$use_json = $true
+$use_yaml_config = $true
+$use_json = $false
 
 @( 'System.Drawing','System.Windows.Forms') | ForEach-Object { [void][System.Reflection.Assembly]::LoadWithPartialName($_) }
 Add-Type -TypeDefinition @"
@@ -507,47 +507,6 @@ if ($use_yaml_config) {
 }
 if ($use_json_config) {
   $filename = 'environment.json'
-  # http://poshcode.org/2887
-  # http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
-  # https://msdn.microsoft.com/en-us/library/system.management.automation.invocationinfo.pscommandpath%28v=vs.85%29.aspx
-  function Get-ScriptDirectory
-  {
-    [string]$scriptDirectory = $null
-
-    if ($host.Version.Major -gt 2) {
-      $scriptDirectory = (Get-Variable PSScriptRoot).value
-      Write-Debug ('$PSScriptRoot: {0}' -f $scriptDirectory)
-      if ($scriptDirectory -ne $null) {
-        return $scriptDirectory;
-      }
-      $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.PSCommandPath)
-      Write-Debug ('$MyInvocation.PSCommandPath: {0}' -f $scriptDirectory)
-      if ($scriptDirectory -ne $null) {
-        return $scriptDirectory;
-      }
-
-      $scriptDirectory = Split-Path -Parent $PSCommandPath
-      Write-Debug ('$PSCommandPath: {0}' -f $scriptDirectory)
-      if ($scriptDirectory -ne $null) {
-        return $scriptDirectory;
-      }
-    } else {
-      $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-      if ($scriptDirectory -ne $null) {
-        return $scriptDirectory;
-      }
-      $Invocation = (Get-Variable MyInvocation -Scope 1).value
-      if ($Invocation.PSScriptRoot) {
-        $scriptDirectory = $Invocation.PSScriptRoot
-      } elseif ($Invocation.MyCommand.Path) {
-        $scriptDirectory = Split-Path $Invocation.MyCommand.Path
-      } else {
-        $scriptDirectory = $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
-      }
-      return $scriptDirectory
-    }
-  }
-
   $data = (Get-Content -Path ([System.IO.Path]::Combine((Get-ScriptDirectory),$filename))) -join "`n"
 
   Write-Debug $data
