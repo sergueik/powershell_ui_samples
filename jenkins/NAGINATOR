@@ -23,7 +23,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>echo Retry BAR
+      <command>echo Retry BAR: 3
 exit 1</command>
     </hudson.tasks.Shell>
   </builders>
@@ -40,7 +40,7 @@ exit 1</command>
       <maxSchedule>1</maxSchedule>
     </com.chikli.hudson.plugin.naginator.NaginatorPublisher>
     <com.chikli.hudson.plugin.naginator.NaginatorPublisher plugin="naginator@1.17.2">
-      <regexpForRerun>(BAR|bar)</regexpForRerun>
+      <regexpForRerun>(BAR|bar): (\d)</regexpForRerun>
       <rerunIfUnstable>true</rerunIfUnstable>
       <rerunMatrixPart>false</rerunMatrixPart>
       <checkRegexp>true</checkRegexp>
