@@ -68,7 +68,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="YamlDotNet">
-      <HintPath>packages\YamlDotNet.3.7.0\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\YamlDotNet.dll</HintPath>
+      <HintPath>packages\YamlDotNet.5.0.0\lib\net45\YamlDotNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -161,24 +161,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\vagrant_logo_on.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh1.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh2.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh3.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh4.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh5.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Images\vagrant_logo_refresh6.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
