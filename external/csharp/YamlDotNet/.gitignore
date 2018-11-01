@@ -1,0 +1,15 @@
+# Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
+bin
+obj
+
+# mstest test results
+TestResults
+*.suo
+*.user
+*.userprefs
+*.pidb
+Help/*
+release/*
+/_ReSharper.*
+*.pidb
+*.userprefs
