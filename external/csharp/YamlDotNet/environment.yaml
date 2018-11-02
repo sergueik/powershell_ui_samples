@@ -8,16 +8,7 @@ ad8c3125:
   unused2:
   unused3:
   unused4:
-ad8c3125:
-  datacenter: 'wec
-  consul_node_name: service-discovery-server-0
-  branch_name: cert
-  environment: 'prod'
-  unused1:
-  unused2:
-  unused3:
-  unused4:
-e530095c:
+e530095z:
   datacenter: wec
   consul_node_name: service-discovery-server-1
   branch_name: cert
@@ -27,7 +18,7 @@ e530095c:
   unused3:
   unused4:
 e530095c:
-  datacenter: wec
+  datacenter: 'wec
   consul_node_name: service-discovery-server-1
   branch_name: cert
   environment: prod

@@ -37,7 +37,7 @@ namespace Dumper
 					parser = new Parser(input);
 					parser.AlowDuplicates = false;
 					while (parser.MoveNext()) {
-						if (parser.Current is StreamEnd || parser.Current is DocumentEnd || parser.Current is SequenceEnd || parser.Current is SequenceEnd || parser.Current is MappingEnd) {
+						if (parser.Current is StreamEnd || parser.Current is DocumentEnd || parser.Current is SequenceEnd || parser.Current is MappingEnd) {
 							--indent;
 						}
 						for (int i = 0; i < indent; ++i) {
