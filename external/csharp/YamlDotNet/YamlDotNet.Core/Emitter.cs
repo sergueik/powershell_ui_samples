@@ -62,6 +62,16 @@ namespace YamlDotNet.Core
 
 		private bool isOpenEnded;
 
+		private Boolean allowDuplicates = false;
+		public Boolean AlowDuplicates{
+			get {
+				return allowDuplicates;
+			}
+			set {
+				allowDuplicates = value;
+			}
+		}
+
 		private struct AnchorData
 		{
 			public string anchor;
@@ -719,7 +729,8 @@ namespace YamlDotNet.Core
 				{
 					foreach (var tagDirective in documentStart.Tags)
 					{
-						AppendTagDirective(tagDirective, false);
+						// allowDuplicates
+						AppendTagDirective(tagDirective,  false );
 					}
 				}
 
@@ -850,7 +861,7 @@ namespace YamlDotNet.Core
 				}
 				else
 				{
-					throw new YamlException("Duplicate %TAG directive.");
+					throw new YamlException("There is a Duplicate %TAG directive.");
 				}
 			}
 			else

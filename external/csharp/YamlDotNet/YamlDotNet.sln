@@ -11,10 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
-		LICENSE = LICENSE
 		YamlDotNet.build = YamlDotNet.build
-		YamlDotNet.Converters.nuspec = YamlDotNet.Converters.nuspec
-		YamlDotNet.Core.nuspec = YamlDotNet.Core.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YamlDotNet.Core", "YamlDotNet.Core\YamlDotNet.Core.csproj", "{BF32DE1B-6276-4341-B212-F8862ADBBA7A}"

@@ -75,7 +75,15 @@ namespace YamlDotNet.Core
 				return current;
 			}
 		}
-
+		private Boolean allowDuplicates = false;
+		public Boolean AlowDuplicates{
+			get {
+				return allowDuplicates;
+			}
+			set {
+				allowDuplicates = value;
+			}
+		}
 		/// <summary>
 		/// Moves to the next event.
 		/// </summary>
