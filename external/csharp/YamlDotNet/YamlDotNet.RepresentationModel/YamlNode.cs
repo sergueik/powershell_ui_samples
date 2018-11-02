@@ -108,6 +108,8 @@ namespace YamlDotNet.RepresentationModel
 		/// <param name="state">The state of the document.</param>
 		internal abstract void ResolveAliases(DocumentLoadingState state);
 
+		
+		
 		/// <summary>
 		/// Saves the current node to the specified emitter.
 		/// </summary>

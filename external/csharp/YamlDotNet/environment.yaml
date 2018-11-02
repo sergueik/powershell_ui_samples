@@ -9,7 +9,7 @@ ad8c3125:
   unused3:
   unused4:
 ad8c3125:
-  datacenter: wec
+  datacenter: 'wec
   consul_node_name: service-discovery-server-0
   branch_name: cert
   environment: 'prod'
