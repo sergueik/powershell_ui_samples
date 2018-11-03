@@ -18,7 +18,7 @@ e530095z:
   unused3:
   unused4:
 e530095c:
-  datacenter: 'wec
+  datacenter: 'wec'
   consul_node_name: service-discovery-server-1
   branch_name: cert
   environment: prod
@@ -26,20 +26,20 @@ e530095c:
   unused2:
   unused3:
   unused4:
+node_to_ignore:
+  datacenter: wec
+  branch_name: cert
+  server_role: 'internal'
+  unused1:
+  unused2:
+  unused3:
+  unused4:
+  environment: prod
 e577775c:
   datacenter: oxdc
   consul_node_name: apim-ap-manager-publisher-0
   branch_name: sand
   environment: test
-  unused1:
-  unused2:
-  unused3:
-  unused4:
-node_to_ignore:
-  datacenter: wec
-  branch_name: cert
-  environment: prod
-  server_role: 'internal'
   unused1:
   unused2:
   unused3:
