@@ -2,14 +2,10 @@
 bin
 obj
 
-# mstest test results
-TestResults
 *.suo
 *.user
 *.userprefs
 *.pidb
-Help/*
-release/*
-/_ReSharper.*
+packages/*
 *.pidb
 *.userprefs
