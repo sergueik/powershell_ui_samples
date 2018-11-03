@@ -19,13 +19,22 @@
 #THE SOFTWARE.
 
 param(
-  [String]$filePath
+  [String]$fileName,
+  [switch]$cleanSession
+
 )
 
+# based on lobrary
 # https://github.com/aaubry/YamlDotNet
-# http://stackoverflow.com/questions/14894864/how-to-download-a-nuget-package-without-nuget-exe-or-visual-studio-extension
-# http://www.nuget.org/api/v2/package/<assembly>/<version>
+# the stable package https://www.nuget.org/packages/YamlDotNet/5.0.0 
+# one can build YamlDotNet.Core.dll and YamlDotNet.RepresentationModel.dll standalone from source or load both clases from YamlDotNet.dll
 
+# one can alsway compile from the source:
+# git clone
+# pushd 
+# path=%path%;n Source;c:\Windows\Microsoft.NET\Framework\v4.0.30319
+# pushd YamlDotNet.Core &&  msbuild && popd
+# pushd Dumper &&  msbuild && popd
 
 # NOTE: does not work well with stacked Powershell shell instances launched
 function Get-ScriptDirectory{
@@ -43,11 +52,13 @@ function Get-ScriptDirectory{
 
 function load_shared_assemblies {
   param(
-    [String]$shared_assemblies_path = "${env:USERPROFILE}\Downloads",
+    [String]$shared_assemblies_path = "c:\Users\${env:USERNAME}\Downloads", 
+    # "${env:USERPROFILE}\Downloads" - may be mounted on the shared drive
     [string[]]$shared_assemblies = @(
-    'YamlDotNet.Core.dll' # '2.0.1'
-    # 'nunit.core.dll' # '3.0.0-beta-4'
-    # 'nunit.framework.dll' # TODO - check if still needed
+      'YamlDotNet.dll' # '5.0.0'
+      # 'YamlDotNet.Core.dll' # '2.0.1'
+      # 'nunit.core.dll' # '3.0.0-beta-4'
+      # 'nunit.framework.dll' # TODO - check if still needed
     )
 
   )
@@ -76,12 +87,29 @@ function load_shared_assemblies {
 	VERSION HISTORY
 	2016/01/24 Initial Version
 #>
-load_shared_assemblies -shared_assemblies_path (get-scriptdirectory)
+
+[bool]$clean_session_flag = [bool]$PSBoundParameters['cleanSession'].IsPresent
+# need to exit pssession to unload YamlDotNet.dll. Really ?!
+# https://stackoverflow.com/questions/1337961/powershell-unload-module-completely
+if ($clean_session_flag) {
+  write-debug  'Enter PS Session'
+  enter-PSSession -computername '.'
+  # enter-PSSession : Connecting to remote server localhost failed with the
+  # following error message : WinRM cannot process the request. The following
+  # error with errorcode 0x8009030e occurred while using Negotiate authentication
+  enter-PSSession 
+}
+load_shared_assemblies
+# -shared_assemblies_path ( Get-ScriptDirectory)
+$filePath = resolve-path -path $fileName
+openLog -filePath $filePath
+
 [String]$data = (Get-Content -Path $filePath) -join "`n"
-[System.IO.TextReader] $input = [System.IO.File]::OpenText($filePath)
+[System.IO.TextReader] $inputFile = [System.IO.File]::OpenText($filePath)
+# cannot assign automatic varibale 'input' with type 'System.Object'
 try {
 
-  [YamlDotNet.Core.PArser]$parser = new-object YamlDotNet.Core.Parser($input)
+  [YamlDotNet.Core.PArser]$parser = new-object YamlDotNet.Core.Parser($inputFile)
   # will only work with patched dll
   try {
     $parser.AlowDuplicates = $false
@@ -118,7 +146,10 @@ try {
     (Lin: 14, Col: 15, Chr: 291) - (Lin: 46, Col: 0, Chr: 852): While scanning a quoted scalar, find unexpected end of stream.
     (Lin: 1, Col: 8, Chr: 14) - (Lin: 1, Col: 8, Chr: 14): Mapping values are not allowed in this context.
   #>
+} finally {
+  if ($clean_session_flag) {
+    write-debug  'Exit PS Session'
+    exit-PSSession
+  }
 }
 
-# need to exit pssession to unload YamlDotNet.dll. Really ?!
-# https://stackoverflow.com/questions/1337961/powershell-unload-module-completely

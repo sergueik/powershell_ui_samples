@@ -19,14 +19,14 @@
 #THE SOFTWARE.
 
 param(
-  [String]$filePath
+  [String]$fileName
 )
 
 # origin: https://github.com/scottmuc/PowerYaml
+# based on lobrary
 # https://github.com/aaubry/YamlDotNet
- 
-# http://stackoverflow.com/questions/14894864/how-to-download-a-nuget-package-without-nuget-exe-or-visual-studio-extension
-# http://www.nuget.org/api/v2/package/<assembly>/<version>
+# the stable package https://www.nuget.org/packages/YamlDotNet/5.0.0 
+# one can build YamlDotNet.Core.dll and YamlDotNet.RepresentationModel.dll standalone from source or load both clases from YamlDotNet.dll
 
 
 function get-YamlStreamFromString {
@@ -77,16 +77,17 @@ function OpenLog {
 
 function load_shared_assemblies {
   param(
-    [String]$shared_assemblies_path = "${env:USERPROFILE}\Downloads",
+    [String]$shared_assemblies_path = "c:\Users\${env:USERNAME}\Downloads", 
+    # "${env:USERPROFILE}\Downloads" - may be mounted on the shared drive
     [string[]]$shared_assemblies = @(
-    'YamlDotNet.Core.dll',# '2.0.1'
-    'YamlDotNet.RepresentationModel.dll' # '2.0.1'
-    # 'nunit.core.dll' # '3.0.0-beta-4'
-    # 'nunit.framework.dll' # TODO - check if still needed
+      'YamlDotNet.dll' # '5.0.0'
+      # 'YamlDotNet.Core.dll',# '2.0.1'
+      # 'YamlDotNet.RepresentationModel.dll' # '2.0.1'
+      # 'nunit.core.dll' # '3.0.0-beta-4'
+      # 'nunit.framework.dll' # TODO - check if still needed
     )
   
   )
-
 
   pushd $shared_assemblies_path
 
@@ -112,7 +113,10 @@ function load_shared_assemblies {
 	VERSION HISTORY
 	2016/01/24 Initial Version
 #>
-load_shared_assemblies -shared_assemblies_path ( Get-ScriptDirectory)
+load_shared_assemblies
+
+# -shared_assemblies_path ( Get-ScriptDirectory)
+$filePath = resolve-path -path $fileName
 openLog -filePath $filePath
 <# 
   Example exception in the condtructor event propagation from YamlMappingNode class:
