@@ -1,8 +1,8 @@
 ### Info
 
-This directory contains a replica of 
+This directory contains a replica of
 [aaubry/YamlDotNet](https://github.com/aaubry/YamlDotNet)
-downgraded to compileto .NEt 2.x , 4.x 
+downgraded to compileto .NEt 2.x , 4.x
 and stripped from it Docker part etc.
 ### Motivition:
 
@@ -40,6 +40,29 @@ e.g. __Version 3.5.0__
 
 Later was found that due to somewhat nonstandard DOM of the project files used, an even older version of the  projct is a safe start.
 was teken __Version 2.0.1__
+
+
+### Ruby YamlLint validation.
+
+The Ruby `yamllint` [gem](https://github.com/shortdudey123/yamllint)  appears
+to be capable of precise line in error reporting (some earlier versions did not do it very well)
+
+```sh
+$ gem list  yamllint
+yamllint (0.0.9)
+```
+
+```sh
+Checking 1 files
+environment.yaml
+  The same key is defined more than once: e577775c.environment
+```
+```sh
+Checking 1 files
+environment.yaml
+  (<unknown>): did not find expected key while parsing a block mapping at line 12 column 3
+```
+
 
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)
