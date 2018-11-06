@@ -17,24 +17,25 @@ namespace YamlDotNet.RepresentationModel.Test
 	{
 		private StringBuilder verificationErrors = new StringBuilder();
 		private static String data = @"---
-ad8c3125:
-  datacenter: wec
-  consul_node_name: service-discovery-server-0
-  branch_name: cert
-  environment: 'prod'
-  unused1:
-  unused2:
-  unused3:
-  unused4:
-ad8c3126:
-  datacenter: wec
-  consul_node_name: service-discovery-server-1
-  branch_name: cert
-  environment: prod
-  unused1:
-  unused2:
-  unused3:
-  unused4:
+key1:
+  datacenter: 'data center'
+  param1: 
+    - 'a'
+    - 'b' 
+    - 'c'
+  param2:
+    param3: 'data'
+  param4: []
+key2:
+  datacenter: 'data center '
+  param1: 
+    - 'a'
+    - 'b' 
+    - 'c'
+  param2:
+    param3: 'data'
+  param5: {}
+# param3:
 ";
 		private StringReader sr = new StringReader(data);
 		private YamlStream stream = new YamlStream();
@@ -42,6 +43,11 @@ ad8c3126:
 		public void SetUp()
 		{
 			stream.Load((System.IO.TextReader)sr);
+			/*
+			 SetUp : YamlDotNet.Core.YamlException : (Lin: 10, Col: 0, Chr: 175) - (Lin: 10, Col: 8, Chr: 183): Duplicate key
+  ----> System.ArgumentException : An item with the same key has already been added. - c:\developer\sergueik\powershell_ui_samples\external\csharp\YamlDotNet\YamlDotNet.RepresentationModel\
+  YamlMappingNode.cs:74
+			 */
 		}
 
 		[TearDown]

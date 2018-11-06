@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>YamlDotNet.RepresentationModel</RootNamespace>
-    <AssemblyName>YamlDotNet.RepresentationModel</AssemblyName>
+    <AssemblyName>RepresentationModel</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -170,7 +170,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\YamlDotNet.Core\YamlDotNet.Core.csproj">
+    <ProjectReference Include="..\Core\Core.csproj">
       <Project>{d14f219e-1737-4885-8e99-5206dd112673}</Project>
       <Name>YamlDotNet.Core</Name>
     </ProjectReference>

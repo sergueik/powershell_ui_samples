@@ -100,11 +100,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\YamlDotNet.Core\YamlDotNet.Core.csproj">
+    <ProjectReference Include="..\Core\Core.csproj">
       <Project>{d14f219e-1737-4885-8e99-5206dd112673}</Project>
       <Name>YamlDotNet.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\YamlDotNet.RepresentationModel\YamlDotNet.RepresentationModel.csproj">
+    <ProjectReference Include="..\RepresentationModel\RepresentationModel.csproj">
       <Project>{288a7b22-d79f-45ae-b9ba-5510401f14f8}</Project>
       <Name>YamlDotNet.RepresentationModel</Name>
     </ProjectReference>
