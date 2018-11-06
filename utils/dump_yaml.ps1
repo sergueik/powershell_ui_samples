@@ -20,18 +20,18 @@
 
 param(
   [String]$fileName,
-  [switch]$cleanSession
-
+  [switch]$verbose,
+  [switch]$cleanSession # does not work
 )
 
 # based on lobrary
 # https://github.com/aaubry/YamlDotNet
-# the stable package https://www.nuget.org/packages/YamlDotNet/5.0.0 
+# the stable package https://www.nuget.org/packages/YamlDotNet/5.0.0
 # one can build YamlDotNet.Core.dll and YamlDotNet.RepresentationModel.dll standalone from source or load both clases from YamlDotNet.dll
 
 # one can alsway compile from the source:
 # git clone
-# pushd 
+# pushd
 # path=%path%;n Source;c:\Windows\Microsoft.NET\Framework\v4.0.30319
 # pushd YamlDotNet.Core &&  msbuild && popd
 # pushd Dumper &&  msbuild && popd
@@ -52,7 +52,7 @@ function Get-ScriptDirectory{
 
 function load_shared_assemblies {
   param(
-    [String]$shared_assemblies_path = "c:\Users\${env:USERNAME}\Downloads", 
+    [String]$shared_assemblies_path = "c:\Users\${env:USERNAME}\Downloads",
     # "${env:USERPROFILE}\Downloads" - may be mounted on the shared drive
     [string[]]$shared_assemblies = @(
       'YamlDotNet.dll' # '5.0.0'
@@ -87,6 +87,7 @@ function load_shared_assemblies {
 	VERSION HISTORY
 	2016/01/24 Initial Version
 #>
+[bool]$verbose_flag = [bool]$PSBoundParameters['verbose'].IsPresent
 
 [bool]$clean_session_flag = [bool]$PSBoundParameters['cleanSession'].IsPresent
 # need to exit pssession to unload YamlDotNet.dll. Really ?!
@@ -97,31 +98,43 @@ if ($clean_session_flag) {
   # enter-PSSession : Connecting to remote server localhost failed with the
   # following error message : WinRM cannot process the request. The following
   # error with errorcode 0x8009030e occurred while using Negotiate authentication
-  enter-PSSession 
+  enter-PSSession
 }
 load_shared_assemblies
+# to test custom assembly load it from local directory
 # -shared_assemblies_path ( Get-ScriptDirectory)
 $filePath = resolve-path -path $fileName
-openLog -filePath $filePath
 
 [String]$data = (Get-Content -Path $filePath) -join "`n"
 [System.IO.TextReader] $inputFile = [System.IO.File]::OpenText($filePath)
-# cannot assign automatic varibale 'input' with type 'System.Object'
+# cannot assign automatic variable 'input' with type 'System.Object'
 try {
 
   [YamlDotNet.Core.PArser]$parser = new-object YamlDotNet.Core.Parser($inputFile)
-  # will only work with patched dll
   try {
+    # the following code will only work with patched dll
     $parser.AlowDuplicates = $false
   } catch [Exception]{
   }
   $indent = 0
   while ($parser.MoveNext()) {
-    # TODO: covert 'is'
-    if ( ( $parser.Current.toString() -match '(?:Stream end|Document end|Sequence end|Mapping end)') -or
-        ( $parser.Current -eq [YamlDotNet.Core.Events.MappingEnd]) -or
-        ( $parser.Current -eq (new-object YamlDotNet.Core.Events.StreamEnd))) {
-    $indent = $indent - 1
+    # NOTE: incorrect way of coverting 'is'
+    <#
+    if (( $parser.Current -eq [YamlDotNet.Core.Events.StreamEnd]) -or
+        ( $parser.Current -eq [YamlDotNet.Core.Events.DocumentEnd]) -or
+        ( $parser.Current -eq [YamlDotNet.Core.Events.SequenceEnd]) -or
+        ( $parser.Current -eq [YamlDotNet.Core.Events.MappingEnd]))) {
+    #>
+    # NOTE: another incorrect way of coverting 'is'
+    <#
+    if (( $parser.Current -eq (new-object YamlDotNet.Core.Events.StreamEnd)) -or
+        ( $parser.Current -eq (new-object YamlDotNet.Core.Events.DocumentEnd($false) )) -or
+        ( $parser.Current -eq (new-object YamlDotNet.Core.Events.SequenceEnd)) -or
+        ( $parser.Current -eq (new-object YamlDotNet.Core.Events.MappingEnd))) {
+    #>
+    if ( $parser.Current.toString() -match '(?:Stream end|Document end|Sequence end|Mapping end)') {
+      # indent but do not print the occurence of those event
+      $indent = $indent - 1
     }
     elseif ($parser.Current.toString() -match '(?:Stream start|Document start|Sequence start|Mapping start)') {
       $indent = $indent + 1
@@ -130,7 +143,10 @@ try {
     for ($i = 0; $i -le $indent; $i++) {
       $output   += ' '
     }
-    write-output ('{0}{1}' -f $output , $parser.Current.ToString())
+    if ($verbose_flag) {
+      # invoke ToString() method of the current Scalar event
+      write-output ('{0}{1}' -f $output , $parser.Current.ToString())
+    }
     }
   }
 } catch [Exception]{
