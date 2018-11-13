@@ -1,4 +1,4 @@
-#Copyright (c) 2014 Serguei Kouzmine
+#Copyright (c) 2014,2018 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -17,8 +17,6 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
-
-
 
 $RESULT_OK = 0
 $RESULT_CANCEL = 2
@@ -159,6 +157,78 @@ public class Win32Window : IWin32Window
 
 "@ -ReferencedAssemblies 'System.Windows.Forms.dll'
 
+
+
+[void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+[void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+
+$shared_assemblies = @(
+  'CredentialManagement.dll',
+  'nunit.framework.dll'
+)
+
+$selenium_drivers_path = $shared_assemblies_path = "c:\Users\${env:USERNAME}\Downloads"
+
+if (($env:SHARED_ASSEMBLIES_PATH -ne $null) -and ($env:SHARED_ASSEMBLIES_PATH -ne '')) {
+  $shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
+}
+
+pushd $shared_assemblies_path
+
+$shared_assemblies | ForEach-Object { Unblock-File -Path $_; Add-Type -Path $_ }
+popd
+# https://www.c-sharpcorner.com/forums/windows-credential-manager-with-c-sharp
+# one can install wth nuget
+
+# https://www.nuget.org/packages/CredentialManagement/
+
+Add-Type -TypeDefinition @"
+// "
+using System;
+using CredentialManagement;
+
+public class Helper {
+  private String password = null;
+  private String userName = null;
+
+  public string UserName {
+    get { return userName; }
+    set { userName = value; }
+  }
+  public string Password {
+    set { password = value; }
+  }
+
+  public void SavePassword() {
+    try {
+      using (var cred = new Credential()) {
+        cred.Password = password;
+        cred.Target = userName;
+        cred.Type = CredentialType.Generic;
+        cred.PersistanceType = PersistanceType.LocalComputer;
+        cred.Save();
+      }
+    } catch(Exception ex){
+      Console.Error.WriteLine("Exception (ignord) " + ex.ToString());
+    }
+  }
+
+  public String GetPassword() {
+    try {
+      using (var cred = new Credential()) {
+        cred.Target = userName;
+        cred.Load();
+        return cred.Password;
+      }
+    } catch (Exception ex) {
+      Console.Error.WriteLine("Exception (ignord) " + ex.ToString());
+    }
+    return "";
+  }
+}
+
+"@  -ReferencedAssemblies 'System.Security.dll', "c:\Users\${env:USERNAME}\Downloads\CredentialManagement.dll"
+
 $DebugPreference = 'Continue'
 $title = 'Enter credentials'
 $user = 'admin'
@@ -166,5 +236,10 @@ $caller = New-Object Win32Window -ArgumentList ([System.Diagnostics.Process]::Ge
 
 PromptPassword -Title $title -user $user -caller $caller
 if ($caller.Data -ne $RESULT_CANCEL) {
-  Write-Debug ('Result is : {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
+  Write-Debug ('Oridinal password was : {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
+  $o = new-object Helper
+  $o.UserName = $caller.txtUser
+  $o.Password = $caller.txtPassword
+  $o.SavePassword()
+  write-output ("Password loaded back: {0} " -f $o.GetPassword())
 }
