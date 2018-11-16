@@ -18,6 +18,13 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
+# https://support.microsoft.com/en-us/help/4026814/windows-accessing-credential-manager
+# Control Panel -> User Accounts -> Credential Manager -> Windows Credential
+param (
+  [string]$user = 'demouser',
+  [switch]$store,
+  [switch]$debug
+)
 $RESULT_OK = 0
 $RESULT_CANCEL = 2
 
@@ -177,10 +184,15 @@ pushd $shared_assemblies_path
 
 $shared_assemblies | ForEach-Object { Unblock-File -Path $_; Add-Type -Path $_ }
 popd
+
 # https://www.c-sharpcorner.com/forums/windows-credential-manager-with-c-sharp
 # one can install wth nuget
 
 # https://www.nuget.org/packages/CredentialManagement/
+
+# cmdkey can create, list, and deletes stored user names and passwords or credentials.
+# Passwords will not be displayed once they are stored
+# https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey
 
 Add-Type -TypeDefinition @"
 // "
@@ -229,17 +241,35 @@ public class Helper {
 
 "@  -ReferencedAssemblies 'System.Security.dll', "c:\Users\${env:USERNAME}\Downloads\CredentialManagement.dll"
 
-$DebugPreference = 'Continue'
+$store_flag = [bool]$PSBoundParameters['store'].IsPresent
+
+$debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
+if ($debug_flag){
+  $DebugPreference = 'Continue'
+}
 $title = 'Enter credentials'
-$user = 'admin'
 $caller = New-Object Win32Window -ArgumentList ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
 
 PromptPassword -Title $title -user $user -caller $caller
 if ($caller.Data -ne $RESULT_CANCEL) {
-  Write-Debug ('Oridinal password was : {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
+  if ($debug_flag){
+    Write-Debug ('Oridinal username/password was: {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
+  }
   $o = new-object Helper
   $o.UserName = $caller.txtUser
-  $o.Password = $caller.txtPassword
-  $o.SavePassword()
-  write-output ("Password loaded back: {0} " -f $o.GetPassword())
+  if ($store_flag) {
+    $o.Password = $caller.txtPassword
+    $o.SavePassword()
+    write-output 'Password is stored in the vault'
+  } else {
+  if ([system.String]::Compare($o.GetPassword(), $caller.txtPassword) -eq 0 ){
+    $result = 'valid'
+  } else {
+    $result = 'invalid'
+  }
+  write-output ('Password is ' + $result)
+  if ($debug_flag){
+    write-debug ('Password loaded from Vault: {0}' -f $o.GetPassword())
+  }
+  }
 }
