@@ -69,7 +69,7 @@ $jws = "${encodedheader}.${encodedclaim}";
 # https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.rsacryptoserviceprovider.signdata?view=netframework-4.5
 $rsa = [System.Security.Cryptography.RSACryptoServiceProvider]::Create()
 
-$encodedjws = [System.Text.Encoding]::Unicode.GetBytes($jws)
+$encodedjws = [System.Text.Encoding]::UTF8.GetBytes($jws)
 <#
 [System.Security.Cryptography.SHA256CryptoServiceProvider]$p = new-object -typename 'System.Security.Cryptography.SHA256CryptoServiceProvider'
 [Byte[]]$signature = $rsa.SignData($encodedjws,$p)
