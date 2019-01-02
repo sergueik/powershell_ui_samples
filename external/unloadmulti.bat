@@ -39,7 +39,7 @@ FOR /L %%a in  (1 1 !PROCESSORS!) do @ (
 rem convert loop parameter %%a into a script parameter COUNT
   echo "Doing %%a" ; 
   echo Padding with zeros %%a
-  set /A COUNT=1000+%a
+  set /A COUNT=1000+%%a
   set COUNT=!COUNT:~2!
   set INPUTFILE=%FILENAME%0!COUNT!.extZ
   set OUTPUTFILE=%FILENAME%0!COUNT!.csvZ
