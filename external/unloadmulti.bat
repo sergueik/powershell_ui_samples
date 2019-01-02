@@ -21,16 +21,16 @@ echo starting vutil unload %time%
 echo \datatrax\uni66\live\vutil32.exe -unload -b \datatrax\uni66\live\%FILENAME% %FILENAME%.ext
 echo starting split %time%
 
-set FILESIZE=1000000
+rem set FILESIZE=1000000
 REM --Batch math needs an external script to calculate values over 2GB
 REM set /A splitbytes=(%FILESIZE%/%linelength%/%processors%+1)*%linelength%
-set linelength=100
+set linelength=2076
 
 for /f "delims=" %%a in ('gawk ^'BEGIN{print int^(%FILESIZE%/%linelength%/%processors%+1^)*%linelength%}^'') do @set splitbytes=%%a 
 rem may need to change %splitbytes% to !splitbytes!
  
 echo Calculated splitbytes  %splitbytes%
-echo split --bytes=%splitbytes% --additional-suffix=".extZ" --numeric-suffixes=1 %1 %FILENAME%
+split --bytes=%splitbytes% --additional-suffix=".extZ" --numeric-suffixes=1 %1 %FILENAME%
 echo starting unloadtocsv %time%
 
 
@@ -38,9 +38,11 @@ REM  using delayed expansion here
 FOR /L %%a in  (1 1 !PROCESSORS!) do @ (
 rem convert loop parameter %%a into a script parameter COUNT
   echo "Doing %%a" ; 
-  set COUNT=%%a
-  set INPUTFILE=%FILENAME%!COUNT!.extZ
-  set OUTPUTFILE=%FILENAME%!COUNT!.csvZ
+  echo Padding with zeros %%a
+  set /A COUNT=1000+%a
+  set COUNT=!COUNT:~2!
+  set INPUTFILE=%FILENAME%0!COUNT!.extZ
+  set OUTPUTFILE=%FILENAME%0!COUNT!.csvZ
   call :PROCESS !COUNT! !INPUTFILE! !outputfile!
 )
 
@@ -70,7 +72,7 @@ set OUTPUTFILE=%3
 echo Starting task process # %TASK%
 echo It will process %INPUTFILE% 
 echo It will proceduce %OUTPUTFILE%
-echo start /B gawk.exe --file=unloadtocsv.awk ... %INPUTFILE% %OUTPUTFILE%
+start /wait /B c:/cygwin64/bin/gawk.exe --file=unloadtocsv.awk -b %FILENAME%.cxfd %INPUTFILE% >%OUTPUTFILE%
 echo TASK=%TASK% > %OUTPUTFILE%
 echo Was reading %INPUTFILE%  >> %OUTPUTFILE%
 
