@@ -1,0 +1,11 @@
+REM this is the end of the script
+rm %filename%*.extZ
+echo starting merge %time%
+REM should get a much more efficient way of concatenating files
+head -1 --quiet %filename%01.csvZ >%filename%-p2.csv
+tail -n +2 --quiet %filename%*.csvZ >>%filename%-p2.csv
+
+rm %filename%*.csvZ
+
+echo finished at %time%
+

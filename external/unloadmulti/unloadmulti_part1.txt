@@ -1,0 +1,21 @@
+@echo OFF
+
+setlocal enableextensions enabledelayedexpansion
+REM this is the beginning of the script
+set filename=%~n1
+set filesize=%~z1
+
+set linelength=2076
+REM I want to be able to set the number of processors here, and have it create that many concurrent jobs below.
+
+echo starting vutil unload %time%
+\datatrax\uni66\live\vutil32.exe -unload -b \datatrax\uni66\live\%filename% %filename%.ext
+echo starting split %time%
+
+REM --Batch math needs an external script to calculate values over 2GB
+REM set /A splitbytes=(%filesize%/%linelength%/%processors%+1)*%linelength%
+
+for /f "delims=" %%a in ('gawk ^'BEGIN{print int^(%filesize%/%linelength%/%processors%+1^)*%linelength%}^'') do @set splitbytes=%%a 
+
+split --bytes=%splitbytes% --additional-suffix=".extZ" --numeric-suffixes=1 %1 %filename%
+echo starting unloadtocsv %time%
