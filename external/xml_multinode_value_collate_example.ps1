@@ -1630,10 +1630,9 @@ $profiles | foreach-object {
   $profile = $_
   $profile_element_name = ('{0}Profile' -f $_)
   if ($debug_run) {
-    # write to STDERR colorless
     [System.Console]::Error.WriteLine( $profile_element_name )
   }
-  # NOTE: returned is an System.Object[] array (hack around is possible)
+  # NOTE: hack around return value type System.Object[] array 
   if ($debug_run) {
     $t = $extension_element.GetNamespaceOfPrefix('q3').GetType()
     write-output $t.Name
@@ -1645,14 +1644,12 @@ $profiles | foreach-object {
     $namespace = 'http://www.microsoft.com/GroupPolicy/Settings/WindowsFirewall'
   }
   if ($debug_run) {
-    # write to STDERR colorless
     [System.Console]::Error.WriteLine( $namespace )
   }
-  $profile_element = $extension.GetElementsByTagName($profile_element_name, $namespace)
+  $profile_element = $extension_element.GetElementsByTagName($profile_element_name, $namespace)
   $enable_firewall_element =  $profile_element.'EnableFirewall'
   $firewall_status[$profile] = [Boolean]($enable_firewall_element.Value)
   if ($debug_run) {
-    # write to STDERR colorless
     [System.Console]::Error.WriteLine(  $firewall_status[$profile] )
   }
 
@@ -1666,15 +1663,12 @@ ForEach-Object {
   $firewall_status_value = $_
   $firewall_status_summary = [Boolean]($firewall_status_summary -band $firewall_status_value)
 }
-# No true ternary lexic in Powershell grammar
-# home-brewed workaround
-# https://github.com/nightroman/PowerShellTraps/tree/master/Basic/Missing-ternary-operator
-# does not work well in complex expressions either:
-# write-output ('{0} GPO: Firewall Config - {1}' -f $site, (if($firewall_status_summary){'FirewallEnabled'} else { 'FirewallDisabled'}))
 if ($debug_run) {
-  # write to STDERR but colorless
   [System.Console]::Error.WriteLine( $firewall_status_summary )
 }
+# No true ternary expression in Powershell grammar 
+# https://github.com/nightroman/PowerShellTraps/tree/master/Basic/Missing-ternary-operator
+# https://stackoverflow.com/questions/31341998/ternary-operator-in-powershell
+# A somewhat ugly looking workaround relyng on $() wrapper
+write-output ('{0} GPO: Firewall Config - {1}' -f $site, $(if($firewall_status_summary){'FirewallEnabled'} else { 'FirewallDisabled'}))
 
-$status_verbose = if($firewall_status_summary){'FirewallEnabled'} else { 'FirewallDisabled'}
-write-output ('{0} GPO: Firewall Config - {1}' -f $site, $status_verbose)
