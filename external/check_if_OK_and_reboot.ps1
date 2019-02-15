@@ -18,7 +18,8 @@ $noop_mode = [bool]$PSBoundParameters['noop'].IsPresent
 $debugpreference='continue'
 
 # based on http://forum.oszone.net/thread-193204.html
-
+# see also http://forum.oszone.net/thread-333930.html
+#
 function checkProcessOnHost{
   param (
     $computer = '.',
@@ -45,6 +46,25 @@ function checkProcessOnHost{
 }
 
 $processname = 'java.exe'
+
+<#
+alternative - not tested
+$targetnodes = @()
+strCategory = "computer"
+$objDomain = New-Object System.DirectoryServices.DirectoryEntry
+$objSearcher = New-Object System.DirectoryServices.DirectorySearcher
+$objSearcher.SearchRoot = $objDomain
+$objSearcher.Filter = ("(objectCategory=$strCategory)")
+$colProplist = 'name'
+foreach ($i in $colPropList){$objSearcher.PropertiesToLoad.Add($i)}
+  $colResults = $objSearcher.FindAll()
+  foreach ($objResult in $colResults) {
+    $objComputer = $objResult.Properties
+    $targetnodes  += $objComputer.name
+  }
+}
+#>
+
 $targetdomain = 'mydomain'
 $ou = [ADSI]"LDAP://CN=Computers,DC=${targetdomain}DC=com"
 
@@ -57,6 +77,8 @@ $ou.children | where-object {$_.objectCategory -match 'Computer'} | foreach-obje
     }
     else {
       restart-Computer -ComputerName $targetcomputer
+      # see also: https://mcpmag.com/articles/2012/04/10/how-to-restart-computers-remotely-via-powershell.aspx
+      # get-wmiobject 'Win32_OperatingSystem' -computerName $targetcomputer | Invoke-WMIMethod -name 'Win32Shutdown' -ArgumentList @(4)
     }
   }
 }
