@@ -28,6 +28,10 @@ function checkProcessOnHost{
   $status = $false
   if ((test-connection -quiet -delay 1 -count 2 -erroraction SilentlyContinue  -computername $computer) -or  ($computer -eq '.')) {
     $processList = get-wmiobject -class 'Win32_Process' -computername $computer | where-Object {$_.Name -match $processname } |select-object -expandproperty 'name'
+    if ($processList -eq $null ){
+      write-debug "No processes ${processname} found on node ${computer} - can reboot"
+      $status = $true
+    } else [
     # can be [String[]] or [String]
     $processCount = 0
     if ($processList -is [array]){
@@ -35,8 +39,9 @@ function checkProcessOnHost{
     } else {
       $processCount = 1
     }
-    write-debug ("On Node ${computer} is running {0} copies of ${processname}" -f $processCount  )
-    $status = $true
+    write-debug ("{0} copies of ${processname} is running on node ${computer} - cannot reboot" -f $processCount  )
+    $status = $false
+    }
   }
   else {
     write-debug "Node ${computer} is down"
