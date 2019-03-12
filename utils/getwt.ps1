@@ -78,16 +78,57 @@ ProcessId : 2100
 #>
 
 # alternative
-# origin: https://devblogs.microsoft.com/scripting/hey-scripting-guy-how-can-i-use-windows-powershell-to-get-a-list-of-all-the-open-windows-on-a-computer/
-#
+# based on: https://devblogs.microsoft.com/scripting/hey-scripting-guy-how-can-i-use-windows-powershell-to-get-a-list-of-all-the-open-windows-on-a-computer/
 
-$shellApplication = New-Object -com 'Shell.Application'
+$shellApplication = new-object -com 'Shell.Application'
 $windows = $shellApplication.windows() | select-object LocationName, HWND, Name
-write-output $windows
+$window = $windows | where-object {$_.LocationName -match 'Personalization' -and $_.Visible -eq $true} | select-object -first 1
+write-output $window | select-object LocationName,HWND,Name,FullName | format-list
+$window.Quit()
+<#
+LocationName : Personalization
+HWND         : 196982
+Name         : Windows Explorer
+FullName     : C:\Windows\Explorer.EXE
+
+#>
+
+
+<%
+set THEME=C:\Windows\Resources\Themes\nature.theme
+REM Need quotes in the argument
+rundll32.exe %SystemRoot%\system32\shell32.dll,Control_RunDLL %SystemRoot%\system32\desk.cpl desk,@Themes /Action:OpenTheme /file:"%THEME%"
+%>
+
+# Scriptable Shell Objects
+# https://msdn.microsoft.com/en-us/library/windows/desktop/bb776890(v=vs.85).aspx
+<#
+var oShell = new ActiveXObject('Shell.Application');
+var windows = oShell.Windows();
+var wshShell = new ActiveXObject('WScript.Shell'); 
+for (var window in windows){
+  wshShell.echo('window');
+  wshShell.echo(window);
+  wshShell.echo(window.LocationName);
+}
+#>
 
 <#
-
-LocationName : Personalization
-Name         : Windows Explorer
-HWND         : 131432
+Dim objShell: Set objShell = WScript.CreateObject("WScript.Shell") 
+Dim objShellApplication: Set objShellApplication = WScript.CreateObject("shell.application") 
+Dim objWindows : set objWindows = objShellApplication.Windows()
+Wscript.echo objWindows.Count
+Dim objWindow
+For cnt = 0 To objWindows.Count-1
+  set objWindow = objWindows.item(cnt)
+  LocationName = objWindow.LocationName
+  ' NOTE double quotes
+  if InStr(LocationName,"Personalization") > 0  then 
+    Wscript.echo "Closing " & objWindow.HWND
+    objWindow.Quit()
+  end if
+Next
+Set objShell = Nothing
+Set objWindows = Nothing
+Set objShellApplication = Nothing
 #>
