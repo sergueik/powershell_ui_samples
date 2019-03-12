@@ -66,6 +66,7 @@ if ($debug -eq $true) {
   select-object @{Name='Window Title'; Expression= {"{0,-${width}}" -f  ($_.WinTitle).substring(0, $width)}}, @{Name='Handle'; Expression={'{0:X0}' -f $_.WinHwnd}}
 }
 return $results
+
 <#
 
 $x =  .\getwt1.ps1 -title 'Personalization'
@@ -74,4 +75,19 @@ $x | format-list
 WinTitle  : Personalization
 WinHwnd   : 131432
 ProcessId : 2100
+#>
+
+# alternative
+# origin: https://devblogs.microsoft.com/scripting/hey-scripting-guy-how-can-i-use-windows-powershell-to-get-a-list-of-all-the-open-windows-on-a-computer/
+#
+
+$shellApplication = New-Object -com 'Shell.Application'
+$windows = $shellApplication.windows() | select-object LocationName, HWND, Name
+write-output $windows
+
+<#
+
+LocationName : Personalization
+Name         : Windows Explorer
+HWND         : 131432
 #>
