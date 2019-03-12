@@ -103,19 +103,42 @@ rundll32.exe %SystemRoot%\system32\shell32.dll,Control_RunDLL %SystemRoot%\syste
 # Scriptable Shell Objects
 # https://msdn.microsoft.com/en-us/library/windows/desktop/bb776890(v=vs.85).aspx
 <#
-var oShell = new ActiveXObject('Shell.Application');
-var windows = oShell.Windows();
-var wshShell = new ActiveXObject('WScript.Shell'); 
-for (var window in windows){
-  wshShell.echo('window');
-  wshShell.echo(window);
-  wshShell.echo(window.LocationName);
+var debug = false
+var shell_app_com_obj = new ActiveXObject('Shell.Application');
+var windows_objs = shell_app_com_obj.Windows();
+var shell_obj = new ActiveXObject('WScript.Shell');
+
+if (debug) {
+    WScript.echo(windows_objs.Count);
 }
+if (windows_objs.Count > 0) {
+    for (var cnt = 0; cnt < windows_objs.Count; cnt++) {
+        if (debug) {
+            WScript.echo('cnt ' + cnt);
+        }
+
+        window_obj = windows_objs.item(cnt);
+        if (window_obj.LocationName.match('Personalization')) {
+            WScript.echo('Name:\t' + window_obj.Name);
+            WScript.echo('HWND:\t' + window_obj.HWND);
+            WScript.echo('FullName:\t' + window_obj.FullName);
+            WScript.echo('LocationName:\t' + window_obj.LocationName);
+            window_obj.Quit();
+        }
+    }
+}
+Microsoft (R) Windows Script Host Version 5.8
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Name:   Windows Explorer
+HWND:   328060
+FullName:       C:\Windows\Explorer.EXE
+LocationName:   Personalization
 #>
 
 <#
-Dim objShell: Set objShell = WScript.CreateObject("WScript.Shell") 
-Dim objShellApplication: Set objShellApplication = WScript.CreateObject("shell.application") 
+Dim objShell: Set objShell = WScript.CreateObject("WScript.Shell")
+Dim objShellApplication: Set objShellApplication = WScript.CreateObject("shell.application")
 Dim objWindows : set objWindows = objShellApplication.Windows()
 Wscript.echo objWindows.Count
 Dim objWindow
@@ -123,7 +146,7 @@ For cnt = 0 To objWindows.Count-1
   set objWindow = objWindows.item(cnt)
   LocationName = objWindow.LocationName
   ' NOTE double quotes
-  if InStr(LocationName,"Personalization") > 0  then 
+  if InStr(LocationName,"Personalization") > 0  then
     Wscript.echo "Closing " & objWindow.HWND
     objWindow.Quit()
   end if
