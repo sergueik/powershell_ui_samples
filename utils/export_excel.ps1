@@ -16,6 +16,8 @@ function Release-Ref ($ref) {
 # ----------------------------------------------------- 
 # See also: https://powershell.org/forums/topic/using-powershell-and-excel/
 # http://www.itprotoday.com/microsoft-sql-server/update-excel-spreadsheets-powershell
+# See also: https://github.com/dfinke/ImportExcel and https://github.com/JanKallman/EPPlus
+# https://www.codeproject.com/Articles/1194712/Advanced-Excels-With-EPPlus
 $workbook = $excel.Workbooks.Open("${filePath}\${Datafile}",  $null, $true) 
 $worksheet = $workbook.worksheets.Item(1)
  
