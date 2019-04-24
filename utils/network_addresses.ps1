@@ -78,11 +78,11 @@ function get_remote_computer_network_interfaces {
 
   <#
 NOTE:
-cclprdecodms2.cclinternet.com
+sometimes redundant 
 Primary IP address:
         1
 IP addresses:
-        172.26.4.14
+        192.168.0.1
 
 #>
   $local:primary = $null

@@ -1,5 +1,4 @@
 # Update certain elements within the web.config of prod-preview (web.config)
-# o   \\cclprdecopv1\Projects\prod.carnival.com\Carnival
 # descendant  of 
 
 # go_nogo_validators.ps1
@@ -10,7 +9,6 @@ param(
   [string]$environment,
   [string]$domain = $env:USERDOMAIN
   # need $host.Version.major ~> 3
-  # e.g. run from cclprdwebops1.carnival.com
 )
 
 function convert_to_unc2 {
@@ -432,7 +430,7 @@ $configuration_paths = @{
     'PATH' = 'E:\Projects\prod.carnival.com\Carnival\Web.config';
     'DOMAIN' = 'CARNIVAL';
     'SERVERS' = @(
-      'cclprdecopv1.carnival.com',
+      'xxxxxx',
       $null
     );
   };

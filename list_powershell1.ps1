@@ -69,9 +69,9 @@ $objListBox.Location = New-Object System.Drawing.Size (10,40)
 $objListBox.Size = New-Object System.Drawing.Size (260,20)
 $objListBox.Height = 80
 
-[void]$objListBox.Items.Add("CCLPRDECOBOOK1.CCLINTERNET.COM")
-[void]$objListBox.Items.Add("CCLPRDECOBOOK2.CCLINTERNET.COM")
-[void]$objListBox.Items.Add("CCLPRDECOBOOK3.CCLINTERNET.COM")
+[void]$objListBox.Items.Add("node1")
+[void]$objListBox.Items.Add("node2")
+[void]$objListBox.Items.Add("node3")
 
 $objForm.Controls.Add($objListBox)
 

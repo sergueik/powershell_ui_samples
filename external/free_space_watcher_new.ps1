@@ -66,7 +66,7 @@ function get_wmi_data {
 
     <#
      Rely on capturing the STD OUT with Powewrshell is hopeless: 
-     get_wmi_data cclprdecofvl1.cclinternet.com   ->
+     get_wmi_data server.com   ->
      the result is :
      True 
      Microsoft.PowerShell.Commands.Internal.Format.FormatStartData 
@@ -85,7 +85,7 @@ function host_wmi_ping
 {
 
   param(
-    [string]$target_host = 'ccltstecoweb2n6.carnival.com',
+    [string]$target_host = '',
     [bool]$debug
   )
 
@@ -240,68 +240,11 @@ TODO - filter by FQDN in the runner
 }
 
 $ENVIRONMENTS_CUSTOM = @{
-  'UAT1' = @{
+  'UAT' = @{
     'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccluat.*n1\.';
-    'DOMAIN' = '(?:CARNIVAL|CCLINTERNET)';
+    'EXPRESSION' = '^xxxxx.*n1\.';
+    'DOMAIN' = '(?:xxxxxxxxx)';
   };
-  'UAT2' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccluat.*n2\.';
-    'DOMAIN' = '(?:CARNIVAL|CCLINTERNET)';
-  };
-  'UAT3' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccluat.*n3\.';
-    'DOMAIN' = '(?:CARNIVAL|CCLINTERNET)';
-  };
-  'UAT4' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccluat.*n4\.';
-    'DOMAIN' = '(?:CARNIVAL|CCLINTERNET)';
-  };
-  'UAT5' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccluat.*n5\.';
-    'DOMAIN' = '(?:CARNIVAL|CCLINTERNET)';
-  };
-
-  'CDS' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccluat.*cds.\.';
-    'DOMAIN' = '(?:CCLINTERNET)';
-  };
-  'SYS1' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccltst.*n1\.';
-    'DOMAIN' = 'CARNIVAL';
-  };
-  'SYS2' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccltst.*n2\.';
-    'DOMAIN' = 'CARNIVAL';
-  };
-  'SYS3' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccltst.*n3\.';
-    'DOMAIN' = 'CARNIVAL';
-  };
-  'SYS4' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccltst.*n4\.';
-    'DOMAIN' = 'CARNIVAL';
-  };
-  'SYS5' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccltst.*n5\.';
-    'DOMAIN' = 'CARNIVAL';
-  };
-  'SYS6' = @{
-    'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccltst.*n6\.';
-    'DOMAIN' = 'CARNIVAL';
-  };
-
   'DEBUG' = @{
     'SCRIPT' = [scriptblock]{
 
@@ -313,216 +256,24 @@ $ENVIRONMENTS_CUSTOM = @{
       )
 
 
-      $result_ref.Value = 'cclordecoweb21.cclinternet.com'
+      $result_ref.Value = 'xxx.xnet.com'
 
     };
-    'EXPRESSION' = '^ccltst.*n6\.';
-    'DOMAIN' = 'CARNIVAL';
+    'EXPRESSION' = '^xxxx.*n6\.';
+    'DOMAIN' = 'xxxxxxx';
   };
 
 };
 
 $ENVIRONMENTS_STRUCTURED = @{
-
-  'PROD_HQ' = @{
-    'COMMENT' = 'PROD HQ Web Servers';
-    'DOMAIN' = 'CCLINTERNET';
-    'LOGONSERVER' = '(?:CCLPRDDMZDC4|CCLPRDDMZDC3)';
-    'SERVERS' =
-    @(
-
-      'CCLPRDECOWEB21.cclinternet.com',
-      'CCLPRDECOWEB22.cclinternet.com',
-      'CCLPRDECOWEB23.cclinternet.com',
-      'CCLPRDECOWEB24.cclinternet.com',
-      'CCLPRDECOWEB25.cclinternet.com',
-      'CCLPRDECOWEB26.cclinternet.com',
-      'CCLPRDECOWEB27.cclinternet.com',
-      'CCLPRDECOWEB28.cclinternet.com',
-      'CCLPRDECOWEB29.cclinternet.com',
-      'CCLPRDECOWEB30.cclinternet.com',
-      'CCLPRDECOWEB31.cclinternet.com',
-
-      'CCLPRDECOBOOK1.cclinternet.com',
-      'CCLPRDECOBOOK2.cclinternet.com',
-      'CCLPRDECOBOOK3.cclinternet.com',
-      'cclprdecocds1.cclinternet.com',
-      'cclprdecocds2.cclinternet.com',
-      'cclprdecodms1.cclinternet.com',
-      'cclprdecodms3.cclinternet.com',
-      'cclprdecodms2.cclinternet.com',
-      'cclprdecofvl1.cclinternet.com',
-      'cclprdecofvl2.cclinternet.com'
-    );
-  };
-
-
-  'PROD_BCP' = @{
-    'COMMENT' = 'Production BCP Servers';
-    'DOMAIN' = 'CCLINTERNET';
-    # same to indicate the format
-    'LOGONSERVER' = '(?:CCLBCPDMZINFDC2|CCLBCPDMZINFDC2)';
-    'SERVERS' =
-    @(
-
-      'CCLBCPECOWEB21.cclinternet.com',
-      'CCLBCPECOWEB22.cclinternet.com',
-      'CCLBCPECOWEB23.cclinternet.com',
-      'CCLBCPECOWEB24.cclinternet.com',
-      'CCLBCPECOWEB25.cclinternet.com',
-      'CCLBCPECOWEB26.cclinternet.com',
-      'CCLBCPECOWEB27.cclinternet.com',
-      'CCLBCPECOWEB28.cclinternet.com',
-      'CCLBCPECOWEB29.cclinternet.com',
-      'CCLBCPECOWEB30.cclinternet.com',
-      'CCLBCPECOBOOK1.cclinternet.com',
-      'CCLBCPECOBOOK2.cclinternet.com',
-      'CCLBCPECOBOOK3.cclinternet.com',
-      "cclbcpecofvl1.cclinternet.com",
-      "cclbcpecofvl2.cclinternet.com"
-
-    );
-  };
-  'UAT_DMZ' = @{
-    'COMMENT' = 'UAT DMZ Web Servers';
-    'DOMAIN' = 'CCLINTERNET';
-    'LOGONSERVER' = 'CCLPRDDMZDC2';
-    'SERVERS' =
-    @(
-      'ccluatecocds1.cclinternet.com',
-      'ccluatecocds2.cclinternet.com',
-
-      'ccluatecoweb1n1.cclinternet.com',
-      'ccluatecoweb2n1.cclinternet.com',
-      #      'ccluatecoweb3n1.cclinternet.com',
-      #      'ccluatecoweb4n1.cclinternet.com',
-      #      'ccluatecoweb5n1.cclinternet.com',
-      'ccluatecoweb1n2.cclinternet.com',
-      'ccluatecoweb2n2.cclinternet.com',
-      #      'ccluatecoweb3n2.cclinternet.com',
-      #      'ccluatecoweb4n2.cclinternet.com',
-      #      'ccluatecoweb5n2.cclinternet.com',
-      'ccluatecoweb1n3.cclinternet.com',
-      'ccluatecoweb2n3.cclinternet.com',
-      #      'ccluatecoweb3n3.cclinternet.com',
-      #      'ccluatecoweb4n3.cclinternet.com',
-      #      'ccluatecoweb5n3.cclinternet.com',
-      'ccluatecoweb1n4.cclinternet.com',
-      'ccluatecoweb2n4.cclinternet.com',
-      #      'ccluatecoweb3n4.cclinternet.com',
-      #      'ccluatecoweb4n4.cclinternet.com',
-      #      'ccluatecoweb5n4.cclinternet.com',
-      'ccluatecobkg1n5.cclinternet.com',
-      'ccluatecobkg2n5.cclinternet.com',
-      'ccluatecoweb1n5.cclinternet.com',
-      'ccluatecoweb2n5.cclinternet.com'
-
-    );
-  };
   'CMS' = @{
-    'COMMENT' = 'CMS Servers';
-    'DOMAIN' = 'CARNIVAL';
+    'COMMENT' = 'Servers';
+    'DOMAIN' = 'xxxxxxx';
     'SERVERS' =
     @(
-      'ccluatecocms1.carnival.com',
-      'ccluatecocms2.carnival.com',
-      'ccltstecocms1n1.carnival.com',
-      'ccltstecocms2n1.carnival.com',
-      'cclprdecocms1.carnival.com',
-      'cclprdecocms2.carnival.com',
-      'cclprdecocms3.carnival.com'
+      'xxxxxxxxxxxxx',
     );
   };
-
-  'PRODPREVIEW' = @{
-    'COMMENT' = 'Prod Preview Servers';
-    'DOMAIN' = 'CARNIVAL';
-    'SERVERS' =
-    @(
-      'cclprdecopv1.carnival.com'
-    );
-  };
-  # TODO try ping. 
-  # ccltstecoweb2n6.carnival.com
-  'SYSTEST' = @{
-    'COMMENT' = 'Staging Web Servers';
-    'DOMAIN' = 'CARNIVAL';
-    'SERVERS' =
-    @(
-      'ccltstecocms1n1.carnival.com',
-      'ccltstecocms2n1.carnival.com',
-      'ccltstecoadm1n1.carnival.com',
-      'ccltstecostg1n1.carnival.com',
-      'ccltstecoweb1n1.carnival.com',
-      'ccltstecoweb2n1.carnival.com',
-      'ccltstecoadm1n2.carnival.com',
-      'ccltstecostg1n2.carnival.com',
-      'ccltstecoweb1n2.carnival.com',
-      'ccltstecoweb2n2.carnival.com',
-      'ccltstecoadm1n3.carnival.com',
-      'ccltstecostg1n3.carnival.com',
-      'ccltstecoweb1n3.carnival.com',
-      'ccltstecoweb2n3.carnival.com',
-      'ccltstecoadm1n4.carnival.com',
-      'ccltstecoapc1n4.carnival.com',
-      'ccltstecoweb1n4.carnival.com',
-      'ccltstecoweb2n4.carnival.com',
-      'ccltstecoadm1n5.carnival.com',
-      'ccltstecostg1n5.carnival.com',
-      'ccltstecoweb1n5.carnival.com',
-      'ccltstecoadm1n6.carnival.com',
-      'ccltstecostg1n6.carnival.com',
-      'ccltstecoweb1n6.carnival.com',
-      'ccltstecoweb2n6.carnival.com'
-    );
-  };
-
-  'UAT INSIDE' = @{
-    'COMMENT' = 'UAT Servers';
-    'DOMAIN' = 'CARNIVAL';
-    'SERVERS' =
-    @(
-      'ccluatecoadm1n1.carnival.com',
-      'ccluatecoadm2n1.carnival.com',
-      'ccluatecostg1n1.carnival.com',
-      'ccluatecoadm1n2.carnival.com',
-      'ccluatecoadm2n2.carnival.com',
-      'ccluatecostg1n2.carnival.com',
-      'ccluatecoadm1n3.carnival.com',
-      'ccluatecoadm2n3.carnival.com',
-      'ccluatecostg1n3.carnival.com'
-      'ccluatecoadm1n4.carnival.com',
-      'ccluatecoadm2n4.carnival.com',
-      'ccluatecoapc1n4.carnival.com',
-      'ccluatecoadm1n5.carnival.com',
-      'ccluatecoadm2n5.carnival.com',
-      'ccluatecocms1n5.carnival.com',
-      'ccluatecopv1n5.carnival.com',
-      'ccluatecostg1n5.carnival.com'
-      'ccluatecocms1.carnival.com',
-      'ccluatecocms2.carnival.com'
-    );
-  };
-
-  'STAGING' = @{
-    'COMMENT' = 'Staging Web Servers';
-    'DOMAIN' = 'CARNIVAL';
-    'SERVERS' =
-    @(
-      'cclprdecostg1.carnival.com',
-      'cclbcpecostg1.carnival.com'
-    );
-  };
-
-  'DEBUG' = @{
-    'COMMENT' = 'Debug';
-    'DOMAIN' = 'CCLINTERNET';
-    'SERVERS' =
-    @(
-      'cclprdecoweb1.cclinternet.com'
-    );
-  };
-
 }
 
 
@@ -530,7 +281,6 @@ $scope = $environment
 if ($scope -eq '' -or $scope -eq $null) {
   $scope = 'DEBUG'
 }
-# CCLPRDECOWEB28.cclinternet.com
 Write-Output $scope
 if ($scope -eq '-') {
   Write-Output 'Processing all environment '
@@ -654,7 +404,7 @@ return
     {
         "FreeSpace":  121.64391708374023,
         "Drive":  "e:",
-        "Server":  "CCLPRDECOWEB21.cclinternet.com",
+        "Server":  "Cserver.com",
         "Size":  136.02343368530273
     },
 

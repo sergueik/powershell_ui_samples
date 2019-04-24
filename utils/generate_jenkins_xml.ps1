@@ -19,7 +19,7 @@
 #THE SOFTWARE.
 
 <#
--jenkins_master 'cclprdwebops1.carnival.com'  -secret '314f95d6c56422e80b338e77c73d35bb25525042b29e3e38794cb279ba35906e'
+-jenkins_master 'xxxxxx'
 #>
 param(
     [Parameter(Position=0)]
@@ -78,7 +78,7 @@ copy-item -destination 'jenkins.xml' -path 'jenkins.xml.template'  -force
 [xml]$jenkins_xml = get-content -path '.\jenkins.xml'
 # replace text
 $agent_name = $env:COMPUTERNAME
-$jenkins_master = 'cclprdwebops1'
+$jenkins_master = 'xxxxxx'
 $http_port = '8000'
 $java_home = 'D:/java/jdk1.6.0_45'
 $jenkins_xml.service.executable = ('{0}/bin/java.exe' -f $java_home)

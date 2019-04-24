@@ -22,7 +22,7 @@ def slurper = new JsonSlurper()
 json_file = env["TEMPORARY_LOG"]
 File f = new File(json_file)
 def result = null
-result = slurper.parseText('[{"page_errors": 1, "page_performance": 670, "page_availability": "0.99", "page_address": "https://goccl1.uatcarnival.com", "page_status": "OK", "page_requests": 78}]')
+result = slurper.parseText('[{"page_errors": 1, "page_performance": 670, "page_availability": "0.99", "page_address": "https://server.domain.com", "page_status": "OK", "page_requests": 78}]')
 if (!f.exists()){
 
   

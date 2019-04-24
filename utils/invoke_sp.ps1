@@ -5,16 +5,8 @@ $env:SQL_PASSWORD='xxxxxx';
 $env:SQL_TIMEOUT = 30;
 # ask the TSO WebOps Team for the password 
 $DebugPreference = 'Continue'; 
-. ./invoke_sp.ps1 CCLDEVSQL1\DEVSQL1 'Affairwhere' ''  "SELECT GETDATE()"
-. ./invoke_sp.ps1 CCLDEVSQL1\DEVSQL1 'Affairwhere'  spSelectUserIds  '' 
-
-
-$env:SQL_USER='SitecoreAdmin';
-$env:SQL_PASSWORD='xxxxxx';
-$env:SQL_TIMEOUT = 1200;
-# ask the TSO WebOps Team for the password 
-$DebugPreference = 'Continue'; 
-. ./invoke_sp.ps1 cclprdecodmsdb1 'Sitecore_analytics' ''  "SELECT GETDATE();waitfor delay '00:00:30';SELECT GETDATE();"
+. ./invoke_sp.ps1 domain1\user1 'Affairwhere' ''  "SELECT GETDATE()"
+. ./invoke_sp.ps1 domain2\user2 'Affairwhere'  spSelectUserIds  '' 
 
 
 $env:SQL_USER='SitecoreAdmin';
@@ -23,7 +15,7 @@ $env:SQL_PASSWORD='xxxxxx';
 # ask the eCOM Team for the password 
 $env:DATABASE='Sitecore_analytics'
 $DebugPreference = 'Continue'; 
-. ./invoke_sp.ps1 cclprdecodmsdb1 'Sitecore_analytics' ''  "SELECT GETDATE()"
+. ./invoke_sp.ps1 ceno1 'Sitecore_analytics' ''  "SELECT GETDATE()"
 
 
 #>

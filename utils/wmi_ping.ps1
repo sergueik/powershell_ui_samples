@@ -1,14 +1,14 @@
 # http://www.powertheshell.com/pinging-with-wmi/
 param(
   [Parameter(Position = 0)]
-  [object]$target_host = 'ccltstecoweb2n6.carnival.com'
+  [object]$target_host = ''
 )
 
 function host_wmi_ping
 {
 
   param(
-    [string]$target_host = 'ccltstecoweb2n6.carnival.com',
+    [string]$target_host = '',
     [bool]$debug
   )
 

@@ -33,9 +33,9 @@ Overwritten</description>
           <description>Application logs to process</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>carnival</string>
-              <string>goccl</string>
-              <string>secure_carnival</string>
+              <string>logkey1</string>
+	      <string>logkey2</string>
+              <string>other_key</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -113,7 +113,7 @@ The value of this parameter is somewhat misleading.</description>
     </hudson.plugins.copyartifact.CopyArtifactPermissionProperty>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
-  <assignedNode>CCLPRDKEYNOTE1</assignedNode>
+  <assignedNode>SERVER1</assignedNode>
   <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>

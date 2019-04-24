@@ -122,7 +122,7 @@ public class Win32Window : IWin32Window
 
 "@ -ReferencedAssemblies 'System.Windows.Forms.dll'
 
-$sitecorehostnames = "ccluatecocms1"
+$sitecorehostnames = "server1"
 
 $owner = New-Object Win32Window -ArgumentList ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
 dialogForContinueAuto "StepName - Rollback Authoring CMS ($sitecorehostnames)" "Rename KeepaliveON to KeepAlivsssOFF" $owner

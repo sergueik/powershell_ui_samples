@@ -37,7 +37,7 @@ THE SOFTWARE.
     The following value assumes that you have java in your PATH.
   -->
   <executable>D:/java/jdk1.6.0_45/bin/java.exe</executable>
-  <arguments>-Xrs -Xmx256m -jar "%BASE%\slave.jar" -jnlpUrl http://cclprdwebops1:8000/computer/CCLTSTECOSTG1N1/slave-agent.jnlp 123</arguments>
+  <arguments>-Xrs -Xmx256m -jar "%BASE%\slave.jar" -jnlpUrl http://node:8000/computer/workdir/slave-agent.jnlp 123</arguments>
   <!--
     interactive flag causes the empty black Java window to be displayed.
     I'm still debugging this.

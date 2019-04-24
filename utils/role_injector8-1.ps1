@@ -1,5 +1,5 @@
 param(
-  [string]$master_server = 'CCLPRDECOBOOK2',
+  [string]$master_server = 'xxxxxx',
   [bool]$verbose = $false)
 
 # Run the servermanager remotely providing output file  in a known location

@@ -21,7 +21,7 @@
 param(
   [string]$browser,
   [int]$version,
-  [string]$base_url = 'http://www.goccl.com/',
+  [string]$base_url = '',
   [string]$username,
   [string]$password
 )

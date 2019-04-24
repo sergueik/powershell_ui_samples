@@ -1,13 +1,9 @@
-# Update certain elements within the web.config of prod-preview (web.config)
-# \\cclprdecopv1\Projects\prod.carnival.com\Carnival\web.config 
-# replacing carnival with preview URLs
 
 param(
   [Parameter(Position = 0)]
   [switch]$prod,# UNUSED 
   [string]$domain = $env:USERDOMAIN
   # need $host.Version.major ~> 3
-  # e.g. run from cclprdwebops1.carnival.com
 )
 
 $global:timestamp = (Get-Date).ToString("yy_MM_dd_HH_MM")
@@ -36,8 +32,7 @@ function backup_file {
     Copy-Item $filename -Destination ('{0}-{1}.{2}' -f $basename,$global:timestamp,$extension) -WhatIf
   } else {
     Copy-Item $filename -Destination ('{0}-{1}.{2}' -f $basename,$global:timestamp,$extension) -WhatIf
-  }
-  return
+  }  return
 }
 
 function convert_to_unc2 {
@@ -51,42 +46,12 @@ function convert_to_unc2 {
 
 
 $attributes_prod = @{
-  'Exit SSL cms targetted offers' = 'http://www.carnival.com/{R:1}';
-  'Force Non Https for Home Page' = 'http://www.carnival.com';
-  'To new deck plans page' = 'http://www.carnival.com/common/CCLUS/ships/ship/htmldeckplans.aspx';
-  'imagesCdnHostToPrepend' = 'http://static.carnivalcloud.com';
-  'SecureLoginUrl' = 'hhttps://secure.carnival.com/SignInTopSSL.aspx';
-  'CarnivalHeaderHtmlUrl' = 'http://www.carnival.com/service/header.aspx';
-  'CarnivalFooterHtmlUrl' = 'http://www.carnival.com/service/footer.aspx';
-  'SecureUrl' = 'https://secure.carnival.com/';
-  'DefaultRobotsDomain' = 'www.carnival.com';
-  'DeckPlanServiceDomain' = 'www.carnival.com';
-  'USDomain' = 'www.carnival.com, secure.carnival.com';
-  'UKDomain' = 'www.carnival.co.uk, secure.carnival.co.uk';
-  'UKDomains' = 'www.carnival.co.uk, secure.carnival.co.uk';
-  'FullSiteURL' = 'http://www.carnival.com';
-  'RESTProxyDomain' = 'http://www.carnival.com';
-  'PersonalizationDomain' = 'services.carnival.com';
+  'RESTProxyDomain' = 'http://www.server.com';
 }
 
 
 $attributes_preview = @{
-  'Exit SSL cms targetted offers' = 'http://prodpreview.carnival.com/{R:1}';
-  'Force Non Https for Home Page' = 'http://prodpreview.carnival.com';
-  'To new deck plans page' = 'http://prodpreview.carnival.com/common/CCLUS/ships/ship/htmldeckplans.aspx';
-  'imagesCdnHostToPrepend' = 'http://prodpreview.carnival.com';
-  'SecureLoginUrl' = 'https://prodpreview.carnival.com/SignInTopSSL.aspx';
-  'CarnivalHeaderHtmlUrl' = 'http://prodpreview.carnival.com/service/header.aspx';
-  'CarnivalFooterHtmlUrl' = 'http://prodpreview.carnival.com/service/footer.aspx';
-  'SecureUrl' = 'https://prodpreview.carnival.com/';
-  'DefaultRobotsDomain' = 'prodpreview.carnival.com';
-  'DeckPlanServiceDomain' = 'prodpreview.carnival.com';
-  'USDomain' = 'prodpreview.carnival.com, prodpreview.carnival.com';
-  'UKDomain' = 'prodpreviewuk.carnival.com, prodpreviewuk.carnival.com';
-  'UKDomains' = 'prodpreviewuk.carnival.com, prodpreviewuk.carnival.com';
-  'FullSiteURL' = 'http://prodpreview.carnival.com';
-  'RESTProxyDomain' = 'http://prodpreview.carnival.com';
-  'PersonalizationDomain' = 'prodpreview.carnival.com';
+  'RESTProxyDomain' = 'http://preview.server.com';
 }
 
 [scriptblock]$Extract_appSetting = {
@@ -173,22 +138,7 @@ $attributes_preview = @{
 
 
 $attributes_extraction_code = @{
-  'Exit SSL cms targetted offers' = $Extract_RuleActionurl;
-  'Force Non Https for Home Page' = $Extract_RuleActionurl;
-  'To new deck plans page' = $Extract_RuleActionurl;
-  'imagesCdnHostToPrepend' = $Extract_imagesCdnHostToPrepend;
-  'SecureLoginUrl' = $Extract_AppSetting;
-  'CarnivalHeaderHtmlUrl' = $Extract_AppSetting;
-  'CarnivalFooterHtmlUrl' = $Extract_AppSetting;
-  'SecureUrl' = $Extract_AppSetting;
-  'DefaultRobotsDomain' = $Extract_AppSetting;
-  'DeckPlanServiceDomain' = $Extract_AppSetting;
-  'USDomain' = $Extract_AppSetting;
-  'UKDomain' = $Extract_AppSetting;
-  'UKDomains' = $Extract_AppSetting;
-  'FullSiteURL' = $Extract_AppSetting;
   'RESTProxyDomain' = $Extract_AppSetting;
-  'PersonalizationDomain' = $Extract_AppSetting;
 }
 
 
@@ -285,22 +235,7 @@ $attributes_extraction_code = @{
 
 
 $attributes_setter_code = @{
-  'Exit SSL cms targetted offers' = $Update_RuleActionurl;
-  'Force Non Https for Home Page' = $Update_RuleActionurl;
-  'To new deck plans page' = $Update_RuleActionurl;
-  'imagesCdnHostToPrepend' = $Update_imagesCdnHostToPrepend;
-  'USDomain' = $Update_appSetting;
-  'UKDomains' = $Update_appSetting;
-  'UKDomain' = $Update_appSetting;
   'RESTProxyDomain' = $Update_appSetting;
-  'PersonalizationDomain' = $Update_appSetting;
-  'CarnivalHeaderHtmlUrl' = $Update_appSetting;
-  'DeckPlanServiceDomain' = $Update_appSetting;
-  'SecureUrl' = $Update_appSetting;
-  'FullSiteURL' = $Update_appSetting;
-  'CarnivalFooterHtmlUrl' = $Update_appSetting;
-  'DefaultRobotsDomain' = $Update_appSetting;
-  'SecureLoginUrl' = $Update_appSetting;
 }
 
 function collect_config_data {
@@ -440,11 +375,11 @@ function collect_config_data {
 $configuration_paths = @{
   'Preview' =
   @{
-    'COMMENT' = 'Production Preview Servers ConnectionStrings.config';
-    'PATH' = 'E:\Projects\prod.carnival.com\Carnival\Web.config';
-    'DOMAIN' = 'CARNIVAL';
+    'COMMENT' = 'ConnectionStrings.config';
+    'PATH' = 'E:\Project\Web.config';
+    'DOMAIN' = 'domain';
     'SERVERS' = @(
-      'cclprdecopv1.carnival.com',
+      'xxxxxx',
       $null
     );
   };

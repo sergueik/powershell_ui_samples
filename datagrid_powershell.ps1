@@ -76,11 +76,6 @@ if ($ret) {
 }
 
 $result_remote =  @{}
-$result_remote['cclprdecodb2']  =  'DBMSSOCN,172.25.192.86,3655'
-$result_remote['cclprdssdsql2\cclprdssdsql2']  =  'DBMSSOCN,172.25.174.179,3655'
-$result_remote['cclprdecodb2\cclprdecodb2']  =  'DBMSSOCN,172.25.192.86,3655'
-$result_remote['cclprdssdsql2']  =  'DBMSSOCN,172.25.174.179,3655'
-$result_remote['cclprdecodb1\cclprdecodb1']  =  'DBMSSOCN,172.25.192.85,3655'
-$result_remote['cclprdecodb1']  =  'DBMSSOCN,172.25.192.85,3655'
+$result_remote['server1']  =  'DBMSSOCN,192.168.0.1,3655'
 
 display_result  $result_remote

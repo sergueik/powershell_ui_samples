@@ -32,7 +32,7 @@ popd
 
 $environment = "Production"
 $deployment = "deployments-204";
-$octopusServer = "http://ccltstecopoc1:8112" # NOTE HTTPS is default but may not be set up properly.
+$octopusServer = "http://server2:8112" # NOTE HTTPS is default but may not be set up properly.
 $octopusAPIKey = "..."
 
 

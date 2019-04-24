@@ -559,9 +559,9 @@ sub usage {print $SELF; print <<PACKAGEUSAGE; exit 0;}
 Example:
 
 
- perl $SELF -app goccl -last 1800 -root \\\\vnx5700cifs\\akamai_logs\\carnival   -flat
+ perl $SELF -app application_name -last 1800 -root \\\\host\\akamai_logs\\client   -flat
 
- perl $SELF -maxfiles 20 -skip 0 -app goccl -last 1800 -root \\\\vnx5700cifs\\akamai_logs\\carnival   -flat
+ perl $SELF -maxfiles 20 -skip 0 -app application -last 1800 -root \\\\host\\akamai_logs\\client  -flat
 
 PACKAGEUSAGE
 

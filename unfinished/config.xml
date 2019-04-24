@@ -33,9 +33,9 @@ Overwritten</description>
           <description>Application logs to process</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>carnival</string>
-              <string>goccl</string>
-              <string>secure_carnival</string>
+              <string>log1</string>
+              <string>log2</string>
+              <string>log3</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>

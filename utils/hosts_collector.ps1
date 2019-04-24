@@ -78,15 +78,6 @@ function get_remote_computer_network_interfaces {
 
   $local:ipv4_addresses = $command_outputs
 
-  <#
-NOTE:
-cclprdecodms2.cclinternet.com
-Primary IP address:
-        1
-IP addresses:
-        172.26.4.14
-
-#>
   $local:primary = $null
   if ($ipv4_addresses.Count -gt 1) {
     $local:primary = $ipv4_addresses[($ipv4_addresses.Count - 1)]
@@ -110,7 +101,7 @@ function host_wmi_ping
 {
 
   param(
-    [string]$target_host = 'ccltstecoweb2n6.carnival.com',
+    [string]$target_host = '',
     [bool]$debug
   )
 
@@ -283,18 +274,15 @@ function get_hosts_data {
   # note the order is opposite to what is written in hosts file
   $hostnames_known = @{
 
-    'cclsecman3.carnival.com' = $null;
+    'host.domain.com' = $null;
   }
 
 
   $server_data = @"
 
-  au.carnival.com  
-  cclsecman3.carnival.com  
-  www5.uatcarnival.com  
-  www4.uatcarnival.com  
+  www5.domain.com  
+  www4.domain.com  
 
-  .co.uk
 "@
 
   $server_data -split "`r?`n" | ForEach-Object {
@@ -582,8 +570,8 @@ function collect_inventory {
       <#
 
    {
-   "value":  "172.26.216.70",
-   "PSComputerName":  "ccluatecoadm1n4.carnival.com",
+   "value":  "192.168.0.1",
+   "PSComputerName":  "computer",
    "RunspaceId":  "868b942b-ab4f-40b3-b1cb-b71c35a0704f",                                                               
    "PSShowComputerName":  true
  },
@@ -655,113 +643,26 @@ TODO - filter by FQDN in the runner
 $ENVIRONMENTS_CUSTOM = @{
   'UAT1' = @{
     'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccluat.*n1\.';
-    'DOMAIN' = '(?:CARNIVAL|CCLINTERNET)';
+    'EXPRESSION' = '^xxxxx.*n1\.';
+    'DOMAIN' = '(?:DOMAIN|DOMAIN)';
   };
   'UAT2' = @{
     'SCRIPT' = $EXAMPLE;
-    'EXPRESSION' = '^ccluat.*n2\.';
-    'DOMAIN' = '(?:CARNIVAL|CCLINTERNET)';
+    'EXPRESSION' = '^xxx.*n2\.';
+    'DOMAIN' = '(?:DOMAIN|DOMAIN)';
   };
 
 $ENVIRONMENTS_STRUCTURED = @{
 
-  'PROD_HQ' = @{
-    'COMMENT' = 'PROD HQ Web Servers';
-    'DOMAIN' = 'CCLINTERNET';
-    'LOGONSERVER' = '(?:CCLPRDDMZDC4|CCLPRDDMZDC3)';
+  'PROD' = @{
+    'COMMENT' = 'Web Servers';
+    'DOMAIN' = 'INTERNET';
+    'LOGONSERVER' = '(?:server4|server3)';
     'SERVERS' =
     @(
-
-      'CCLPRDECOWEB21.cclinternet.com',
-      'CCLPRDECOWEB22.cclinternet.com',
-      'CCLPRDECOWEB23.cclinternet.com',
-      'CCLPRDECOWEB24.cclinternet.com',
-      'CCLPRDECOWEB25.cclinternet.com',
-      'CCLPRDECOWEB26.cclinternet.com',
-      'CCLPRDECOWEB27.cclinternet.com',
-      'CCLPRDECOWEB28.cclinternet.com',
-      'CCLPRDECOWEB29.cclinternet.com',
-      'CCLPRDECOWEB30.cclinternet.com',
-      'CCLPRDECOWEB31.cclinternet.com',
-
-      'CCLPRDECOBOOK1.cclinternet.com',
-      'CCLPRDECOBOOK2.cclinternet.com',
-      'CCLPRDECOBOOK3.cclinternet.com',
-      'cclprdecocds1.cclinternet.com',
-      'cclprdecocds2.cclinternet.com',
-      'cclprdecodms1.cclinternet.com',
-      'cclprdecodms3.cclinternet.com',
-      'cclprdecodms2.cclinternet.com',
-      'cclprdecofvl1.cclinternet.com',
-      'cclprdecofvl2.cclinternet.com'
+      'xxxxxx',
     );
   };
-
-
-  'PROD_BCP' = @{
-    'COMMENT' = 'Production BCP Servers';
-    'DOMAIN' = 'CCLINTERNET';
-    # same to indicate the format
-    'LOGONSERVER' = '(?:CCLBCPDMZINFDC2|CCLBCPDMZINFDC2)';
-    'SERVERS' =
-    @(
-
-      'CCLBCPECOWEB21.cclinternet.com',
-      'CCLBCPECOWEB22.cclinternet.com',
-      'CCLBCPECOWEB23.cclinternet.com',
-      'CCLBCPECOWEB24.cclinternet.com',
-      'CCLBCPECOWEB25.cclinternet.com',
-      'CCLBCPECOWEB26.cclinternet.com',
-      'CCLBCPECOWEB27.cclinternet.com',
-      'CCLBCPECOWEB28.cclinternet.com',
-      'CCLBCPECOWEB29.cclinternet.com',
-      'CCLBCPECOWEB30.cclinternet.com',
-      'CCLBCPECOBOOK1.cclinternet.com',
-      'CCLBCPECOBOOK2.cclinternet.com',
-      'CCLBCPECOBOOK3.cclinternet.com',
-      "cclbcpecofvl1.cclinternet.com",
-      "cclbcpecofvl2.cclinternet.com"
-
-    );
-  };
-  'UAT_DMZ' = @{
-    'COMMENT' = 'UAT DMZ Web Servers';
-    'DOMAIN' = 'CCLINTERNET';
-    'LOGONSERVER' = 'CCLPRDDMZDC2';
-    'SERVERS' =
-    @(
-'ccluatecocds1.cclinternet.com',
-'ccluatecocds2.cclinternet.com',
-
-      'ccluatecoweb1n1.cclinternet.com',
-      'ccluatecoweb2n1.cclinternet.com',
-#      'ccluatecoweb3n1.cclinternet.com',
-#      'ccluatecoweb4n1.cclinternet.com',
-#      'ccluatecoweb5n1.cclinternet.com',
-      'ccluatecoweb1n2.cclinternet.com',
-      'ccluatecoweb2n2.cclinternet.com',
-#      'ccluatecoweb3n2.cclinternet.com',
-#      'ccluatecoweb4n2.cclinternet.com',
-#      'ccluatecoweb5n2.cclinternet.com',
-      'ccluatecoweb1n3.cclinternet.com',
-      'ccluatecoweb2n3.cclinternet.com',
-#      'ccluatecoweb3n3.cclinternet.com',
-#      'ccluatecoweb4n3.cclinternet.com',
-#      'ccluatecoweb5n3.cclinternet.com',
-      'ccluatecoweb1n4.cclinternet.com',
-      'ccluatecoweb2n4.cclinternet.com',
-#      'ccluatecoweb3n4.cclinternet.com',
-#      'ccluatecoweb4n4.cclinternet.com',
-#      'ccluatecoweb5n4.cclinternet.com',
-      'ccluatecobkg1n5.cclinternet.com',
-      'ccluatecobkg2n5.cclinternet.com',
-      'ccluatecoweb1n5.cclinternet.com',
-      'ccluatecoweb2n5.cclinternet.com'
-
-    );
-  };
-
 }
 
 
@@ -769,7 +670,6 @@ $scope = $environment
 if ($scope -eq '' -or $scope -eq $null) {
   $scope = 'DEBUG'
 }
-# CCLPRDECOWEB28.cclinternet.com
 Write-Output $scope
 if ($scope -eq '-') {
   Write-Output 'Processing all environment '

@@ -44,7 +44,7 @@ $result = (Get-Content -Path ([System.IO.Path]::Combine((Get-ScriptDirectory),$j
 
 $result_default = @"
 [{
-	"serverName": "ccltsteco1n2",
+	"serverName": "xxxxxx",
 	"iisStatus": "started",
 	"sites": [{
 		"siteName": "Carnival",
@@ -121,7 +121,7 @@ function generate_result_mockup () {
   $mockup_result =
   @(
     @{
-      "serverName" = "ccltsteco1n2";
+      "serverName" = "xxxxxx";
       "iisStatus" = "started";
       "sites" = @(
         @{

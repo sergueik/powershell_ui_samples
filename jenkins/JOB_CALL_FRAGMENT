@@ -25,7 +25,7 @@ The only part of this configuration that matters is the builders.</description>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
-  <assignedNode>CCLPRDKEYNOTE1</assignedNode>
+  <assignedNode>server1</assignedNode>
   <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>

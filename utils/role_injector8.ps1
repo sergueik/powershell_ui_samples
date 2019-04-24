@@ -1,4 +1,4 @@
-param([string] $master_server = 'CCLPRDECOBOOK2', [bool] $verbose = $false  )
+param([string] $master_server = 'xxxxxx', [bool] $verbose = $false  )
 
 
 # Load the entries from remote 
@@ -58,9 +58,9 @@ $command1_template = 'C:\Windows\system32\inetsrv\appcmd.exe add apppool /name:"
 $command2_template = "C:\Windows\system32\inetsrv\appcmd.exe set apppool /apppool.name:{0} /processModel.identityType:NetworkService"
 $command3_template = "C:\Windows\system32\inetsrv\appcmd.exeset config /section:applicationPools /[name='{0}'].processModel.identityType:NetworkService"
 # NOTE: command3_template does not work
-# ERROR ( message:Cannot find SITE object with identifier "name=GoCCLUSDownloadableFiles].processModel.identityType:NetworkService". )
+# ERROR ( message:Cannot find SITE object with identifier "name=DownloadableFiles].processModel.identityType:NetworkService". )
 # origin: http://technet.microsoft.com/en-us/library/cc771170(v=ws.10).aspx
-# ERROR ( message:Unknown attribute "*[@name=GoCCLUSDownloadableFiles].processModel.identityType".  Replace with -? for help. )
+# ERROR ( message:Unknown attribute "*[@name=DownloadableFiles].processModel.identityType".  Replace with -? for help. )
 
 $step1  | foreach-object {
 $command = ( $command1_template -f $_.name , $_.RuntimeVersion, $_.PipelineMode  )
@@ -70,8 +70,8 @@ write-output $command |out-file $generate_cmd_file -encoding Ascii -force -appen
 
 
 # The possible response would be:
-# APPPOOL object "GoCCLUSDownloadableFiles" added
-# ERROR ( message:Failed to add duplicate collection element "GoCCLUSDownloadableFiles". )
+# APPPOOL object "DownloadableFiles" added
+# ERROR ( message:Failed to add duplicate collection element "DownloadableFiles". )
 } 
 write-host -ForegroundColor 'green' ("Please run the command file `n{0}`nto install and condigure app pools" -f $generate_cmd_file )
 return

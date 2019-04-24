@@ -54,4 +54,4 @@ Send-MailMessage -To $recipient -Subject "${subject}" -Body "${results}" -SmtpSe
 
 }
 write-output 'sending the mail'
-generate_heat_alert  'ccluatecocds1'
+generate_heat_alert  'node1'

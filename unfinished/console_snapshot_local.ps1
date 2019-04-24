@@ -83,5 +83,5 @@ using(Graphics graphics = Graphics.FromImage(bmp))
 
 <#
 # PowerShell Invoke-Command -FilePath example
-Invoke-Command -ComputerName 'cclprdwebops1.carnival.com'  -FilePath "C:\Users\tso-sergueik\console_snapshot_local.ps1" 
+Invoke-Command -ComputerName 'targetnode.com'  -FilePath "C:\Users\user\console_snapshot_local.ps1" 
 #>

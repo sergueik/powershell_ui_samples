@@ -369,8 +369,8 @@ $configuration_paths = @{
     'COMMENT' = 'Staging Web Servers ConnectionStrings.config';
     'DOMAIN' = 'CARNIVAL';
     'UNC_PATHS' = @(
-      '\\cclprdecostg1.carnival.com\e$\SitecoreCMS\Carnival\Website\App_Config\ConnectionStrings.config',
-      '\\cclprdecostg1.carnival.com\e$\Projects\prod.carnival.com\Carnival\App_Config\ConnectionStrings.config',
+      '\\existing.mydomain.net\e$\SitecoreCMS\Website\App_Config\ConnectionStrings.config',
+      '\\existing.mydomain.net\e$\Projects\App_Config\ConnectionStrings.config',
       $null
     );
   };
@@ -389,9 +389,9 @@ $configuration_discovery_results = @{
     'COMMENT' = 'Web Server';
     'DOMAIN' = '';
     'CONFIGURATIONS' = @{
-      'Exit SSL cms targetted offers' = 'http://www.carnival.com/{R:1}';
-      'Force Non Https for Home Page' = 'http://www.carnival.com';
-      'To new deck plans page' = 'http://www.carnival.com/common/CCLUS/ships/ship/htmldeckplans.aspx';
+      'Exit SSL cms targetted offers' = 'http://www.mydomain.net/{R:1}';
+      'Force Non Https for Home Page' = 'http://www.mydomain.net';
+      'To new deck plans page' = 'http://www.mydomain.net/common/CCLUS/ships/ship/htmldeckplans.aspx';
       'imagesCdnHostToPrepend' = 'http://static.carnivalcloud.com';
     };
   };
@@ -400,11 +400,11 @@ $configuration_discovery_results = @{
     'COMMENT' = 'Admin Server';
     'DOMAIN' = '';
     'CONFIGURATIONS' = @{
-      'SecureLoginUrl' = 'https://secure.carnival.com/SignInTopSSL.aspx';
-      'SecureUrl' = 'https://secure.carnival.com/';
-      'FullSiteURL' = 'http://www.carnival.com';
-      'RESTProxyDomain' = 'http://www.carnival.com';
-      'PersonalizationDomain' = 'services.carnival.com';
+      'SecureLoginUrl' = 'https://secure.mydomain.net/SignInTopSSL.aspx';
+      'SecureUrl' = 'https://secure.mydomain.net/';
+      'FullSiteURL' = 'http://www.mydomain.net';
+      'RESTProxyDomain' = 'http://www.mydomain.net';
+      'PersonalizationDomain' = 'services.mydomain.net';
     };
   };
 }

@@ -53,13 +53,13 @@ write-debug "Truncate the build log: ${build_log}"
 ( $build_log ) | foreach-object {set-content -Path $_ -value '' -Encoding ascii -Force}
 # ( $build_log ) | foreach-object {set-content -LiteralPath $_ -value '' -Encoding ascii -Force}
 
-# $TARGET_HOST='CCLPRDECOSTG1'
+# $TARGET_HOST='xxxxxx'
 $TARGET_PATH='keepalive.aspx'
 $ACTION='Activate'
 $LOCAL_FILE_PATH='E:\Portals\CarnivalDMS\Website'
 $EMAIL_RECIPIENTS=@('skouzmine@carnival.com','HMudireddy@carnival.com')
 $SITE_CODE=42
-$DEPLOY_HOSTS=@('CCLPRDECODMS1','CCLPRDECODMS2','CCLPRDECODMS3')
+$DEPLOY_HOSTS=@('xxxxxx')
 # no need to explicitly 
 $STEP_STATUS='SUCCESS'
 

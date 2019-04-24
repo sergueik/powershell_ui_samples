@@ -84,43 +84,12 @@ function assert_config_data {
 $configuration_paths = @{
   'Sitecore' =
   @{
-    'COMMENT' = 'Sitecore Authoring Servers';
-    'PATH' = 'E:\SitecoreCMS\Carnival\Website\App_Config\ConnectionStrings.config';
-    'DOMAIN' = 'CARNIVAL';
+    'COMMENT' = 'Servers';
+    'PATH' = 'c:\Website\App_Config\ConnectionStrings.config';
+    'DOMAIN' = 'domain';
     'SERVERS' = @(
-      'cclprdecocms1.carnival.com',
-      'cclprdecocms2.carnival.com',
-      'cclprdecocms3.carnival.com',
-      $null
-    );
-  };
-
-  'Staging' = @{
-    'COMMENT' = 'staging Web Servers';
-    'DOMAIN' = 'CARNIVAL';
-    'UNC_PATHS' = @(
-      '\\cclprdecostg1.carnival.com\e$\SitecoreCMS\Carnival\Website\App_Config\ConnectionStrings.config',
-      '\\cclprdecostg1.carnival.com\e$\Projects\prod.carnival.com\Carnival\App_Config\ConnectionStrings.config',
-      $null
-    );
-  };
-  'Web' = @{
-    'COMMENT' = 'DMZ Web Servers';
-    'DOMAIN' = 'CCLINTERNET';
-    'PATH' = 'E:\Projects\prod.carnival.com\Carnival\App_Config\ConnectionStrings.config';
-    'SERVERS' =
-    @(
-      'CCLPRDECOWEB21.cclinternet.com',
-      'CCLPRDECOWEB22.cclinternet.com',
-      'CCLPRDECOWEB23.cclinternet.com',
-      'CCLPRDECOWEB24.cclinternet.com',
-      'CCLPRDECOWEB25.cclinternet.com',
-      'CCLPRDECOWEB26.cclinternet.com',
-      'CCLPRDECOWEB27.cclinternet.com',
-      'CCLPRDECOWEB28.cclinternet.com',
-      'CCLPRDECOWEB29.cclinternet.com',
-      'CCLPRDECOWEB30.cclinternet.com',
-      'CCLPRDECOWEB31.cclinternet.com',
+      'server1',
+      'server2',
       $null
     );
   };
@@ -157,6 +126,6 @@ foreach ($role in $configuration_paths.Keys) {
 <# Business logic 
 # 2.	On the webservers (web21, ... web31) should point to NON _parallel databases
 
-# 1.	Look at connection strings config file on cclprdecocms1, cms2, cms3.
+ 1.	Look at connection strings config file 
 # proceed or skip based on domain
 #>
