@@ -1,6 +1,6 @@
 ' origin: http://forum.oszone.net/thread-255310-2.html
-
-
+' on Windows 10 requires 'use legacy console' option to be set
+' https://www.tenforums.com/tutorials/94146-enable-disable-legacy-console-mode-all-consoles-windows-10-a.html
 Option Explicit
 
 Const SW_NORMAL = 1
