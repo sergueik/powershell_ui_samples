@@ -22,9 +22,10 @@ namespace CefSharp.MinimalExample.WinForms
             InitializeComponent();
 
             Text = "CefSharp";
-            WindowState = FormWindowState.Maximized;
+            WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
-            browser = new ChromiumWebBrowser("www.google.com")
+            // Error CS0426: The type name 'ChromiumWebBrowser' does not exist in the type 'CefSharp.WinForms.ChromiumWebBrowser'
+            browser = new CefSharp.WinForms.ChromiumWebBrowser("www.google.com")
             {
                 Dock = DockStyle.Fill,
             };
