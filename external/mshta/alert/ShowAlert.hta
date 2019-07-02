@@ -1,0 +1,174 @@
+<HTML>
+<!-- Created by: mparsons@epicor.com -->
+<HEAD>
+ <TITLE>Alert</TITLE>
+<STYLE>
+body {background-repeat:no-repeat;margin:0 0 0 0;background-color:red;}
+td {font-family: tahoma, arial, verdana, helvetica, sans-serif;font-size: 11px;}
+input {font-family: tahoma, arial, verdana, helvetica, sans-serif;font-size: 9px;color:white;background-color:red;border:1px outset white;width:12px;height:14px}
+a {color:black}
+</STYLE>
+<HTA:APPLICATION ID="oHTA" 
+	APPLICATIONNAME="Show Alert" 
+	BORDER="dialog"
+	BORDERSTYLE="complex"
+	CAPTION="no"
+	ICON="im.ico"
+	SHOWINTASKBAR="no"
+	SINGLEINSTANCE="no"
+	SYSMENU="no"
+	CONTEXTMENU="no"
+	INNERBORDER="no"
+	MAXIMIZEBUTTON="no"
+	MINIMIZEBUTTON="no"
+	SCROLL="no"
+	SCROLLFLAT="yes"
+	VERSION="1.0"
+	WINDOWSTATE="normal">
+
+<SCRIPT>
+//Set this to false if you want to use the default skin
+var enableRandomSkin = false;
+
+//Change default skin here
+var defaultSkin="skins/msn_default.jpg";
+
+//Change default voice here ... choices include 
+//	en-US_female.wav
+//	en-US_male.wav
+//	en-UK_female.wav
+//	en-UK_male.wav
+//	en-AUS_female.wav
+//	en-AUS_male.wav
+var defaultVoice="en-US_female.wav";
+
+//Command Line Passed to ShowAlert.hta
+var szCommand = null;
+
+//Text or Message to show in the alert
+var szText = null;
+
+//URL to execute when alert is cliced on
+var szURL = null;
+
+//Voice in which to speak alert
+var szVoice = null;
+
+//Timer for showing alert
+var iInterval = null;
+
+//Get the Current Path
+var szCurrentPath=location.pathname.substring(0,location.pathname.lastIndexOf("\\"));
+
+function window.onload() {
+	if(enableRandomSkin)
+		document.body.style.backgroundImage="url(" + GetRandomSkin() +")";
+	else
+		document.body.style.backgroundImage="url(" + defaultSkin +")";
+
+
+	szCommand = oHTA.commandLine.substr(oHTA.commandLine.indexOf(" ")+1);
+	var aAlert = szCommand.split("|");
+	szText = aAlert[0];
+	szURL = aAlert[1];
+	szVoice = aAlert[2];
+
+	if(fileExists(szVoice+".wav"))
+		szVoice +=".wav";
+	else
+		szVoice=defaultVoice;
+		
+	
+	var oAnchor = document.createElement("A");
+	oAnchor.id = "aLink";
+	if(szURL==undefined) szURL="javascript:alert('No action has been defined for this alert!');window.close();";
+	oAnchor.href = szURL;
+	oAnchor.title = szText;
+	document.body.title = szText;
+	oAnchor.innerText = szText;
+	txtContent.appendChild(oAnchor);
+	window.moveTo(screen.width-160,screen.height);
+	//window.resizeTo(147, 118);
+	window.resizeTo(150, 112);
+	iInterval = window.setInterval("viewAlert()", 10);
+}
+
+
+function viewAlert() {
+	window.moveBy(0,-2);
+	if(window.screenTop < (screen.height-140))
+	{		
+		window.clearInterval(iInterval);
+		window.setTimeout("window.close()", 10000);
+		sndBite.src= szVoice;
+	}
+}
+
+function doClose() {
+
+	if(event.srcElement.tagName =="INPUT")
+		return;
+
+	if(event.srcElement.tagName !="A")
+		window.open(aLink.href);
+
+	if(event.srcElement.tagName =="A")
+		window.close();
+}
+
+
+function fileExists(szFileName) {
+   var fso;
+   fso = new ActiveXObject("Scripting.FileSystemObject");
+   if (fso.FileExists(szFileName))
+	return true;
+   else 
+	return false;
+}
+
+
+function GetRandomSkin() {
+
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var skins = fso.GetFolder(szCurrentPath +"\\skins").Files;
+
+var file = null;
+var iNumFiles = skins.Count;
+var iRandomNumber = Math.round((iNumFiles - 1) * Math.random());
+var fc = new Enumerator(skins);
+var iCounter = 0;
+
+
+for (; !fc.atEnd(); fc.moveNext())
+{
+	if(iCounter==iRandomNumber)
+	{
+		file = fc.item();
+		break;
+	}
+	else
+		iCounter +=1;
+}
+
+return file.Path;
+
+}
+
+
+
+</SCRIPT>
+</HEAD>
+<BODY scroll=no onclick="doClose()">
+<BGSOUND id=sndBite SRC="newalert.wav"/>
+
+<TABLE height=100% width=100% border=0 cellspacing=2 cellpadding=1>
+	<TR height=1%>
+		<TD align=right id=txtTitle><INPUT title="Click here to close alert." type=button value="X" onclick="window.close()"/></TD>
+	</TR>
+	<TR height=99%>
+		<TD valign=middle align=center id=txtContent></TD>
+	</TR>
+</TABLE>
+</TABLE>
+</BODY>
+</HTML>

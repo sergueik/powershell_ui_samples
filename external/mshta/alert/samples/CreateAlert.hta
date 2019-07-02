@@ -1,0 +1,66 @@
+<HTML>
+<!-- Created by: mparsons@epicor.com -->
+<HEAD>
+ <TITLE>Create New Alert</TITLE>
+<STYLE>
+</STYLE>
+<HTA:APPLICATION ID="oHTA"
+    	APPLICATIONNAME="Create New Alert"
+	BORDER="thick"
+	BORDERSTYLE="none"
+	CAPTION="yes"
+	ICON="im.ico"
+	SHOWINTASKBAR="yes"
+	SINGLEINSTANCE="yes"
+	SYSMENU="yes"
+	CONTEXTMENU="yes"
+	INNERBORDER="no"
+	MAXIMIZEBUTTON="yes"
+	MINIMIZEBUTTON="yes"
+	SCROLL="yes"
+	SCROLLFLAT="yes"
+	VERSION="1.0"
+	WINDOWSTATE="normal">
+<SCRIPT language="VBScript">
+Sub btnGo_onclick()
+	szMessage = txtText.value & "|" & txtURL.value & "|" & txtVoice.value
+	Set myTypeLib = CreateObject("Scriptlet.Typelib")
+	GUID = left(trim(myTypeLib.guid),38)
+	szFileName="c:\MyAlerts\queue\" & GUID & ".txt"
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set tf = fso.CreateTextFile(szFileName, True)
+	tf.WriteLine(szMessage) 
+	tf.Close
+End Sub
+
+
+</SCRIPT>
+</HEAD>
+<BODY>
+<TABLE border=0 width=100%>
+<TR>
+<TD>Enter Text</TD><TD><INPUT id=txtText size=50 type=text value="Hello Microsoft"></TD>
+</TR>
+<TR>
+<TD>Enter URL</TD><TD><INPUT id=txtURL size=50 type=text value="http://www.microsoft.com"></TD>
+</TR>
+<TR>
+<TD>Select Voice</TD><TD>
+<SELECT id=txtVoice>
+<OPTION value="en-US_female">en-US_female</OPTION>
+<OPTION value="en-US_male">en-US_male</OPTION>
+<OPTION value="en-UK_female">en-UK_female</OPTION>
+<OPTION value="en-UK_male">en-UK_male</OPTION>
+<OPTION value="en-AUS_female">en-AUS_female</OPTION>
+<OPTION value="en-AUS_male">en-AUS_male</OPTION>
+</SELECT>
+</TD>
+</TR>
+<TR>
+<TD>&nbsp;</TD><TD><INPUT id=btnGo type=button value="Trigger Alert"></TD>
+</TR>
+
+</TABLE>
+</BODY>
+</HTML>
+

@@ -1,0 +1,222 @@
+<HTML>
+<!-- Created by: mparsons@epicor.com -->
+<HEAD>
+ <TITLE>My Agent Alerts Controller</TITLE>
+<STYLE>
+</STYLE>
+<HTA:APPLICATION ID="oHTA"
+    	APPLICATIONNAME="My Agent Alert Controller"
+	BORDER="thick"
+	BORDERSTYLE="none"
+	CAPTION="yes"
+	ICON="agent.ico"
+	SHOWINTASKBAR="yes"
+	SINGLEINSTANCE="yes"
+	SYSMENU="yes"
+	CONTEXTMENU="yes"
+	INNERBORDER="no"
+	MAXIMIZEBUTTON="yes"
+	MINIMIZEBUTTON="yes"
+	SCROLL="yes"
+	SCROLLFLAT="yes"
+	VERSION="1.0"
+	WINDOWSTATE="minimize">
+<SCRIPT DEFER>
+
+//Initialize Variables
+var szCurrentPath=location.pathname.substring(0,location.pathname.lastIndexOf("\\"));
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+//Queue is simply a directory in the file system
+var queue = fso.GetFolder(szCurrentPath +"\\queue");
+
+//How often to read the queue (i.e. 1000ms = 1 second)
+var iInterval = window.setInterval("readQueue()", 2000)
+
+//Helper Object
+var WshShell = new ActiveXObject("WScript.Shell");
+
+//Initialize Microsoft Agent Variables
+var Merlin = null;
+var LoadRequestUNC = null;
+var LoadRequestURL = null;
+var GetShowAnimation = null;
+
+//Default Action URL
+var szActionURL="about:blank";
+
+
+//Load Agent
+function window.onload() {
+
+// Attempt to load the character from the Microsoft Agent Chars directory (usually C:\WINDOWS\msagent\chars)
+LoadRequestUNC = Agent.Characters.Load("Merlin", "Merlin.acs");
+
+//If it fails...
+if(LoadRequestUNC.Status!=0)
+{
+	// Attempt to load the character from the Microsoft Agent site
+	LoadRequestURL = Agent.Characters.Load("Merlin", "http://agent.microsoft.com/agent2/chars/Merlin/Merlin.acf"); 
+}
+//It didn't fail so assign Merlin to loaded character file
+else 
+{
+	// Assign Merlin to the loaded character
+	Merlin = Agent.Characters("Merlin");
+}
+
+//Set the character's language ID
+Merlin.LanguageID = 0x0409;
+
+//' Give user access to the Advanced Character Options dialog
+Merlin.Commands.RemoveAll();
+Merlin.Commands.Add("ACO", "Advanced Character Options");
+
+}
+
+
+//Read the queue
+function readQueue()
+{
+   //Clear Timer While Processing	
+   window.clearInterval(iInterval);
+
+   //Process Items in queue
+   var fc = new Enumerator(queue.files);
+   for (; !fc.atEnd(); fc.moveNext())
+   {
+	var file = fc.item();
+	var szName = file.Name;
+	var textStream = file.OpenAsTextStream(1, -2);
+	var szAlert = textStream.ReadAll();
+   	textStream.Close();
+	fso.DeleteFile(file);
+	processAlert(szAlert.replace(/\n|\r/g,""));
+	document.body.innerHTML+= "Processed Alert ..." + szName +" @"+ Date().toString()+".<BR/>"; 
+   }
+
+   //Restart Timer	
+   iInterval=window.setInterval("readQueue()",2000);
+}
+
+function processAlert(message) {
+
+	var aAlert = message.split("|");
+	szText = aAlert[0];
+	szURL = aAlert[1];
+	szVoice = aAlert[2];
+
+	szActionURL = szURL;
+	Merlin.Stop();
+	Merlin.Left = screen.height;
+	Merlin.Top = screen.width;
+	Merlin.Hide()
+	Merlin.Show(-100);
+	Merlin.MoveTo(screen.width-Merlin.Width,screen.height-Merlin.Height);
+	//' Show the Alert
+	Merlin.Play("GetAttention");
+	Merlin.Play("GetAttentionContinued");
+	Merlin.Play("GetAttentionContinued");
+	Merlin.Play("GetAttentionContinued");
+	Merlin.Play("Wave");
+	Merlin.Speak("\\emp\\Hi There ... you have a new alert!");
+	Merlin.Play("Read");
+	Merlin.Speak(szText +"\\Pau=1000\\");
+	Merlin.Play("Pleased");
+	Merlin.Speak("Please double click on me for more information!");
+	window.setTimeout("Merlin.Hide()", 30000);
+}
+
+function Agent::Click(CharacterID,Button,Shift,X,Y)
+{
+}
+
+
+
+function Agent::DblClick(CharacterID,Button,Shift,X,Y)
+{
+	Merlin.Play("Alert");
+	if(szActionURL!=undefined)
+	{
+		Merlin.Speak("Executing Action!");
+		window.open(szActionURL);
+	}
+	else
+	{
+		Merlin.Speak("No Action has been defined for this alert!");
+	}
+	window.setTimeout("Merlin.Hide()", 1000);
+}
+
+function Agent::DragComplete(CharacterID,Button,Shift,X,Y)
+{
+	Merlin.Stop();
+	Merlin.Play("Blink");
+	Merlin.Speak("Well, \\emp\\this gives me a new perspective!|I like it much better over here.|Now why did you move me?|Hey, be careful!|Please quit moving me around ... I'm getting dizzy!");
+	Merlin.Play("Blink");
+}
+
+function Agent::Command(UserInput)
+{
+if(UserInput.Name == "ACO")
+     Agent.PropertySheet.Visible = true;
+}
+
+
+function Agent::RequestComplete(Request)
+{
+//' The Request to load the ACF character fails 
+if(Request == LoadRequestURL)
+{	
+
+	//' If it failed
+	if(Request.Status == 1)
+	{
+		alert("Merlin could not be loaded. The server may be busy. Try refreshing this page.");
+		return;
+	}	
+	//' If it succeeded
+	else
+	{
+		if(Request.Status == 0)
+		{
+			//' Assign Merlin to the loaded character
+			Merlin = Agent.Characters("Merlin");
+			//' Get the preliminary animations necessary to show Merlin
+			GetShowAnimation = Merlin.Get ("state", "showing, speaking");
+			Merlin.Get("animation", "Greet, GreetReturn,Announce,Sad,Acknowledge,Alert,GetAttention,Process,Processing,Search,StartListening,Suggest,Surprised,Think,Thinking,Wave,Writing,Uncertain,Read,Blink, Greet, Pleased, Explain, Think, GestureRight,Idle1_1,Idle2_2, Announce, Uncertain");
+		}
+	}
+}
+//' The request to get the animation 
+else
+{
+if(Request == GetShowAnimation)
+{
+	//' If it failed 
+	if(Request.Status == 1)
+	{
+		alert("Request to load the Show animation failed. The server may be busy.");
+		return;
+	}
+}
+}
+}
+
+
+</SCRIPT>
+
+
+
+
+</HEAD>
+<BODY>
+If you can't get Microsoft Agent (this demo uses the Merlin Character) and/or the Speech capability to work (this demo uses Lernout &amp; Hauspie® TruVoice TTS engine - American English), download the required components here ... <BR>
+<A target="_blank" href="http://www.microsoft.com/msagent/downloads/user.asp">Microsoft Agent Downloads</A>
+<HR>
+Waiting for alerts ... (HINT: You can minimize this window)<BR/>
+<OBJECT id="truVoice" width=0 height=0 CLASSID="CLSID:B8F2846E-CE36-11D0-AC83-00C04FD97575" CODEBASE="http://activex.microsoft.com/controls/agent/cgram.exe#VERSION=1,5,0,0"></OBJECT>
+<OBJECT id="Agent" width=0 height=0 CLASSID="CLSID:F5BE8BD2-7DE6-11D0-91FE-00C04FD701A5" CODEBASE="http://activex.microsoft.com/controls/agent/msagent.exe#VERSION=1,5,1,0"></OBJECT>
+</BODY>
+</HTML>
+

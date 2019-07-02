@@ -1,0 +1,233 @@
+<!--------------------------------------------------------------------------->  
+<!--                        IGNORE THIS SECTION                            -->
+<html>
+<head>
+<title>My Alerts Notification Application</title>
+<Style>
+BODY, P, TD { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt }
+H2,H3,H4,H5 { color: #ff9900; font-weight: bold; }
+H2 { font-size: 13pt; }
+H3 { font-size: 12pt; }
+H4 { font-size: 10pt; color: black; }
+PRE { BACKGROUND-COLOR: #FBEDBB; FONT-FAMILY: "Courier New", Courier, mono; WHITE-SPACE: pre; }
+CODE { COLOR: #990000; FONT-FAMILY: "Courier New", Courier, mono; }
+</style>
+<link rel="stylesheet" type=text/css href="http://www.codeproject.com/styles/global.css">
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+<!--------------------------------------------------------------------------->  
+
+
+<!-------------------------------     STEP 1      --------------------------->
+<!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>
+Title:       MyAlerts Notification Application
+Author:      Mike Parsons 
+Email:       mparsons@epicor.com
+Environment: DHTML, Script, Internet Explorer, Web/Scripting
+Keywords:    DHTML, JScript, VBScript, HTA, Alerts, Notifications
+Level:       Intermediate
+Description: A sample application to create Alert Notifications on your desktop
+              (i.e. Instant Messenger "toast")		
+Section      Web/Scripting
+SubSection   Jscript
+</pre>
+
+<!-------------------------------     STEP 2      --------------------------->
+<!--  Include download and sample image information.                       --> 
+
+<ul class=download>
+<li><a href="MyAlerts_src.zip">Download source - 1,164 Kb</a></li>
+</ul>
+
+<p><img src="MyAlerts4.jpg">&nbsp; &nbsp; &nbsp;<img src="MyAlerts3.jpg"></p>
+
+
+<!-------------------------------     STEP 3      --------------------------->
+<!--  Add the article text. Please use simple formatting (<h2>, <p> etc)   --> 
+
+<h2>Introduction</h2>
+
+<p>The purpose of this application is to create a simple 
+Notification application (ala Instant Messenger). Upon receiving
+an alert, the application will display some "toast" in the lower
+right-hand corner of your desktop. The alert will display a message
+and will execute an action when clicked on.
+
+
+<h2>Background</h2>
+
+<p>The idea for this application came as a result of trying to come up with 
+something "cool" for sale's demos. Customers love demos that illustrate "real-time" 
+notification of business events. While this functionality does exists via several 
+Microsoft products (i.e. SQL Server Notification, MSN Alerts and Real-Time Communication Server), 
+the infrastructure/cost to configure/support/program these applications can be quite overwhelming. 
+Often, sales demos are done on standalone laptop machines that are not always connected to a network. 
+This simple application demonstrates the value of real-time communication without having 
+to be a technology guru to get it up and running.
+
+<p>The use case scenario described above is also the reason MyAlerts is written completely in script code. 
+It makes it easy to do modifications without having to recompile/redeploy code. Also, I am a strong advocate of 
+keeping things as simple as possible so that semi-technical people can understand how the application works and make 
+improvements and/or modifications.</p>
+
+<p>I have included two versions of Alert Controllers:
+<OL>
+<LI><b>AlertController.hta</b> is based on creating alerts using pop-up "toast" similar to that used in popular Instant Messenging products.
+<LI><b>AgentAlertController.hta</b> uses Microsoft Agent Technology combined with a Speech Engine to create a more interactive alert.
+</OL>
+</p>
+
+
+<h2>Using the code</h2>
+
+<p>To install this application, 
+
+<OL>
+<LI>Extract the contents of the zip file to c:\MyAlerts
+<LI>Execute AlertController.hta or AgentAlertController.hta (app will be minimized on startup)
+<LI>Execute one of the samples in the samples subdirectory (i.e. CreateAlert.hta)
+</OL>
+
+
+<p>An optional step that I usually perform is to add a shortcut to [Agent]AlertController.hta 
+to my Window's Startup Group so that the application restarts on a reboot.
+
+<p>Alerts are triggered when a file is written to the \MyAlerts\queue
+subdirectory. The structure of the file is quite simple. It is a 
+text file containing a text string in the following format:
+
+<pre>
+Text To Display|URL to Execute|Voice to announce alert in
+</pre>
+
+Basically, 3 text strings delimited by the |(pipe) character.
+
+For example, a file with the following contents ...
+
+<pre>
+Hello Microsoft|http://www.microsoft.com|en-UK_female
+</pre>
+
+
+will display an alert announced in a female voice with a UK accent 
+with the text message "Hello Microsoft". Note that the "voice" parameter is only 
+relevant to AlertController.hta. The voice for AgentAlertController.hta is dependant 
+on which speech engine you have installed. When clicked upon 
+the alert will take you to the Microsoft Web Site.
+
+<p>Voice Options include</p>
+<p>
+<LI>en-US_female
+<LI>en-US_male
+<LI>en-UK_female
+<LI>en-UK_male
+<LI>en-AUS_female
+<LI>en-AUS_male
+</p>
+
+
+<p>To trigger an alert, all your application has to do is write a text file 
+with the above structure to the \MyAlerts\queue subdirectory. For example, 
+from your C# .Net app, you can do something like:
+
+<pre lang=cs>
+TextWriter output = File.AppendText("c:\\MyAlerts\\queue\\" + System.Guid.NewGuid()+".txt");
+output.Write("Hello Microsoft|http://www.microsoft.com|en-UK_female");
+output.Close();
+</pre>
+
+The file MyAlertsWS.asmx in the samples subdirectory contains a .Net WebService that 
+triggers notifications. Simply copy this file to c:\inetpub\wwwroot and execute it via
+
+<pre lang=html>
+http://localhost/MyAlertsWS.asmx
+</pre>
+
+
+<p>Or from a Window's VBScript file, you can do something like
+
+<pre lang=vbscript>
+Set myTypeLib = CreateObject("Scriptlet.Typelib")
+GUID = left(trim(myTypeLib.guid),38)
+szFileName="c:\MyAlerts\queue\" & GUID & ".txt"
+Set fso = CreateObject("Scripting.FileSystemObject")
+Set tf = fso.CreateTextFile(szFileName, True)
+tf.WriteLine("Hello Microsoft|http://www.microsoft.com|en-UK_female") 
+tf.Close
+</pre>
+
+
+<p>Or if you prefer JScript, you can do something like
+
+<pre lang=jscript>
+var myTypeLib = new ActiveXObject("Scriptlet.Typelib");
+var GUID = new String(myTypeLib.guid).substr(0,38);
+var szFileName="c:\\MyAlerts\\queue\\" + GUID + ".txt"
+var fso = new ActiveXObject("Scripting.FileSystemObject")
+var tf = fso.CreateTextFile(szFileName, true);
+tf.WriteLine("Hello Microsoft|http://www.microsoft.com|en-UK_female");
+tf.Close();
+</pre>
+
+<p>You can even Trigger Alerts directly from SQL Server by using a SQL Trigger 
+to execute the stored procedure located in samples\CreateAlert.sql. For example, 
+assuming you have created the sp_CreateAlert stored procedure in the NorthWind Database, you can do 
+something like the following:
+
+<pre>
+--Create Trigger on Customers Table in Northwind Database
+CREATE TRIGGER DataChanged ON Customers
+FOR INSERT, UPDATE, DELETE
+AS EXEC sp_CreateAlert 'Customer Changed','http://www.microsoft.com','en-UK_male'
+
+GO
+</pre>
+
+<h2>Points of Interest</h2>
+
+<p>MyAlerts supports skinning (i.e. themes) and by default shows a different skin 
+whenever an alert occurs. To change this behavior, simply edit the file ShowAlert.hta 
+in notepad and modify the following lines of code:
+
+<pre lang=jscript>
+//Set this to false if you want to use the default skin
+var enableRandomSkin = true;
+
+//Change default skin here
+var defaultSkin="skins/msn_default.jpg";
+
+//Change default voice here ... choices include 
+//	en-US_female.wav
+//	en-US_male.wav
+//	en-UK_female.wav
+//	en-UK_male.wav
+//	en-AUS_female.wav
+//	en-AUS_male.wav
+var defaultVoice="en-US_female.wav";
+</pre>
+
+For example, the following screenshot shows an alternative skin:
+
+<p><img src="MyAlerts2.jpg"></p>
+
+
+<p>NOTE: <B>AgentAlertController.hta</B> makes use of Microsoft Agent ActiveX Controls as well as Speech Engines. If AgentAlertController.hta 
+does not work or generates errors, you may have to download the required components at 
+<A target="_blank" href="http://www.microsoft.com/msagent/downloads/user.asp">Microsoft Agent Downloads</A>
+</p>
+
+
+<p>NOTE: All images uses for skinning were obtained via <A href=http://www.wincustomize.com/skins.asp>Wincustomize.com</A> 
+and are copyright via their respective owners.
+
+<h2>History</h2>
+Modified October 30, 2003<BR><BR>
+- Added AgentAlertController.hta to demonstrate use of Microsoft Agent Technology<BR>
+- Added StockAlertController.hta to demonstrate how to trigger an alert based on a Web Service call.<BR>
+
+
+<!-------------------------------    That's it!   --------------------------->
+</body>
+</html>

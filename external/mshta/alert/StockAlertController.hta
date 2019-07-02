@@ -1,0 +1,156 @@
+<HTML>
+<!-- Created by: mparsons@epicor.com -->
+<HEAD>
+ <TITLE>My Alerts Controller</TITLE>
+<STYLE>
+</STYLE>
+<HTA:APPLICATION ID="oHTA"
+    	APPLICATIONNAME="My Alert Controller"
+	BORDER="thick"
+	BORDERSTYLE="none"
+	CAPTION="yes"
+	ICON="alert.ico"
+	SHOWINTASKBAR="yes"
+	SINGLEINSTANCE="yes"
+	SYSMENU="yes"
+	CONTEXTMENU="yes"
+	INNERBORDER="no"
+	MAXIMIZEBUTTON="yes"
+	MINIMIZEBUTTON="yes"
+	SCROLL="yes"
+	SCROLLFLAT="yes"
+	VERSION="1.0"
+	WINDOWSTATE="minimize">
+<SCRIPT>
+
+//Initialize Variables
+var szCurrentPath=location.pathname.substring(0,location.pathname.lastIndexOf("\\"));
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+//Queue is simply a directory in the file system
+var queue = fso.GetFolder(szCurrentPath +"\\queue");
+
+//Polling Interval (in milliseconds 1000ms=1 second)
+iPollingInterval = 5000;
+
+//Helper Object
+var WshShell = new ActiveXObject("WScript.Shell");
+
+//Stock Symbol
+var szStockSymbol = "MSFT";
+
+//Web Service URL to Call
+var szWebServiceURL = "http://www.swanandmokashi.com/HomePage/WebServices/StockQuotes.asmx/GetStockQuotes?QuoteTicker=";
+
+
+//Current Stock Price ... used to keep track of changes
+LastStockPrice = null;
+
+
+//Initialize Polling
+var iInterval = null;
+
+
+//Read the queue
+function readQueue()
+{
+   //Clear Timer While Processing	
+   window.clearInterval(iInterval);
+
+   //Call Web Service	
+   var xmlWSResponse = GetXmlFromWebService(szWebServiceURL,szStockSymbol);	
+
+   //Parse out Stock Price
+   var CurrentStockPrice = xmlWSResponse.selectSingleNode("//ArrayOfQuote/Quote/StockQuote").text;
+
+   //Parse out Change
+   var StockPriceChange = xmlWSResponse.selectSingleNode("//ArrayOfQuote/Quote/Change").text;
+
+
+   //Did Stock Price Change since we last checked?
+   if(CurrentStockPrice != LastStockPrice)
+   {
+	//Build Message
+	var szAlertMessage="Current Stock Price for "+ szStockSymbol + " = " + CurrentStockPrice;
+	szAlertMessage +="|";
+	szAlertMessage +="http://quotes.nasdaq.com/quote.dll?page=quick&mode=stock&symbol="+szStockSymbol +"&symbol=&symbol=&symbol=&symbol=&symbol=&symbol=&symbol=&symbol=&symbol=&quick.x=0&quick.y=0";
+	szAlertMessage +="|";
+	szAlertMessage +="en-UK_female";
+	
+	//Show Alert
+	processAlert(szAlertMessage.replace(/\n|\r/g,""));
+	document.body.innerHTML+= "Processed Alert ... Stock Price for " + szStockSymbol + "  changed by "+ StockPriceChange + ". @"+ Date().toString()+".<BR/>"; 
+
+	//Reset Stock Price
+	LastStockPrice=CurrentStockPrice;
+   }
+   else
+   {
+	document.body.innerHTML+= "Processed Alert ... No Change In Stock Price for "+ szStockSymbol +". @"+ Date().toString()+".<BR/>"; 
+   }
+
+   //Restart Timer	
+   iInterval=window.setInterval("readQueue()",iPollingInterval);
+}
+
+
+
+function GetXmlFromWebService(szURL,szStock)
+{
+	var oXMLHttp = new ActiveXObject("Microsoft.XMLHTTP");
+	oXMLHttp.open("GET", szURL+szStock, false);
+	oXMLHttp.send("");
+	return oXMLHttp.responseXML;
+}
+
+
+
+
+function processAlert(message) {
+	//Show the alert
+	var szCmdLine="mshta.exe " + szCurrentPath + "\\ShowAlert.hta " + message;
+	var oExec = WshShell.Run(szCmdLine,6);
+
+	//var oExec = WshShell.Exec(szCmdLine);
+	//while (oExec.Status == 0)
+	//{
+	//}
+}
+
+function changeInterval(newVal) {
+
+	iPollingInterval = (parseInt(newVal)*1000)*60;
+
+}
+
+function changeSymbol(newVal) {
+
+	szStockSymbol=newVal;
+
+}
+
+function startPolling() {
+
+//Clear Timer While Processing	
+window.clearInterval(iInterval);
+
+iPollingInterval = (parseInt(txtMinutes.value)*1000)*60;
+szStockSymbol=txtStock.value;
+
+//Initialize Polling
+iInterval = window.setInterval("readQueue()", iPollingInterval);
+
+document.body.innerHTML+= "Polling initiated for Stock " + szStockSymbol + ". @"+ Date().toString()+".<BR/>"; 
+
+}
+
+
+</SCRIPT>
+</HEAD>
+<BODY>
+Monitor the following Stock Symbol &nbsp;<INPUT id=txtStock value="MSFT" onchange="changeSymbol(this.value)">&nbsp; every &nbsp;<INPUT id=txtMinutes value="5" onchange="changeInterval(this.value)">&nbsp;Minutes &nbsp;<INPUT type=Button value="Go" onclick="startPolling()">
+<HR>
+Waiting for alerts ... (HINT: You can minimize this window)<BR/>
+</BODY>
+</HTML>
+

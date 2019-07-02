@@ -1,0 +1,82 @@
+<HTML>
+<!-- Created by: mparsons@epicor.com -->
+<HEAD>
+ <TITLE>My Alerts Controller</TITLE>
+<STYLE>
+</STYLE>
+<HTA:APPLICATION ID="oHTA"
+    	APPLICATIONNAME="My Alert Controller"
+	BORDER="thick"
+	BORDERSTYLE="none"
+	CAPTION="yes"
+	ICON="alert.ico"
+	SHOWINTASKBAR="yes"
+	SINGLEINSTANCE="yes"
+	SYSMENU="yes"
+	CONTEXTMENU="yes"
+	INNERBORDER="no"
+	MAXIMIZEBUTTON="yes"
+	MINIMIZEBUTTON="yes"
+	SCROLL="yes"
+	SCROLLFLAT="yes"
+	VERSION="1.0"
+	WINDOWSTATE="minimize">
+<SCRIPT>
+
+//Initialize Variables
+var szCurrentPath=location.pathname.substring(0,location.pathname.lastIndexOf("\\"));
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+//Queue is simply a directory in the file system
+var queue = fso.GetFolder(szCurrentPath +"\\queue");
+
+//How often to read the queue (i.e. 1000ms = 1 second)
+var iInterval = window.setInterval("readQueue()", 2000)
+
+//Helper Object
+var WshShell = new ActiveXObject("WScript.Shell");
+
+
+//Read the queue
+function readQueue()
+{
+   //Clear Timer While Processing	
+   window.clearInterval(iInterval);
+
+//'alert(getDataFromWS());
+
+   //Process Items in queue
+   var fc = new Enumerator(queue.files);
+   for (; !fc.atEnd(); fc.moveNext())
+   {
+	var file = fc.item();
+	var szName = file.Name;
+	var textStream = file.OpenAsTextStream(1, -2);
+	var szAlert = textStream.ReadAll();
+   	textStream.Close();
+	fso.DeleteFile(file);
+	processAlert(szAlert.replace(/\n|\r/g,""));
+	document.body.innerHTML+= "Processed Alert ..." + szName +" @"+ Date().toString()+".<BR/>"; 
+   }
+
+   //Restart Timer	
+   iInterval=window.setInterval("readQueue()",2000);
+}
+
+function processAlert(message) {
+	//Show the alert
+	var szCmdLine="mshta.exe " + szCurrentPath + "\\ShowAlert.hta " + message;
+	var oExec = WshShell.Run(szCmdLine,6);
+
+	//var oExec = WshShell.Exec(szCmdLine);
+	//while (oExec.Status == 0)
+	//{
+	//}
+}
+</SCRIPT>
+</HEAD>
+<BODY>
+Waiting for alerts ... (HINT: You can minimize this window)<BR/>
+</BODY>
+</HTML>
+
