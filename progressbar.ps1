@@ -1,4 +1,4 @@
-#Copyright (c) 2014 Serguei Kouzmine
+#Copyright (c) 2014,2019 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -17,10 +17,8 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
-Add-Type -TypeDefinition @"
-
-// "
-// http://www.java2s.com/Code/CSharp/GUI-Windows-Form/ProgressBarHost.htm
+# basd on http://www.java2s.com/Code/CSharp/GUI-Windows-Form/ProgressBarHost.htm
+Add-Type -TypeDefinition @'
 
 using System;
 using System.Drawing;
@@ -28,20 +26,43 @@ using System.Collections;
 using System.Windows.Forms;
 using System.Data;
 
-namespace ProgressBarHost
+namespace ProgressBarUtility
 {
-
 
     public class Progress : System.Windows.Forms.UserControl
     {
         internal System.Windows.Forms.Label lblProgress;
         internal System.Windows.Forms.ProgressBar Bar;
 
+        // Error: 'ParentWindowsForm.Progress.ParentForm' hides inherited member  'System.Windows.Forms.ContainerControl.ParentForm'.
+        // Use the new keyword if hiding was intended.
+        private System.Windows.Forms.Form progressBarHost;
+        public System.Windows.Forms.Form ProgressBarHost {
+            get {
+                return this.progressBarHost;
+            }
+            set {
+                this.progressBarHost = value;
+            }
+        }
 
         public Progress()
         {
             InitializeComponent();
         }
+
+        // makes the bar portion of the window invisible, but form remain open
+        public void Finish() {
+          Console.Error.WriteLine("Done");
+          this.Dispose(true);
+          // The progrss disappears but form remains visible
+          Console.Error.WriteLine("Done ?");
+          // does not close the Form, closes some container in between the User Control and the form
+          this.ParentForm.Close();
+          // closes the Form passed explicitly
+          this.progressBarHost.Close();
+        }
+
 
         private void InitializeComponent()
         {
@@ -145,8 +166,8 @@ public class Win32Window : IWin32Window
         _hWnd = handle;
     }
 
-    private ProgressBarHost.Progress _target;
-    public ProgressBarHost.Progress Target
+    private ProgressBarUtility.Progress _target;
+    public ProgressBarUtility.Progress Target
     {
         get { return _target; }
         set { _target = value; }
@@ -158,7 +179,7 @@ public class Win32Window : IWin32Window
     }
 }
 
-"@ -ReferencedAssemblies 'System.Windows.Forms.dll','System.Drawing.dll','System.Data.dll'
+'@ -ReferencedAssemblies 'System.Windows.Forms.dll','System.Drawing.dll','System.Data.dll'
 
 
 # http://poshcode.org/2887
@@ -207,7 +228,7 @@ $so = [hashtable]::Synchronized(@{
     'Visible' = [bool]$false;
     'ScriptDirectory' = [string]'';
     'Form' = [System.Windows.Forms.Form]$null;
-    'Progress' = [ProgressBarHost.Progress]$null;
+    'Progress' = [ProgressBarUtility.Progress]$null;
   })
 
 $so.ScriptDirectory = Get-ScriptDirectory
@@ -218,13 +239,12 @@ $rs.ThreadOptions = 'ReuseThread'
 $rs.Open()
 $rs.SessionStateProxy.SetVariable('so',$so)
 
-
 $caller = New-Object Win32Window -ArgumentList ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
-
 
 $run_script = [powershell]::Create().AddScript({
 
-    function Progressbar {
+    # necessary Powershell method code embedded in runspace
+    function showProgressBar {
       param(
         [string]$title,
         [string]$message,
@@ -243,8 +263,11 @@ $run_script = [powershell]::Create().AddScript({
 
 
       $components = New-Object -TypeName 'System.ComponentModel.Container'
-      $u = New-Object -TypeName 'ProgressBarHost.Progress'
+      $u = New-Object -TypeName 'ProgressBarUtility.Progress'
+      
       $so.Progress = $u
+      # pass caller reference to the progress UserControl
+      $u.ProgressBarHost = $f
       $u.Location = New-Object System.Drawing.Point (12,8)
       $u.Name = 'status'
       $u.Size = New-Object System.Drawing.Size (272,88)
@@ -275,21 +298,26 @@ $run_script = [powershell]::Create().AddScript({
       $f.Dispose()
     }
 
-    Progressbar -Title $title -Message $message -caller $caller
+    showProgressBar -Title $title -Message $message -caller $caller
 
   })
 
 
-Clear-Host
+clear-Host
 $run_script.Runspace = $rs
 
 $handle = $run_script.BeginInvoke()
 
-Start-Sleep 3
+start-Sleep -millisecond 1000
+
 $max_cnt = 10
 $cnt = 0
 while ($cnt -lt $max_cnt) {
   $cnt++
-  Start-Sleep -Milliseconds 100
   $so.Progress.PerformStep()
+  write-output ('Sending progress step #{0}' -f $cnt )
+  start-sleep -millisecond 250
 }
+write-output 'Closing the progress form'
+$so.Progress.Finish()
+write-output 'Closed the progress form'
