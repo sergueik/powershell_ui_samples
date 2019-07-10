@@ -20,13 +20,8 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Data;
 
-namespace ProgressBarUtility
-{
-    /// <summary>
-    /// Summary description for ProgressBarHost.
-    /// </summary>
-    public class ProgressBarHost : System.Windows.Forms.Form
-    {
+namespace ProgressBarUtility {
+    public class ProgressBarHost : System.Windows.Forms.Form {
         internal System.Windows.Forms.Timer tmrIncrementBar;
         private System.Windows.Forms.Button cmdStart;
         private System.Windows.Forms.Button cmdStep;
@@ -34,16 +29,7 @@ namespace ProgressBarUtility
         private Progress status;
         private System.ComponentModel.IContainer components;
 
-        // not being fired
-        public void Form_Closing(object sender,CancelEventArgs cArgs) {
-			MessageBox.Show("Form Closing Event....");
-			// if(sender!=this) {
-			//   cArgs.Cancel=true;  
-			//  }            
-        }
-
-        public ProgressBarHost()
-        {
+        public ProgressBarHost() {
             //
             // Required for Windows Form Designer support
             //
@@ -71,8 +57,8 @@ namespace ProgressBarUtility
             this.status.Name = "status";
             this.status.Size = new System.Drawing.Size(272, 88);
             this.status.TabIndex = 0;
-            this.status.ProgressBarHost = this;
-            
+            this.status.Form = this;
+
             this.tmrIncrementBar.Interval = 1000;
             this.tmrIncrementBar.Tick += new System.EventHandler(this.tmrIncrementBar_Tick);
 
@@ -99,11 +85,7 @@ namespace ProgressBarUtility
             this.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
             this.Name = "ProgressBarHost";
             this.Text = "ProgressBarHost";
-            
-            // debug closing the form once progress is over
-			this.Closing += new CancelEventHandler(Form_Closing);
 
-            			
             this.ResumeLayout(false);
 
         }
@@ -119,65 +101,50 @@ namespace ProgressBarUtility
             if (status.Maximum == status.Value) {
                 tmrIncrementBar.Enabled = false;
                 this.Dispose(true);
-                /*
-                 progressbar.cs(127,17): error CS1540: Cannot access protected member
-        'System.ComponentModel.Component.Dispose(bool)' via a qualifier of type
-        'ProgressBarHost.Progress'; the qualifier must be of type
-        'ProgressBarHost.ProgressBarHost' (or derived from it)
-                 */ 
-                this.status.Finish();
-                this.status.ProgressBarHost.Done();
-                
+                this.status.Form.Dispose(true);
             }
-
-        }
-
-        public void Done() {
-          this.Dispose(true);
         }
 
         private void cmdStart_Click(object sender, System.EventArgs e) {
             tmrIncrementBar.Enabled = false;
-
             status.Value = 0;
             status.Maximum = 20;
             status.Step = 1;
-
             tmrIncrementBar.Enabled = true;
-
         }
-
     }
 
     public class Progress : System.Windows.Forms.UserControl {
         internal System.Windows.Forms.Label lblProgress;
         internal System.Windows.Forms.ProgressBar Bar;
-        private ProgressBarUtility.ProgressBarHost progressBarHost;
-        public ProgressBarUtility.ProgressBarHost ProgressBarHost {
+
+		/*
+			error CS1540: Cannot access protected member
+			System.ComponentModel.Component.Dispose(bool) via a qualifier of type
+			System.Windows.Forms.Form
+			The qualifier must be of type
+			ProgressBarUtility.ProgressBarHost or derived from it 	
+		*/
+
+        private ProgressBarUtility.ProgressBarHost form;
+        public ProgressBarUtility.ProgressBarHost Form {
             get {
-                return this.progressBarHost;
+                return this.form;
             }
             set {
-                this.progressBarHost = value;
+                this.form = value;
             }
         }
-        
+
         private System.ComponentModel.Container components = null;
 
         public Progress() {
             InitializeComponent();
         }
 
-        public  void Finish(){
-	        this.Dispose(true);
-        }
-        // cannot change access modifiers when overriding 'protected' inherited member 'System.ComponentModel.Component.Dispose(bool)'
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (components != null)
-                {
+        protected override void Dispose(bool disposing) {
+            if (disposing) {
+                if (components != null) {
                     components.Dispose();
                 }
             }
@@ -198,18 +165,18 @@ namespace ProgressBarUtility
             this.lblProgress.TabIndex = 3;
             this.lblProgress.Text = "0% Done";
             this.lblProgress.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
+            //
             // Bar
-            // 
+            //
             this.Bar.Anchor = ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                 | System.Windows.Forms.AnchorStyles.Right);
             this.Bar.Location = new System.Drawing.Point(5, 6);
             this.Bar.Name = "Bar";
             this.Bar.Size = new System.Drawing.Size(154, 32);
             this.Bar.TabIndex = 2;
-            // 
+            //
             // Progress
-            // 
+            //
             this.Controls.AddRange(new System.Windows.Forms.Control[] {
                                   this.lblProgress,
                                   this.Bar});

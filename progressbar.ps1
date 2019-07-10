@@ -29,38 +29,34 @@ using System.Data;
 namespace ProgressBarUtility
 {
 
-    public class Progress : System.Windows.Forms.UserControl
-    {
+    public class Progress : System.Windows.Forms.UserControl {
         internal System.Windows.Forms.Label lblProgress;
         internal System.Windows.Forms.ProgressBar Bar;
 
-        // Error: 'ParentWindowsForm.Progress.ParentForm' hides inherited member  'System.Windows.Forms.ContainerControl.ParentForm'.
-        // Use the new keyword if hiding was intended.
-        private System.Windows.Forms.Form progressBarHost;
-        public System.Windows.Forms.Form ProgressBarHost {
+        private System.Windows.Forms.Form form;
+        public System.Windows.Forms.Form Form {
             get {
-                return this.progressBarHost;
+                return this.form;
             }
             set {
-                this.progressBarHost = value;
+                this.form = value;
             }
         }
 
-        public Progress()
-        {
+        public Progress() {
             InitializeComponent();
         }
 
         // makes the bar portion of the window invisible, but form remain open
         public void Finish() {
-          Console.Error.WriteLine("Done");
+          // The progress widget disappears but form remains visible
           this.Dispose(true);
-          // The progrss disappears but form remains visible
-          Console.Error.WriteLine("Done ?");
-          // does not close the Form, closes some container in between the User Control and the form
-          this.ParentForm.Close();
-          // closes the Form passed explicitly
-          this.progressBarHost.Close();
+          // invoking stock method of Component class
+          // this.ParentForm.Close() would invalidate some container in between the User Control and the form is closed,
+          // but form rcould remain visible
+          // and may lead to NPE therefore
+          // closes the Form using the reference passed explicitly
+          this.Form.Close();
         }
 
 
@@ -70,7 +66,7 @@ namespace ProgressBarUtility
             this.Bar = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // lblProgress
-            this.lblProgress.Anchor = ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.lblProgress.Anchor = ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                 | System.Windows.Forms.AnchorStyles.Right);
             this.lblProgress.Location = new System.Drawing.Point(5, 46);
             this.lblProgress.Name = "lblProgress";
@@ -79,7 +75,7 @@ namespace ProgressBarUtility
             this.lblProgress.Text = "0% Done";
             this.lblProgress.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // Bar
-            this.Bar.Anchor = ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.Bar.Anchor = ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                 | System.Windows.Forms.AnchorStyles.Right);
             this.Bar.Location = new System.Drawing.Point(5, 6);
             this.Bar.Name = "Bar";
@@ -94,7 +90,7 @@ namespace ProgressBarUtility
             this.ResumeLayout(false);
 
         }
-        
+
         public int Value
         {
             get
@@ -264,10 +260,11 @@ $run_script = [powershell]::Create().AddScript({
 
       $components = New-Object -TypeName 'System.ComponentModel.Container'
       $u = New-Object -TypeName 'ProgressBarUtility.Progress'
-      
+
       $so.Progress = $u
-      # pass caller reference to the progress UserControl
-      $u.ProgressBarHost = $f
+      # to close the form on 100 % progress
+      # pass the form instance reference to the progress UserControl instance
+      $u.Form = $f
       $u.Location = New-Object System.Drawing.Point (12,8)
       $u.Name = 'status'
       $u.Size = New-Object System.Drawing.Size (272,88)
@@ -308,16 +305,18 @@ $run_script.Runspace = $rs
 
 $handle = $run_script.BeginInvoke()
 
-start-Sleep -millisecond 1000
+start-Sleep -millisecond 3000
 
 $max_cnt = 10
 $cnt = 0
 while ($cnt -lt $max_cnt) {
   $cnt++
   $so.Progress.PerformStep()
-  write-output ('Sending progress step #{0}' -f $cnt )
+  write-debug ('Sending progress step #{0}' -f $cnt )
   start-sleep -millisecond 250
 }
-write-output 'Closing the progress form'
+if ($DebugPreference -eq 'Continue') {
+  write-output $so.Progress
+}
 $so.Progress.Finish()
-write-output 'Closed the progress form'
+write-debug 'Closed the progress form'
