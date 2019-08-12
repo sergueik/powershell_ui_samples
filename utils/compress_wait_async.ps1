@@ -20,21 +20,54 @@
 
 # based on: https://stackoverflow.com/questions/47835738/powershell-zip-copyhere-counteracting-asynchronous-behavior
 # https://social.technet.microsoft.com/Forums/SECURITY/en-US/6988d856-09ae-41c5-aa79-3d78a9e4d03a/powershell-use-shellapplication-to-zip-files?forum=ITCG
+# see also: https://blog.danskingdom.com/module-to-synchronously-zip-and-unzip-using-powershell-2-0/
+# $debugpreference='continue'
+param (
 
-$source_path = "${env:USERNAME}\Music\Folder with A lot of Music"
+[Parameter (Mandatory = $true, Position = 0)]
+  [String]$source_path = "${env:USERNAME}\Music\Folder with A lot of Music",
+  [Switch]$debug_me
+)
+
+$debug_arg = $false
+if ([bool]$PSBoundParameters['debug_me'].IsPresent) {
+  $debug_arg = $true
+}
+
 $destination_path = $env:TEMP
 $zip_filename = 'result'
-$zip_path = "${destination_path}\${zip_filename}.zip"
 
+$zip_path = "${destination_path}\${zip_filename}.zip"
+if (test-path -path $zip_path) {
+  remove-item -force -path $zip_path -erroraction stop
+  start-sleep -second 3
+}
+$shell = new-object -com 'Shell.Application'
 [Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem') | out-null
 # create empty zip
-set-content $zip_path ( [byte[]] @( 80, 75, 5, 6 + (, 0 * 18 ) ) ) -encoding byte
-$source_folder = ( new-object -com 'Shell.Application' ).NameSpace( $source_path )
-$zip_folder = ( new-object -com 'Shell.Application' ).NameSpace( $zip_path )
+try{
+  set-content $zip_path ( [byte[]] @( 80, 75, 5, 6 + (, 0 * 18 ) ) ) -encoding byte -erroraction stop
+} catch [Exception] {
+ exit 1
+}
+
+$source_folder = $shell.NameSpace( $source_path )
+$zip_folder = $shell.NameSpace( $zip_path )
 
 # https://docs.microsoft.com/en-us/windows/win32/shell/folder-copyhere
 # launch with visual progress bar, do not wait for completion
-$zip_folder.CopyHere( $source_folder, 16 )
+
+# SHFILEOPSTRUCTA structure
+# based on: https://msdn.microsoft.com/en-us/library/windows/desktop/bb759795%28v=vs.85%29.aspx
+$FOF_SILENT = 0x0004
+$FOF_NOCONFIRMATION = 0x0010
+$FOF_NOERRORUI = 0x0400
+$FOF_NOCOPYSECURITYATTRIBS = 0x0800
+$copyFlags = $FOF_SILENT -bor $FOF_NOCONFIRMATION -bor $FOF_NOERRORUI -bor $FOF_NOCOPYSECURITYATTRIBS
+
+# NOTE: file not found or no read permission error
+
+$zip_folder.CopyHere( $source_folder, $copyFlags )
 
 # Remarks
 # No notification is given to the calling program to indicate that the copy has completed.
@@ -57,3 +90,14 @@ while ($done -eq $false){
   start-sleep -seconds 1
   write-host '.' -nonewline
 }
+
+[System.Runtime.Interopservices.Marshal]::ReleaseComObject($zip_folder) | out-null
+remove-variable zip_folder
+
+[System.Runtime.Interopservices.Marshal]::ReleaseComObject($source_folder) | out-null
+remove-variable source_folder
+
+
+[System.Runtime.Interopservices.Marshal]::ReleaseComObject($shell) | out-null
+remove-variable shell
+
