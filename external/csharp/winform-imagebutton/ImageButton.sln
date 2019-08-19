@@ -2,9 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 # SharpDevelop 5.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageButton", "ImageButton\ImageButton.csproj", "{839EE91F-8E1F-4D47-82B6-EFC6A95C2F78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Program", "Program\Program.csproj", "{839EE91F-8E1F-4D47-82B6-EFC6A95C2F78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageButtonDemo", "ImageButtonDemo\ImageButtonDemo.csproj", "{8F31EF31-F01B-46EB-81B4-CBDAFEA9C937}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{8F31EF31-F01B-46EB-81B4-CBDAFEA9C937}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -108,9 +108,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ImageButton\ImageButton.csproj">
-      <Project>{839EE91F-8E1F-4D47-82B6-EFC6A95C2F78}</Project>
-      <Name>ImageButton</Name>
+    <ProjectReference Include="..\Program\Program.csproj">
+      <Project>{839ee91f-8e1f-4d47-82b6-efc6a95c2f78}</Project>
+      <Name>Program</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
