@@ -39,11 +39,19 @@ $labels | foreach-object {
   $key = $labels_hash[$text]
   $treeView.Nodes.Add($key, $text) | out-null
 }
+
+$treeView.Nodes[3].Nodes.Add(42,"сорок второй")
 $form.Controls.add($treeView)
 # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.treeview.nodes?view=netframework-4.0
-$text = 'второй'
+# added the next level subnode for demo
+$text = 'сорок второй'
+$labels_hash[$text] = 42
 $text_key = $labels_hash[$text]
-$treeNodes = $TreeView.Nodes.Find($text_key, $true)
+
+# find it via deep search
+# https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.treenodecollection.find?view=netframework-4.5
+[bool]$searchAllChildren = $true
+$treeNodes = $TreeView.Nodes.Find($text_key, $searchAllChildren )
 if ($treeNodes -ne $null) {
   $treeView.SelectedNode = $treeNodes[0]
   write-debug 'Found via API call'
