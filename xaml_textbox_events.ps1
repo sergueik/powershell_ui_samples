@@ -1,4 +1,4 @@
-#Copyright (c) 2014 Serguei Kouzmine
+#Copyright (c) 2014,2019 Serguei Kouzmine
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
 #in the Software without restriction, including without limitation the rights
@@ -18,10 +18,11 @@
 Add-Type -AssemblyName PresentationFramework
 
 $so = [hashtable]::Synchronized(@{
-    'Result' = '';
-    'Window' = [System.Windows.Window]$null;
-    'TextBox' = [System.Windows.Controls.TextBox]$null;
-  })
+  'Result' = '';
+  'Debug_Data' = 0;
+  'Window' = [System.Windows.Window]$null;
+  'TextBox' = [System.Windows.Controls.TextBox]$null;
+})
 $so.Result = ''
 $rs = [runspacefactory]::CreateRunspace()
 $rs.ApartmentState = 'STA'
@@ -31,23 +32,18 @@ $rs.SessionStateProxy.SetVariable('so',$so)
 $run_script = [powershell]::Create().AddScript({
 
     Add-Type -AssemblyName PresentationFramework
-    [xml]$xaml = @"
-<Window x:Name="Window"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Example with TextBox" Height="100" Width="300">
-    <StackPanel Height="100" Width="300">
-          <TextBlock FontSize="14" FontWeight="Bold" 
-                   Text="A spell-checking TextBox:"/>
-        <TextBox AcceptsReturn="True" AcceptsTab="True" FontSize="14" 
-                 Margin="5" SpellCheck.IsEnabled="True" TextWrapping="Wrap" x:Name="textbox">
-            
+    [xml]$xaml = @'
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Window" Title="Example with Text Boxes" Height="100" Width="300">
+  <StackPanel Height="100" Width="300">
+    <TextBlock FontSize="14" FontWeight="Bold" Text="A spell-checking TextBox:"/>
+   <!-- 
+    <TextBox FontSize="14" Text="Some other text" x:Name="another input"/>
+    -->
+    <TextBox AcceptsReturn="True" AcceptsTab="True" FontSize="14" Margin="5" SpellCheck.IsEnabled="True" TextWrapping="Wrap" x:Name="textbox">
         </TextBox>
-
   </StackPanel>
 </Window>
-"@
-
+'@
     $reader = (New-Object System.Xml.XmlNodeReader $xaml)
     $target = [Windows.Markup.XamlReader]::Load($reader)
     $so.Window = $target
@@ -57,13 +53,22 @@ $run_script = [powershell]::Create().AddScript({
         [System.Windows.Controls.TextChangedEventArgs]$eventargs
       )
       $so.Result = $sender.Text
+      # omitted: stash sender details into shared object
+      write-host $so.Result
     }
-    $control = $target.FindName("textbox")
-    $so.TextBox = $control
-
-    $event = $control.Add_TextChanged
-    $event.Invoke($handler)
-
+    # TODO: iteration over multipl etext boxes
+    # @('other input','textbox')| foreach-object {
+    @('another input','textbox')| foreach-object {
+      $name = $_
+      $control = $target.FindName($name)
+      if ($control -ne $null) {
+        write-host ('Processing {0}' -f $control)
+        $so.TextBox = $control
+	$so.Debug_Data = 10
+        $event = $control.Add_TextChanged
+        $event.Invoke($handler)
+      }
+    }
     $target.ShowDialog() | Out-Null
   })
 
@@ -72,11 +77,15 @@ function send_text {
     $content,
     [switch]$append
   )
-  # WARNING - uncommenting the following line leads to exception  
+  # WARNING - uncommenting the following line leads to exception
   # "The calling thread cannot access this object because a different thread owns it."
   # $so.Textbox = $so.Window.FindName("textbox")
 
   # NOTE - host-specific method signature:
+  # TODO: select-object : Property "TextBox" cannot be found.
+  ## write-host ($so|select-object -expandproperty TextBox)
+  write-host $so.TextBox
+  write-host $so.Debug_Data
   $so.TextBox.Dispatcher.Invoke([System.Action]{
 
       if ($PSBoundParameters['append_content']) {
@@ -112,7 +121,7 @@ while (($cnt -ne 0) -and -not $done) {
     $done = $true;
   }
   else {
-    Start-Sleep 10
+    Start-Sleep 1
   }
   $cnt --
 }
