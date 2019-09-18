@@ -17,8 +17,11 @@
 
 #requires -version 2
 
-# based on http://www.java2s.com/Tutorial/CSharp/0470__Windows-Presentation-Foundation/LayoutaFormwithStackPanelandGrid.htm
+Add-Type -AssemblyName PresentationFramework
 
+# see also: http://forum.oszone.net/thread-342212.html
+# for the original feature request
+# TODO: (+de-)serialize the shared data
 $so = [hashtable]::Synchronized(@{
   'Result' = '';
   'Window' = [System.Windows.Window]$null;
@@ -30,7 +33,7 @@ $rs.ApartmentState = 'STA'
 $rs.ThreadOptions = 'ReuseThread'
 $rs.Open()
 
-Add-Type -AssemblyName PresentationFramework
+# dialog origin: http://www.java2s.com/Tutorial/CSharp/0470__Windows-Presentation-Foundation/LayoutaFormwithStackPanelandGrid.htm
 [xml]$xaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Window" Title="Example with Text Boxes" Height="400" Width="300">
   <Grid>
@@ -61,6 +64,10 @@ Add-Type -AssemblyName PresentationFramework
           <StackPanel Height="Auto" Width="Auto" Orientation="Horizontal">
             <Label Height="25.96" Width="84">State</Label>
             <TextBox Height="25" Width="147"/>
+            <!-- NOTE: Constrained! when adding redundant "x:Name" attribute
+            Exception calling "Load" with "1" argument(s):
+            "Could not register named object. Cannot register duplicate name 'City' in this scope."
+            -->
           </StackPanel>
           <StackPanel Height="Auto" Width="Auto" Orientation="Horizontal">
             <Label Height="25.96" Width="84">Zip</Label>
@@ -74,34 +81,80 @@ Add-Type -AssemblyName PresentationFramework
 </Window>
 '@
 
-
 $reader = (New-Object System.Xml.XmlNodeReader $xaml)
 $target = [Windows.Markup.XamlReader]::Load($reader)
 
 $so.Window = $target
 
-    @('First_Name','Last_Name','Street','City','Zip')| foreach-object {
-      $name = $_
-      $control = $target.FindName($name)
-      if ($control -ne $null) {
-        write-host ('Processing {0}' -f $control)
-        $so.TextBox = $control
-        $event = $control.Add_TextChanged
-        $handler = {
-          param(
-            [object]$sender,
-            [System.Windows.Controls.TextChangedEventArgs]$eventargs
-          )
-          $so.Result = $sender.Text
-          # omitted: stash sender details into shared object
-          write-host $so.Result
-          write-host $sender.Name
-        }
+# interactive exercise
+<#
+
+$textbox_nodes = $xaml.SelectNodes('//*[contains(name(.) ,"TextBox")]')
+$textbox_nodes | foreach-object { write-output $_}
+
+Height Width Name
+------ ----- ----
+25     147   First_Name
+25     147   Last_Name
+25     147   Street
+25     147   City
+25     147   TextBox
+25     147   Zip
+
+$textbox_nodes | select-object -first 1 | select-object -property 'Attributes'
+
+Attributes
+----------
+{Height, Width, x:Name}
+
+$textbox_nodes | select-object -first 1 | select-object -expandproperty'Attributes'
+
+#text
+-----
+25
+147
+First_Name
+
+#>
+
+$textbox_nodes = $xaml.SelectNodes('//*[contains(name(.) ,"TextBox")]')
+$textbox_names = @()
+$textbox_nodes | foreach-object {
+  $textbox_node = $_
+  if (($textbox_node.Attributes -ne $null) -and ($textbox_node.Attributes.GetNamedItem('x:Name') -ne $null )) {
+     $name = $textbox_node.Attributes['x:Name'].'#text'
+     if ($name -ne $null) {
+       write-host ('Found DOM element attribute: {0} of {1} of namepace {2} ' -f $name, $textbox_node.getType(), $textbox_node.GetNamespaceOfPrefix('x'))
+       $textbox_names += $name
+     }
+  }
+}
+
+write-host ('names: {0}' -f ( $textbox_names -join ','))
+# @('First_Name','Last_Name','Street','City','State', 'Zip')
+$textbox_names | foreach-object {
+  $name = $_
+  $control = $target.FindName($name)
+  if ($control -ne $null) {
+    write-host ('Adding event handler to {0} named {1}' -f $control.getType() , $control.Name)
+    $control.Background = [System.Windows.Media.Brushes]::Aqua
+    $so.TextBox = $control
+    $event = $control.Add_TextChanged
+    $handler = {
+      param(
+        [object]$sender,
+        [System.Windows.Controls.TextChangedEventArgs]$eventargs
+      )
+      $so.Result = $sender.Text
+      # omitted: stash sender details into shared object
+      write-host $so.Result
+      write-host $sender.Name
+    }
 	# $hander is an System.Management.Automation.ScriptBlock
 	# TODO: figure out how to clone
-        $event.Invoke($handler)
-      }
-    }
-    $target.ShowDialog() | Out-Null
+    $event.Invoke($handler)
+  }
+}
+$target.ShowDialog() | Out-Null
 
 
