@@ -116,6 +116,21 @@ First_Name
 
 #>
 
+write-output 'Locating HTML5-style Labels'
+$label_nodes = $xaml.SelectNodes('//*[contains(name(.) ,"Label")][contains(text(), "Name")]')# May not have Name  yet
+format-list -inputObject $label_nodes
+write-output 'Locating TextBox nodes by their Labels'
+$labeled_textbox_nodes = $xaml.SelectNodes('//*[contains(name(.) ,"Label")][contains(text(), "Name")]/../*[contains(name(.), "TextBox")]')# May not have Name  yet
+format-list -inputObject $labeled_textbox_nodes
+try {
+write-output 'Locating TextBox nodes Name attributes by their Labels'
+$textbox_names = $xaml.SelectNodes('//*[contains(name(.) ,"Label")][contains(text(), "Name")]/../*[contains(name(.), "TextBox")]/@x:Name')# May not have Name yet
+format-list -inputObject $textbox_names
+} catch [Exception] {
+  write-output "Exception (ignored): $($_.Exception.GetType().FullName)"
+  write-output $_.Exception.Message
+  # Exception calling "SelectNodes" with "1" argument(s): "Namespace Manager or XsltContext needed. This query has a prefix, variable, or user-defined function."
+}
 $textbox_nodes = $xaml.SelectNodes('//*[contains(name(.) ,"TextBox")]')
 $textbox_names = @()
 $textbox_nodes | foreach-object {
