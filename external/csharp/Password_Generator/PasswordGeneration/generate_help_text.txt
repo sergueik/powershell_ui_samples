@@ -1,0 +1,11 @@
+﻿Your password is regenerated each time that you click on the Regenerate button (to the right of the text box containing the generated password). The Regenerate button may be clicked as often as desired, say, until a password to your liking is displayed. At that point, click the Accept Password button.
+
+The generated password is dependent on the chosen length. It is also dependent upon the character classes (uppercase, lowercase, digits, and symbols) from which characters are drawn to form the password. Choosing the classes you desire is accomplished by checking the check boxes in the group "Characters to include".
+
+The chosen character classes can be modified. If the "Easy to say" RadioButton is checked, then numbers and symbols will be excluded from the password. If the "Easy to read" RadioButton is checked, then ambiguous characters (0, 1, O, I, o, l, i, !, |) will be excluded from the password. By default the "All characters" RadioButton is checked.
+
+Each time that the length is changed, a checkbox is checked, a RadioButton is checked or the Regenerate button is clicked, a new password will be generated.
+
+Clicking the Help button causes this help to be displayed. Clicking the Cancel button terminates password generation and returns to the prior screen without changing the password. Clicking the Accept Password button terminates password generation and returns to the prior screen with the newly generated password.
+
+To exit the application, click Logout.
