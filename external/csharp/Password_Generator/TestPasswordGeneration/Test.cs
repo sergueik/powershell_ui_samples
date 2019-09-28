@@ -5,13 +5,11 @@ using System.Windows.Forms;
 using GG = PasswordGeneration.GenerateGlobals;
 using GP = PasswordGeneration.GeneratePassword;
 
-namespace TestPasswordGeneration {
-    
-	public partial class TestPasswordGeneration : Form {
-       
+namespace TestPasswordGeneration {    
+	public partial class Test : Form {
 		GP generate_password_form;
 		string generated_password = String.Empty;
-		public TestPasswordGeneration() {
+		public Test() {
 			InitializeComponent();
 			this.Text = String.Format("Test Generate Password");
 			this.StartPosition = FormStartPosition.CenterScreen;
@@ -23,22 +21,16 @@ namespace TestPasswordGeneration {
 			string name = button.Name.Trim();
 			switch (name) {
 				case "generate_BUT":
-					generate_password_form = 
-                        new PasswordGeneration.GeneratePassword();
-					if (((PasswordGeneration.GeneratePassword)
-                                generate_password_form).
-                                initialize_form()) {
+					generate_password_form = new PasswordGeneration.GeneratePassword();
+					if (((PasswordGeneration.GeneratePassword) generate_password_form).initialize_form()) {
 						// use modal (ShowDialog) so 
 						// that the generated password 
 						// can be captured
 						generate_password_form.ShowDialog();
-						if (!String.IsNullOrEmpty(
-							                      GG.generated_password)) {
-							generated_password = 
-                                GG.generated_password;
+						if (!String.IsNullOrEmpty(GG.generated_password)) {
+							generated_password = GG.generated_password;
 							generated_password_TB.Clear();
-							generated_password_TB.Text = 
-                                generated_password;
+							generated_password_TB.Text = generated_password;
 							generated_password_TB.Visible = true;
 						}
 					} else {
@@ -60,10 +52,7 @@ namespace TestPasswordGeneration {
 					break;
 
 				default:
-					throw new ApplicationException(
-						String.Format(
-							"{0} is an unrecognized button name",
-							name)); 
+					throw new ApplicationException( String.Format("{0} is an unrecognized button name",name)); 
 			}
 
 		}
@@ -71,13 +60,12 @@ namespace TestPasswordGeneration {
 		const int WM_SYSCOMMAND = 0x0112;
 		const int SC_CLOSE = 0xF060;
 
-		[ PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+		[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
 		protected override void WndProc(ref Message message) {            
 			switch (message.Msg) {
-			// WinForms X button click
+				// WinForms X button click
 				case WM_SYSCOMMAND:
-					if (((int)message.WParam & 0xFFF0) ==
-					                   SC_CLOSE) {
+					if (((int)message.WParam & 0xFFF0) == SC_CLOSE) {
 						this.Close();
 					}
 					break;

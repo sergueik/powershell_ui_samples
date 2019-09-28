@@ -9,7 +9,7 @@ namespace TestPasswordGeneration {
 		static void Main() {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new TestPasswordGeneration());
+			Application.Run(new Test());
 		}
 	}
 }

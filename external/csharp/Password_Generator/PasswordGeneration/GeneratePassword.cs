@@ -11,18 +11,11 @@ using System.Windows.Forms;
 //using CC = PasswordGeneration.Consecutives;
 using GG = PasswordGeneration.GenerateGlobals;
 
-namespace PasswordGeneration
-    {
+namespace PasswordGeneration {
 
-    // **************************************** class GeneratePassword
-
-    public partial class GeneratePassword : Form
-        {
+    public partial class GeneratePassword : Form {
 
         private readonly static Random random = new Random ( );
-
-        // ******************************************* class constants
-
         const string  DIGITS = "0123456789";
         const string  LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
         const string  SPECIAL = @"!@#$%^&*()+=~[:'<>?,.|";
@@ -34,8 +27,7 @@ namespace PasswordGeneration
         const int     TOOLTIP_INITIAL_DELAY = 100;
         const int     TOOLTIP_RESHOW_DELAY = 100;
 
-        enum Types
-            {
+        enum Types {
             NOT_SPECIFIED,
             SYMBOL,
             DIGIT,
@@ -43,8 +35,6 @@ namespace PasswordGeneration
             LOWERCASE,
             NUMBER_TYPES
             }
-
-        // ******************************************* class variables
 
         bool            all_characters = true;
         bool            easy_to_read = false;
@@ -57,76 +47,48 @@ namespace PasswordGeneration
         ToolTip         tooltip = new ToolTip ( );
         bool            upper_case = true;
 
-        // ****************************************** GeneratePassword
 
-        public GeneratePassword ( )
-            {
-
+        public GeneratePassword ( ) {
             InitializeComponent ( );
+        }
 
-            } // GeneratePassword
-
-        // ************************************* tooltip_reinitializer
-
-        //  this event-handler is executed whenever an object with a 
+        //  this event-handler is executed whenever an object with a
         //  tool tip is entered. its purpose is to fix a bug that 
         //  keeps a tool tip from being displayed once that its 
         //  display time out has been reached. it is my belief that 
         //  the bug is caused by a reentrancy error in the tool tip 
         //  timer code.
 
-        void tooltip_reinitializer ( Object    sender,
-                                     EventArgs e )
-            {
-
+        void tooltip_reinitializer ( Object sender, EventArgs e ) {
             tooltip.Active = false;
             tooltip.Active = true;
+            }
 
-            } // tooltip_reinitializer
-
-        // *************************************** initialize_tooltips
-
-        bool initialize_tooltips ( )
-            {
-
-
+        bool initialize_tooltips( ) {
             tooltip.InitialDelay = TOOLTIP_INITIAL_DELAY;
             tooltip.ReshowDelay = TOOLTIP_RESHOW_DELAY;
             tooltip.AutoPopDelay = TOOLTIP_AUTOPOP_DELAY;
             tooltip.ShowAlways = true;
 
-            tooltip.SetToolTip ( 
-                generated_password_TB,
-                "Contains the generated password" );
-            generated_password_TB.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
-
-            tooltip.SetToolTip ( 
-                password_strength_PB,
-                String.Format (
+            tooltip.SetToolTip( generated_password_TB, "Contains the generated password" );
+            generated_password_TB.MouseEnter += new EventHandler ( tooltip_reinitializer );
+            tooltip.SetToolTip( password_strength_PB, String.Format (
                     "Provides an indication of the strength{0}" +
                     "of the generated password",
                     Environment.NewLine ) );
-            password_strength_PB.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
+            password_strength_PB.MouseEnter += new EventHandler ( tooltip_reinitializer );
 
-            tooltip.SetToolTip ( 
-                password_length_NUD,
-                "Enter the desired length of the password" );
-            password_length_NUD.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
+            tooltip.SetToolTip( password_length_NUD, "Enter the desired length of the password" );
+            password_length_NUD.MouseEnter += new EventHandler ( tooltip_reinitializer );
 
-            tooltip.SetToolTip ( 
-                upper_case_letters_CHKBX,
-                String.Format (
+            tooltip.SetToolTip( upper_case_letters_CHKBX,
+                String.Format(
                     "Check to include uppercase letters{0}" +
                     "in the password",
                     Environment.NewLine ) );
-            upper_case_letters_CHKBX.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
+            upper_case_letters_CHKBX.MouseEnter += new EventHandler ( tooltip_reinitializer );
 
-            tooltip.SetToolTip ( 
-                symbols_CHKBX,
+            tooltip.SetToolTip( symbols_CHKBX,
                 String.Format (
                     "Check to include symbols{0}" +
                     "in the password",
@@ -134,56 +96,23 @@ namespace PasswordGeneration
             symbols_CHKBX.MouseEnter +=
                 new EventHandler ( tooltip_reinitializer );
 
-            tooltip.SetToolTip ( 
-                numbers_CHKBX,
-                String.Format (
-                    "Check to include numbers{0}" +
-                    "in the password",
-                    Environment.NewLine ) );
-            numbers_CHKBX.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
+            tooltip.SetToolTip( numbers_CHKBX, String.Format( "Check to include numbers{0}in the password", Environment.NewLine ) );
+            numbers_CHKBX.MouseEnter += new EventHandler( tooltip_reinitializer );
 
-            tooltip.SetToolTip ( 
-                lower_case_letters_CHKBX,
-                String.Format (
-                    "Check to include lowercase letters{0}" +
-                    "in the password",
-                    Environment.NewLine ) );
-            lower_case_letters_CHKBX.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
+            tooltip.SetToolTip( lower_case_letters_CHKBX, String.Format("Check to include lowercase letters{0}in the password", Environment.NewLine ) );
+            lower_case_letters_CHKBX.MouseEnter += new EventHandler( tooltip_reinitializer );
 
-            tooltip.SetToolTip ( 
-                all_characters_RB,
-                String.Format (
-                    "Use any character combination{0}" +
-                    "in the password",
-                    Environment.NewLine ) );
-            all_characters_RB.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
+            tooltip.SetToolTip( all_characters_RB, String.Format("Use any character combination{0}in the password", Environment.NewLine ) );
+            all_characters_RB.MouseEnter += new EventHandler( tooltip_reinitializer );
 
-            tooltip.SetToolTip ( 
-                easy_to_read_RB,
-                String.Format (
-                    "Avoid ambiguous characters like O, 0, I, 1{0}" +
-                    "in the password",
-                    Environment.NewLine ) );
-            easy_to_read_RB.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
+            tooltip.SetToolTip( easy_to_read_RB, String.Format( "Avoid ambiguous characters like O, 0, I, 1{0} in the password", Environment.NewLine ) );
+            easy_to_read_RB.MouseEnter += new EventHandler( tooltip_reinitializer );
 
-            tooltip.SetToolTip ( 
-                easy_to_say_RB,
-                String.Format (
-                    "Avoid numbers and special characters{0}" +
-                    "in the password",
-                    Environment.NewLine ) );
-            easy_to_say_RB.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
+            tooltip.SetToolTip( easy_to_say_RB, String.Format( "Avoid numbers and special characters{0}in the password", Environment.NewLine ) );
+            easy_to_say_RB.MouseEnter += new EventHandler( tooltip_reinitializer );
 
-            tooltip.SetToolTip ( 
-                regenerate_BUT,
-                "Click to regenerate the password" );
-            regenerate_BUT.MouseEnter +=
-                new EventHandler ( tooltip_reinitializer );
+            tooltip.SetToolTip( regenerate_BUT, "Click to regenerate the password" );
+            regenerate_BUT.MouseEnter += new EventHandler( tooltip_reinitializer );
 
             tooltip.SetToolTip ( 
                 generate_help_BUT,
@@ -235,328 +164,166 @@ namespace PasswordGeneration
 
             } // initialize_form_controls
 
-        // ******************************************* initialize_form
-
-        public bool initialize_form ( )
-            {
-
+        public bool initialize_form ( ) {
             initialize_tooltips ( );
             initialize_form_controls ( );
             this.ActiveControl = regenerate_BUT;
-
             return ( true );
 
-            } // initialize_form
-
-        // ************************************* create_character_sets
-
-        /// <summary>
-        /// creates a data structure that will contain the character 
-        /// classes that will take part in password generation
-        /// </summary>
-        /// <param name="all_characters">
-        /// use any character combination in the password
-        /// </param>
-        /// <param name="easy_to_read">
-        /// avoid ambiguous characters in the password
-        /// </param>
-        /// <param name="easy_to_say">
-        /// avoid numbers and special characters in the password
-        /// </param>
-        /// <param name="lower_case">
-        /// include lowercase characters in the password
-        /// </param>
-        /// <param name="numbers">
-        /// include numeric characters in the password
-        /// </param>
-        /// <param name="symbols">
-        /// include special characters in the password
-        /// </param>
-        /// <param name="upper_case">
-        /// include uppercase characters in the password
-        /// </param>
-        /// <returns>
-        /// a list of strings containing character classes that are to 
-        /// be used to generate a password
-        /// </returns>
-        List < string > create_character_sets ( bool  all_characters,
-                                                bool  easy_to_read,
-                                                bool  easy_to_say,
-                                                bool  lower_case,
-                                                bool  numbers,
-                                                bool  symbols,
-                                                bool  upper_case )
-            {
-            string          digits = String.Empty;;
-            List < string > list = new List < string > ( );
-            string          lowercase = String.Empty;
-            string          special = String.Empty;
-            string          uppercase = String.Empty;
+            }
+        
+        List<string> create_character_sets( bool all_characters, bool easy_to_read, bool easy_to_say, bool lower_case, bool numbers, bool symbols, bool  upper_case ) {
+            string       digits = String.Empty;
+            List<string> list = new List<string>( );
+            string       lowercase = String.Empty;
+            string       special = String.Empty;
+            string       uppercase = String.Empty;
             
-            if ( numbers )              // does user want digits?
-                {
+            if ( numbers ) {
                 digits = DIGITS;
-                }
+            }
 
-            if ( lower_case )           // does user want lowercase?
-                {
+            if ( lower_case ) {
                 lowercase = LOWERCASE;
-                }
+            }
 
-            if ( symbols )              // does user want symbols?
-                {
+            if ( symbols ) {
                 special = SPECIAL;
-                }
+            }
 
-            if ( upper_case )           // does user want uppercase?
-                {
+            if ( upper_case ) {
                 uppercase = UPPERCASE;
-                }
-                                        // all_characters need not be 
-                                        // tested because if it was 
-                                        // true, no changes would be 
-                                        // made
-            if ( easy_to_say )
-                {
+            }
+                                        
+            if ( easy_to_say ) {
                 digits = String.Empty;
                 special = String.Empty;
+            }
+            else if ( easy_to_read ){
+                                        
+                if ( !String.IsNullOrEmpty( digits ) ){
+                    digits = digits.Replace( "0", String.Empty ).Replace( "1", String.Empty );
                 }
-            else if ( easy_to_read )
-                {
-                                        // remove the ambiguous 
-                                        // characters 01OIoli!|
-                if ( !String.IsNullOrEmpty ( digits ) )
-                    {
-                    digits = digits.Replace ( "0", String.Empty ).
-                                    Replace ( "1", String.Empty );
-                    }
 
-                if ( !String.IsNullOrEmpty ( uppercase ) )
-                    {
-                    uppercase = uppercase.
-                                    Replace ( "O", String.Empty ).
-                                    Replace ( "I", String.Empty );
-                    }
+                if ( !String.IsNullOrEmpty( uppercase ) ) {
+                    uppercase = uppercase.Replace( "O", String.Empty ).Replace( "I", String.Empty );
+                }
 
-                if ( !String.IsNullOrEmpty ( lowercase ) )
-                    {
-                    lowercase = lowercase.
-                                    Replace ( "o", String.Empty ).
-                                    Replace ( "l", String.Empty ).
-                                    Replace ( "i", String.Empty );
-                    }
+                if ( !String.IsNullOrEmpty( lowercase ) ){
+                    lowercase = lowercase.Replace( "o", String.Empty ).Replace( "l", String.Empty ).Replace( "i", String.Empty );
+                }
                     
-                if ( !String.IsNullOrEmpty ( special ) )
-                    {
-                    special = special.Replace ( "!", String.Empty ).
-                                      Replace ( "|", String.Empty );
+                if ( !String.IsNullOrEmpty( special ) ){
+                    special = special.Replace( "!", String.Empty ).Replace( "|", String.Empty );
                     }
                 }
-                                        // generate a computationally 
-                                        // efficient data structure
-            list.Clear ( );
-                                        // if a character class' copy 
-                                        // has a non-zero length, add 
-                                        // it to the List
-            if ( uppercase.Length > 0 )
-                {
-                list.Add ( uppercase );
-                }
+            list.Clear( );
+            // if a character class' copy 
+            // has a non-zero length, add 
+            // it to the List
+            if ( uppercase.Length > 0 ){
+                list.Add( uppercase );
+            }
 
-            if ( lowercase.Length > 0 )
-                {
-                list.Add ( lowercase );
-                }
+            if ( lowercase.Length > 0 ) {
+                list.Add( lowercase );
+            }
 
-            if ( digits.Length > 0 )
-                {
-                list.Add ( digits );
-                }
+            if ( digits.Length > 0 ){
+                list.Add( digits );
+            }
 
-            if ( special.Length > 0 )
-                {
-                list.Add ( special );
-                }
+            if ( special.Length > 0 ){
+                list.Add( special );
+            }
+            return( list );
+            }
 
-            return ( list );
-            
-            } // create_character_sets
-
-        // ***************************************** strength_in_words
         
-        string strength_in_words ( int  strength )
-            {
+        string strength_in_words( int  strength ) {
             string words = String.Empty;
-            
-            if ( strength > 100 )
-                {
+            if ( strength > 100 ){
                 strength = 100;
-                }
-            else if ( strength < 0 )
-                {
+            }
+            else if ( strength < 0 ){
                 strength = 0;
-                }
+            }
 
-            if ( strength >= 80 )
-                {
+            if ( strength >= 80 ){
                 words = "Very Strong";
-                }
-            else if ( strength >= 60 )
-                {
+            } else if ( strength >= 60 ){
                 words = "Strong";
-                }
-            else if ( strength >= 40 )
-                {
+            } else if ( strength >= 40 ){
                 words = "Good";
-                }
-            else if ( strength >= 20 )
-                {
+            } else if ( strength >= 20 ){
                 words = "Weak";
-                }
-            else 
-                {
+            } else {
                 words = "Very Weak";
-                }
-                
-            return ( words );
-            
-            } // strength_in_words
-    
-        // ***************************************** generate_password
+            }
 
-        /// <summary>
-        /// generate a cryptographically strong password of the 
-        //  desired length using the specified character sets 
-        /// </summary>
-        /// <param name="character_sets">
-        /// List < string > containing one or more characters sets 
-        /// that are to be used to generate the password
-        /// </param>
-        /// <param name="desired_length">
-        /// desired length of the password
-        /// </param>
-        /// <returns>
-        /// string containing a cryptographically strong password
-        /// </returns>
-        string generate_password ( List < string > character_sets,
-                                   int             desired_length )
-            {
-            byte [ ]        bytes;
-            string          characters;
-            int             index = -1;
-            StringBuilder   sb = new StringBuilder ( );
-                                        // get a cryptographically 
-                                        // strong sequence of random 
-                                        // bytes
-            bytes = new byte [ desired_length ];
-            new RNGCryptoServiceProvider ( ).GetBytes ( bytes );
+            return ( words );            
+            }
+        
+            string generate_password( List<string> character_sets, int desired_length ){
+            byte[ ]      bytes;
+            string        characters;
+            int           index = -1;
+            StringBuilder sb = new StringBuilder ( );
+            bytes = new byte[ desired_length ];
+            new RNGCryptoServiceProvider( ).GetBytes ( bytes );
 
-            foreach ( byte b in bytes )
-                {
-                                        // randomly select a character 
-                                        // class for each byte
-                index = random.Next ( character_sets.Count );
-                characters = character_sets [ index ];
-                                        // use mod to project byte b 
-                                        // into the correct range
-                sb.Append ( characters [ b % characters.Length ] );
-                }     
+            foreach ( byte b in bytes ) {
+                // randomly select a character class for each byte
+                index = random.Next( character_sets.Count );
+                characters = character_sets[ index ];
+                // use mod to project byte b into the correct range
+                sb.Append( characters[ b % characters.Length ] );
+            }     
+            return( sb.ToString ( ) );
+            }
 
-            return ( sb.ToString ( ) );
-
-            } // generate_password
-
-        // *************************************** regenerate_password
-
-        /// <summary>
-        /// regenerate_password is a wrapper around the three major 
-        /// password generation calculate and display methods:
-        /// 
-        ///     create_character_sets
-        ///     generate_password
-        ///     password_strength
-        /// 
-        /// in addition it places the generated password into the 
-        /// globally known class named GenerateGlobals
-        /// </summary>
-        void regenerate_password ( )
-            {
-            List < string > character_sets = new List < string > ( );
+            void regenerate_password( ) {
+            List<string> character_sets = new List<string>( );
             string          generated_password = String.Empty;
             int             strength = 0;
             
-            character_sets = create_character_sets ( all_characters,
-                                                     easy_to_read,
-                                                     easy_to_say,
-                                                     lower_case,
-                                                     numbers,
-                                                     symbols,
-                                                     upper_case );
+            character_sets = create_character_sets( all_characters, easy_to_read, easy_to_say, lower_case, numbers, symbols, upper_case );
 
-            generated_password = generate_password ( character_sets,
-                                                     desired_length );
+            generated_password = generate_password( character_sets, desired_length );
 
-            strength = password_strength ( generated_password );
+            strength = password_strength( generated_password );
             
             password_strength_PB.Value = strength;
-            strength_LAB.Text = strength_in_words ( strength );
+            strength_LAB.Text = strength_in_words( strength );
 
             GG.generated_password = generated_password;
-            generated_password_TB.Clear ( );
+            generated_password_TB.Clear( );
             generated_password_TB.Text = generated_password;
+            }
 
-            } // regenerate_password
-
-        // ********************************************** display_help
-        
-        void display_help (  )
-            {
-                                        // create a new help form
-            generate_help_form = new GenerateHelp ( );
+        void display_help (  ) {
+            generate_help_form = new GenerateHelp( );
             generate_help_form.Tag = "help";
-            if ( ( ( GenerateHelp ) generate_help_form ).
-                                        initialize_form ( ) )
-                {
-                generate_help_form.Show ( );
-                generate_help_form.Location = 
-                    new Point ( 
-                        this.Location.X - 
-                        generate_help_form.Size.Width - 10, 
-                        this.Location.Y + 
-                        ( this.Size.Height / 2 ) -
-                        ( generate_help_form.Size.Height / 2 ) );
-
-                }
-            else
-                {
-                MessageBox.Show ( 
-                    "Unable to open Help Window",
-                    "Fatyal Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error );
+            if ( ( ( GenerateHelp ) generate_help_form ).initialize_form( ) )  {
+                generate_help_form.Show( );
+                generate_help_form.Location = new Point( this.Location.X - generate_help_form.Size.Width - 10, this.Location.Y + ( this.Size.Height / 2 ) - ( generate_help_form.Size.Height / 2 ) );
+            } else {
+                MessageBox.Show( "Unable to open Help Window", "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error );
                 Application.Exit ( );
-                }
+            }
+        }
 
-            } // display_help
-
-
-        // ************************************************* BUT_Click
-
-        void BUT_Click ( object     sender, 
-                         EventArgs  e )
-            {
-            Button      button = ( Button ) sender;
-            string      name = button.Name.Trim ( );
-            
-            switch ( name )
-                {
+        void BUT_Click( object sender, EventArgs e ) {
+            Button button = ( Button ) sender;
+            string name = button.Name.Trim ( );
+            switch( name ) {
                 case "cancel_generate_BUT":
                     GG.generated_password = String.Empty;
-                    close_form ( );
+                    close_form( );
                     break;
 
                 case "regenerate_BUT":
-                    regenerate_password ( );
+                    regenerate_password( );
                     break;
 
                 case "accept_password_BUT":
@@ -564,7 +331,7 @@ namespace PasswordGeneration
                     //                            generated_password ) )
                     //    {
                     //    GG.generated_password = generated_password;
-                        close_form ( );
+                        close_form( );
                     //    }
                     //else 
                     //    {
@@ -581,41 +348,29 @@ namespace PasswordGeneration
                     break;
 
                 case "generate_help_BUT":
-                    display_help ( );
+                    display_help( );
                     break;
 
                 default:
-                    throw new ApplicationException (
-                        String.Format ( 
-                            "{0} is an unrecognized button",
-                            name ) ); 
+                    throw new ApplicationException( String.Format( "{0} is an unrecognized button", name ) ); 
                 }
+            }
 
-            } // BUT_Click
-
-        // ****************************************** NUD_ValueChanged
-
-        void NUD_ValueChanged ( object    sender, 
-                                EventArgs e )
-            {
+        void NUD_ValueChanged( object sender, EventArgs e ) {
             NumericUpDown  nud = ( NumericUpDown ) sender;
-
-            desired_length = Convert.ToInt32 ( nud.Value );
-            regenerate_password ( );
-
-            } // NUD_ValueChanged
+            desired_length = Convert.ToInt32( nud.Value );
+            regenerate_password( );
+        }
 
         // ***************************************** RB_CheckedChanged
 
-        void RB_CheckedChanged ( object    sender, 
-                                 EventArgs e )
-            {
+        void RB_CheckedChanged( object sender, EventArgs e ) {
             bool         is_checked = false;
             string       name = String.Empty;
             RadioButton  radio_button = ( RadioButton ) sender;
 
             is_checked = radio_button.Checked;
-            name = radio_button.Name.Trim ( );
+            name = radio_button.Name.Trim( );
 
             switch ( name )
                 {
@@ -657,35 +412,18 @@ namespace PasswordGeneration
 
             } // RB_CheckedChanged
 
-        // ************************************** CHKBX_CheckedChanged
-
-        void CHKBX_CheckedChanged ( object    sender, 
-                                    EventArgs e )
-            {
-            CheckBox  check_box = ( CheckBox ) sender;
-            string    name = check_box.Name.Trim ( );
-
-            if ( !upper_case_letters_CHKBX.Checked &&
-                 !lower_case_letters_CHKBX.Checked &&
-                 !numbers_CHKBX.Checked &&
-                 !symbols_CHKBX.Checked )
-                {
+        void CHKBX_CheckedChanged ( object sender, EventArgs e ) {
+            CheckBox check_box = ( CheckBox ) sender;
+            string name = check_box.Name.Trim ( );
+            if ( !upper_case_letters_CHKBX.Checked && !lower_case_letters_CHKBX.Checked && !numbers_CHKBX.Checked && !symbols_CHKBX.Checked ) {
                 check_box = upper_case_letters_CHKBX;
-                name = check_box.Name.Trim ( );
+                name = check_box.Name.Trim( );
                 upper_case = true;
                 upper_case_letters_CHKBX.Checked = upper_case;
-                MessageBox.Show (
-                    String.Format (
-                        "At least one CheckBox must be checked{0}" +
-                        "Upper case letters has been checked",
-                        Environment.NewLine ),
-                    "CheckBox changed",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning );
-                }
+                MessageBox.Show( String.Format( "At least one CheckBox must be checked{0}Upper case letters has been checked", Environment.NewLine ), "CheckBox changed", MessageBoxButtons.OK, MessageBoxIcon.Warning );
+            }
                 
-            switch ( name )
-                {
+            switch( name ) {
                 case "upper_case_letters_CHKBX":
                     upper_case = check_box.Checked;
                     break;
@@ -922,69 +660,36 @@ namespace PasswordGeneration
 
             } // password_strength
 
-        // ******************************************** reverse_string
+        string reverse_string ( string s) {
+            StringBuilder sb = new StringBuilder( );
+            for ( int i = ( s.Length - 1 ); ( i >= 0 ); i-- ){
+                sb.Append( s [ i ] );
+            }
+            return( sb.ToString( ) );
+        }
 
-        string reverse_string ( string s)
-            {
-            StringBuilder  sb = new StringBuilder ( );
+        void detach_tooltip_event_handlers( ) {
 
-            for ( int i = ( s.Length - 1 ); ( i >= 0 ); i-- )
-                {
-                sb.Append ( s [ i ] );
-                }
-
-            return ( sb.ToString ( ) );
-
-            } // reverse_string
-
-        // ***************************** detach_tooltip_event_handlers
-
-        void detach_tooltip_event_handlers ( )
-            {
-
-            generated_password_TB.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            password_strength_PB.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            password_length_NUD.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            upper_case_letters_CHKBX.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            symbols_CHKBX.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            numbers_CHKBX.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            lower_case_letters_CHKBX.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            all_characters_RB.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            easy_to_read_RB.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            easy_to_say_RB.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            regenerate_BUT.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            generate_help_BUT.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            accept_password_BUT.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-            cancel_generate_BUT.MouseEnter -=
-                new EventHandler ( tooltip_reinitializer );
-
-            }// detach_tooltip_event_handlers
-
-        // ************************************************ close_form
+            generated_password_TB.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            password_strength_PB.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            password_length_NUD.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            upper_case_letters_CHKBX.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            symbols_CHKBX.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            numbers_CHKBX.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            lower_case_letters_CHKBX.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            all_characters_RB.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            easy_to_read_RB.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            easy_to_say_RB.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            regenerate_BUT.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            generate_help_BUT.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            accept_password_BUT.MouseEnter -= new EventHandler( tooltip_reinitializer );
+            cancel_generate_BUT.MouseEnter -= new EventHandler( tooltip_reinitializer );
+        }
         
-        void close_form ( )
-            {
-            
-            detach_tooltip_event_handlers ( );
-
-            this.Close ( );
-            
-            } // close_form
-            
-        // *************************************************** WndProc
+        void close_form( ) {
+            detach_tooltip_event_handlers( );
+            this.Close( );    
+        }
 
         /// <summary>
         /// captures operating system messages
@@ -1003,27 +708,17 @@ namespace PasswordGeneration
         const int WM_SYSCOMMAND = 0x0112;
         const int SC_CLOSE = 0xF060;
 
-        [ PermissionSet ( SecurityAction.Demand, 
-                          Name = "FullTrust" ) ]
-        protected override void WndProc ( ref Message message )
-            {
-            
-            switch ( message.Msg )
-                {
-                                        // WinForms X button click
+        [PermissionSet ( SecurityAction.Demand, Name = "FullTrust" ) ]
+        protected override void WndProc( ref Message message ) {
+            switch ( message.Msg ) {
+				// WinForms X button click
                 case WM_SYSCOMMAND:
-                    if ( ( ( int ) message.WParam & 0xFFF0 ) == 
-                         SC_CLOSE )
-                        {
-                        close_form ( );
-                        }
+                    if ( ( ( int ) message.WParam & 0xFFF0 ) == SC_CLOSE ){
+                        close_form( );
+                    }
                     break;
                 }
-
-            base.WndProc ( ref message );
-            
-            } // WndProc
-
-        } // class GeneratePassword
-
-    } // namespace PasswordGeneration
+            base.WndProc( ref message );
+            }
+        }
+    }
