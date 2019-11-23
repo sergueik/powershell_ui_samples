@@ -5,23 +5,29 @@ param(
   [switch]$noop
 )
 
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
+add-type -AssemblyName System.Windows.Forms
+add-type -AssemblyName System.Drawing
 
-$form = New-Object System.Windows.Forms.Form
-$form.Text = 'Status Server'
-$form.Size = New-Object System.Drawing.Size(350,500)
-$form.StartPosition = 'CenterScreen'
+$f = new-object System.Windows.Forms.Form
+$f.Text = 'Status Server'
+$f.Size = new-object System.Drawing.Size(350,500)
+$f.StartPosition = 'CenterScreen'
 
 
-$eventHandler = [System.EventHandler]{
-$textBox.Text
-$listbox.Items.Add
-$url = $textBox.Text
 
-$file = [System.IO.Path]::GetTempFileName()
+$o = new-object System.Windows.Forms.Button
+$o.Location = new-object System.Drawing.Point(10,420)
+$o.Size = new-object System.Drawing.Size(75,23)
+$o.Anchor = "Top, Right"
+$o.Text = 'OK'
+$o.Add_Click([System.EventHandler]{
+  $t.Text
+  $i.Items.Add
+  $url = $t.Text
 
-if ([bool]$PSBoundParameters['noop'].IsPresent) {
+  $filepath = [System.IO.Path]::GetTempFileName()
+
+  if ([bool]$PSBoundParameters['noop'].IsPresent) {
 
 $data = @'
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
@@ -31,28 +37,33 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
 fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in 
 culpa qui officia deserunt mollit anim id est laborum
 '@
-  Out-String -InputObject $data | Out-File $file
-} else {
-  (Invoke-WebRequest -Uri $url).RawContent | Out-File $file
-}
-write-host ('written {0}' -f $file)
+  Out-String -InputObject $data | Out-File $filepath
+  } else {
+    (Invoke-WebRequest -Uri $url).RawContent | Out-File $filepath
+  }
+  #write-host ('written {0}' -f $filepath)
 
-get-content $file | foreach-object {
-  [Void]$listbox.Items.Add($_)
-}
+  get-content $filepath | foreach-object {
+    [Void]$i.Items.Add($_)
+  }
 
-Remove-Item $file -errorAction silentlycontinue
+  remove-item $filepath -errorAction silentlycontinue
 
-}
+})
 
-$eventHandler2 = [System.EventHandler]{
+$n = new-object System.Windows.Forms.Button
+$n.Location = new-object System.Drawing.Point(250,420)
+$n.Size = new-object System.Drawing.Size(75,23)
+$n.Anchor = "Top, Right"
+$n.Text = 'Notepad'
+$n.Add_Click([System.EventHandler]{
   param(
     [Object]$sender,
     [EventArgs]$eventargs
   )
 
-  $listbox =  $sender.parent.Controls | where-object {$_.name -eq 'listbox' }
-  $data = $listbox.Items -join "`n"
+  $i =  $sender.parent.Controls | where-object {$_.name -eq 'listbox with the name' }
+  $data = $i.Items -join "`n"
   # write-host ('List box data: {0}' -f $data )
   $filepath = [System.IO.Path]::GetTempFileName()
   out-string -InputObject $data | out-file $filepath
@@ -64,56 +75,36 @@ $eventHandler2 = [System.EventHandler]{
     start-sleep -millisecond 100
   }
   $sender.parent.close()
-}
+})
 
-$OKButton = New-Object System.Windows.Forms.Button
-$OKButton.Location = New-Object System.Drawing.Point(10,420)
-$OKButton.Size = New-Object System.Drawing.Size(75,23)
-$OKButton.Anchor = "Top, Right"
-$OKButton.Text = 'OK'
-$OKButton.Add_Click($eventHandler)
-$form.Controls.Add($OKButton)
+$c = new-object System.Windows.Forms.Button
+$c.Location = new-object System.Drawing.Point(90,420)
+$c.Size = new-object System.Drawing.Size(75,23)
+$c.Anchor = "Top, Right"
+$c.Text = 'Cancel'
+$c.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
 
-$NButton = New-Object System.Windows.Forms.Button
-$NButton.Location = New-Object System.Drawing.Point(250,420)
-$NButton.Size = New-Object System.Drawing.Size(75,23)
-$NButton.Anchor = "Top, Right"
-$NButton.Text = 'Notepad'
-$NButton.Add_Click($eventHandler2)
-$form.Controls.Add($NButton)
+$l = new-object System.Windows.Forms.Label
+$l.Location = new-object System.Drawing.Point(10,20)
+$l.Size = new-object System.Drawing.Size(280,20)
+$l.Text = 'Вставьте ссылку:'
+$t = new-object -typename 'System.Windows.Forms.TextBox'
+$t.Location = new-object System.Drawing.Point(10,40)
+$t.Size = new-object System.Drawing.Size(315,20)
+$t.Anchor = 'Top, Left, Right'
+$t.width = 315;
 
-$CancelButton = New-Object System.Windows.Forms.Button
-$CancelButton.Location = New-Object System.Drawing.Point(90,420)
-$CancelButton.Size = New-Object System.Drawing.Size(75,23)
-$CancelButton.Anchor = "Top, Right"
-$CancelButton.Text = 'Cancel'
-$CancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
-$form.Controls.Add($CancelButton)
+$i = new-object System.Windows.Forms.ListBox
+$i.DisplayMember = $tmp.FullName
+$i.Name = 'listbox with the name'
+$i.Location = new-object System.Drawing.Point(10,75)
+$i.Size = new-object System.Drawing.Size(315,330)
+$i.Anchor = "Top, Bottom, Left, Right"
+$i.Height = 330
 
-$label = New-Object System.Windows.Forms.Label
-$label.Location = New-Object System.Drawing.Point(10,20)
-$label.Size = New-Object System.Drawing.Size(280,20)
-$label.Text = 'Вставьте ссылку:'
-$form.Controls.Add($label)
+$f.Controls.AddRange(@($i, $t, $l, $c, $n, $o ))
 
-$textBox = New-Object "System.Windows.Forms.TextBox"
-$textBox.Location = New-Object System.Drawing.Point(10,40)
-$textBox.Size = New-Object System.Drawing.Size(315,20)
-$textBox.Anchor = 'Top, Left, Right'
-$textBox.width = 315;
-$form.Controls.Add($textBox)
-
-$listbox = New-Object System.Windows.Forms.ListBox
-$listbox.DisplayMember = $tmp.FullName
-$listbox.Name = "listbox"
-$listbox.Location = New-Object System.Drawing.Point(10,75)
-$listbox.Size = New-Object System.Drawing.Size(315,330)
-$listbox.Anchor = "Top, Bottom, Left, Right"
-$listbox.Height = 330
-
-$form.Controls.Add($listbox)
-
-$form.Topmost = $true
-$form.Add_Shown({$textBox.Select()})
-$form.Add_Shown({$listbox.Select()})
-$form.ShowDialog()
+$f.Topmost = $true
+$f.Add_Shown({$t.Select()})
+$f.Add_Shown({$i.Select()})
+$f.ShowDialog()
