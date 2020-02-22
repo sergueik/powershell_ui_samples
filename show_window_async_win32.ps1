@@ -63,8 +63,10 @@ start-sleep -millisecond 1000
 # TODO: extract into standlone script
 <#
 param (
+  [int]$copies = 10,
   [int]$delay = 10
 )
+
 # origins:
 # https://www.pinvoke.net/default.aspx/user32.enumwindows
 # https://www.pinvoke.net/default.aspx/user32.getwindowthreadprocessid
@@ -132,23 +134,37 @@ public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
 }
 '@
 
-# skip self
+write-debug ('Launch and hide {0} dummies' -f $copies )
+
+$demoScript = "${env:TEMP}\example.cmd"
+
+out-File -FilePath $demoScript -Encoding ASCII -InputObject 'powershell.exe -windowstyle hidden -Command "&{write-output \"wait\"; start-sleep 10; write-output \"Done\"}"'
+
+1..$copies | foreach-object {
+  start-process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /c ${demoScript}"
+}
+
 $ownProcessId = get-process -id $pid
 $code = '[DllImport("user32.dll")]public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);'
-$helper = add-type -memberdefinition $code -name 'notused' -namespace win32functions -pass
+$helper = add-type -memberdefinition $code -name 'win32showwindowasync' -namespace win32functions -pass
+start-sleep $delay
 
 # TODO: singleton
-write-debug $pid
+write-debug ('Ignore own process: {0}' -f $ownProcessId)
 $results = ([EnumReport]::Collect($false) -split '\n' )
 $results |
 where-object { -not ($_ -match ('pid: {0}' -f $ownProcessId))}|
-foreach-object {$line = $_
+foreach-object {
+  $line = $_
+  if ($line -ne '' ) {
   $handle = $line -replace 'window handle: (\d+) pid: (\d+)$' , '$1'
   $processid = $line -replace 'window handle: (\d+) pid: (\d+)$' , '$2'
   if ($processid -ne 0) {
-    write-output $line
-    get-process -id $processid
+    write-debug  ('Process the colletor result {0}' -f $line)
+    get-process -id $processid | out-null
+    write-debug ('Raise the window {0}' -f $hadle)
     $helper::showwindowasync(0 + $handle, 4) | out-null
+}
   }
 }
 exit 0
