@@ -91,11 +91,25 @@ using System.Globalization;
 
 public class EnumReport {
 
-public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
-  private static CallBackPtr callBackPtr;
-  private static StringBuilder results = new StringBuilder();
-  private static Boolean debug;
+  public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
+  private StringBuilder results = new StringBuilder();
+  private Boolean debug;
+  public Boolean Debug {
+    set {
+      debug = value;
+    }
+  }
+  protected string filterClassName;
+    public string FilterClassName {
+      set{
+        filterClassName = value;
+    }
+  }
+  protected String result = null;
 
+  public string Result {
+     get { return result; }
+  }
   [DllImport("user32.dll")]
   private static extern int EnumWindows(CallBackPtr callPtr, int lPar);
 
@@ -105,14 +119,14 @@ public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
   [DllImport("user32.dll", SetLastError = true)]
   public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out IntPtr lpdwProcessId);
 
-  public static bool Report(IntPtr hwnd, int lParam) {
+  public bool Report(IntPtr hwnd, int lParam) {
     String windowClassName = GetWindowClassName(hwnd);
-    if (string.Compare(windowClassName, "ConsoleWindowClass", true, CultureInfo.InvariantCulture) == 0){
+    if (string.Compare(windowClassName, filterClassName, true, CultureInfo.InvariantCulture) == 0){
       IntPtr lngPid = System.IntPtr.Zero;
       GetWindowThreadProcessId(hwnd, out lngPid);
       int processId = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
       String report = "window handle: " + hwnd +  " pid: " + processId + "\n";
-      EnumReport.results.Append(report);
+      results.Append(report);
       if (debug){
         Console.Error.WriteLine(report);
       }
@@ -124,16 +138,14 @@ public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
     int nRet = GetClassName(hWnd, ClassName, ClassName.Capacity);
     return (nRet != 0) ? ClassName.ToString() : null;
   }
-  public static String Collect(Boolean debug) {
-    EnumReport.debug = debug;
+  public void Collect() {
     results.Clear();
-    callBackPtr = new CallBackPtr(EnumReport.Report);
-    EnumWindows(callBackPtr, 0);
-    String result = EnumReport.results.ToString();
+    EnumWindows(new CallBackPtr(Report), 0);
+    result = results.ToString();
     if (debug){
       Console.Error.WriteLine(result);
     }
-    return result;
+    return;
   }
 }
 '@
@@ -155,7 +167,7 @@ Add-Type -MemberDefinition @'
 private const int SW_SHOWMINIMIZED  = 2;
 private const int SW_SHOWNOACTIVATE = 4;
 private const int SW_RESTORE    = 9;
-t
+
 [DllImport("user32.dll")]
 public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 '@ -namespace win32 -name 'helper'
@@ -164,8 +176,11 @@ start-sleep $delay
 
 write-debug ('Ignore own process: {0}' -f $ownProcessid )
 
-# TODO: instance
-$results = [EnumReport]::Collect($false) -split '\n'
+$helper = new-object -typeName 'EnumReport'
+$helper.Debug = $debug
+$helper.FilterClassName = 'ConsoleWindowClass'
+$helper.Collect()
+$results = $helper.Result -split '\n'
 $resultsLog = "${env:TEMP}\results.txt"
 if ($debug) {
   # save a copy of the results to enable testing the following code quickly
@@ -174,23 +189,26 @@ if ($debug) {
 }
 $results | where-object { -not ($_ -match ('pid: {0}' -f $ownProcessid) ) }|
   foreach-object {
-    $line = $_
-    if ($line -eq '' ) { return }
-    write-debug ('Line: "{0}"' -f $line)
-    $matcher = 'window handle: (\d+) pid: (\d+) *$'
-    $handle = $line -replace $matcher, '$1'
-    $processid = $line -replace $matcher, '$2'
-    if ($processid -ne $null) {
-      if ($debug) {
-        write-debug ('Process id: {0}' -f $processid)
-        $processName = get-process -id $processid | select-object -expandproperty processName
-        $commandLine = get-WmiObject Win32_Process -Filter "processid = ${processid}" | select-Object -expandproperty CommandLine
-        write-debug ('Process name: {0}' -f $processName)
-        write-debug ('Commandline: {0}' -f $commandLine)
-      }
+  $line = $_
+  if ($line -eq '' ) { return }
+  write-debug ('Line: "{0}"' -f $line)
+  $matcher = 'window handle: (\d+) pid: (\d+) *$'
+  $handle = $line -replace $matcher, '$1'
+  $processid = $line -replace $matcher, '$2'
+  # $handle = $line -replace 'window handle: (\d+) pid: (\d+) *$' , '$1'
+  # $processid = $line -replace 'window handle: (\d+) pid: (\d+) *$' , '$2'
+  if ($processid -ne $null) {
+    if ($debug) {
+      write-debug ('Process id: {0}' -f $processid)
+      $processName = get-process -id $processid | select-object -expandproperty processName
+      $commandLine = get-WmiObject Win32_Process -Filter "processid = ${processid}" | select-Object -expandproperty CommandLine
+      write-debug ('Process name: {0}' -f $processName)
+      write-debug ('Commandline: {0}' -f $commandLine)
+    }
     write-debug ('Raise the window {0}' -f $handle)
     [win32.helper]::ShowWindowAsync(0 + $handle, 4) | out-null
   }
+
 }
 $debugpreference = $savedDebugpreference
 exit 0
