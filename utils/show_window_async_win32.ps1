@@ -47,30 +47,72 @@ param (
 )
 
 add-type -typedefinition @'
+
 // origin: https://www.pinvoke.net/default.aspx/user32.enumwindows
 // with few typo fixes made
 using System;
 using System.Runtime.InteropServices;
-public class EnumReport {
+using System.IO;
+using System.Threading;
+// TODO: restore process tracking
+using System.Diagnostics;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
-public delegate bool CallBackPtr(int hwnd, int lParam);
+
+public class EnumReport {
+// line: 24 
+public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
 private static CallBackPtr callBackPtr;
 
   [DllImport("user32.dll")]
   private static extern int EnumWindows(CallBackPtr callPtr, int lPar);
 
-  public static bool Report(int hwnd, int lParam) {
-    Console.WriteLine("Window handle is "+hwnd);
-    return true;
+  [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+  static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+  // https://stackoverflow.com/questions/18184654/find-process-id-by-windows-handle
+
+  [DllImport("user32.dll", SetLastError = true)]
+                public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out IntPtr lpdwProcessId);
+    public static bool Report(IntPtr hwnd, int lParam) {
+    String window_class_name = GetWindowClassName(hwnd);
+    if (string.Compare(window_class_name, "ConsoleWindowClass", true, CultureInfo.InvariantCulture) == 0){
+      IntPtr lngPid = System.IntPtr.Zero;
+      GetWindowThreadProcessId(hwnd, out lngPid);
+      int PID = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
+      Console.Error.WriteLine("handle: " + hwnd + 
+        /* " class name: " + window_class_name + */ 
+        " PID:" + PID);
+    }    
+    return true;   // continue
   }
-  public static void Main() {
+  public static bool Report(IntPtr hwnd, int lParam) {
+    String window_class_name = GetWindowClassName(hwnd);
+    if (string.Compare(window_class_name, "ConsoleWindowClass", true, CultureInfo.InvariantCulture) == 0){
+      IntPtr lngPid = System.IntPtr.Zero;
+      GetWindowThreadProcessId(hwnd, out lngPid);
+      int PID = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
+        Console.WriteLine("handle: " + hwnd +  " class name: " + window_class_name + " PID:" + PID);
+    }
+    return true;   // continue
+  }
+private static string GetWindowClassName(IntPtr hWnd) {
+    StringBuilder ClassName = new StringBuilder(256);
+    int nRet = GetClassName(hWnd, ClassName, ClassName.Capacity);
+    return (nRet != 0) ? ClassName.ToString() : null;
+  }
+  public static void Collect() {
      callBackPtr = new CallBackPtr(EnumReport.Report);
     EnumWindows(callBackPtr, 0);
   }
 }
 '@
+write-output $pid
+[EnumReport]::Collect()
 
-
+exit 0
 # hides and shows self
 $proc = get-process -id $pid
 $code = '[DllImport("user32.dll")]public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);'
@@ -78,10 +120,8 @@ $helper = add-type -memberdefinition $code -name 'win32showwindowasync' -namespa
 # invoke method by name, case-insensitive
 $helper::ShowWindowAsync($proc.mainwindowhandle, 0) | out-null
 $proc.mainwindowhandle|out-file $($env:temp + '\proc.tmp')
-
-start-sleep $delay
 [EnumReport]::Main()
-
+start-sleep $delay
 $helper::showwindowasync($proc.mainwindowhandle, 4) | out-null
 #>
 
@@ -96,3 +136,4 @@ start-sleep -millisecond 1000
 write-host ('Stop process {0}' -f $name )
 
 stop-process -Name $name
+
