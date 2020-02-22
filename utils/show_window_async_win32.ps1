@@ -1,3 +1,23 @@
+#Copyright (c) 2015,2020 Serguei Kouzmine
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the 'Software'), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in
+#all copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#THE SOFTWARE.
+
 
 # based on:
 # https://stackoverflow.com/questions/4993926/maximize-window-and-bring-it-in-front-with-powershell
@@ -7,17 +27,6 @@
 # for nCmdShow parameter:
 # https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
 # https://ss64.com/vb/appactivate.html for shell .AppActivate COM method to
-# Activate a running command
-
-# NOTE: Shell can not manage window that is minimized to become a tray item:
-#  poor thing no longer has a main window title
-#
-# http://www.cyberforum.ru/powershell/thread2553302.html
-#
-# see also: https://www.cyberforum.ru/powershell/thread2587244.html (in Russian
-# same topic discussed for spying for the window handle
-# of the already launched process with -windowstyle hidden
-#
 param($filepath =  'c:\windows\system32\notepad.exe')
 
 # e.g. .\show_window_async_win32.ps1 C:\ProgramData\PortableApps.com\Geany\App\Geany\bin\geany.exe
@@ -40,89 +49,109 @@ public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 write-host ('Minimize window {0}' -f $main_window_handle )
 [win32.helper]::ShowWindowAsync($main_window_handle, 2)
 start-sleep -millisecond 1000
+#
+# Activate a running command
 
+# NOTE: Shell can not manage window that is minimized to become a tray item:
+#  poor thing no longer has a main window title
+#
+# http://www.cyberforum.ru/powershell/thread2553302.html
+#
+# see also: https://www.cyberforum.ru/powershell/thread2587244.html (in Russian
+# same topic discussed for spying for the window handle
+# of the already launched process with -windowstyle hidden
+# TODO: extract into standlone script
 <#
 param (
   [int]$delay = 10
 )
-
+# origins:
+# https://www.pinvoke.net/default.aspx/user32.enumwindows
+# https://www.pinvoke.net/default.aspx/user32.getwindowthreadprocessid
+# https://www.pinvoke.net/default.aspx/coredll/GetClassName.html
 add-type -typedefinition @'
 
-// origin: https://www.pinvoke.net/default.aspx/user32.enumwindows
 // with few typo fixes made
 using System;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Threading;
-// TODO: restore process tracking
+// TODO: restore process tracking (restored)
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
-
 public class EnumReport {
-// line: 24 
+
 public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
-private static CallBackPtr callBackPtr;
+  private static CallBackPtr callBackPtr;
+  private static StringBuilder results = new StringBuilder();
+  private static Boolean debug;
 
   [DllImport("user32.dll")]
   private static extern int EnumWindows(CallBackPtr callPtr, int lPar);
 
   [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
   static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
-  // https://stackoverflow.com/questions/18184654/find-process-id-by-windows-handle
 
   [DllImport("user32.dll", SetLastError = true)]
-                public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out IntPtr lpdwProcessId);
-    public static bool Report(IntPtr hwnd, int lParam) {
-    String window_class_name = GetWindowClassName(hwnd);
-    if (string.Compare(window_class_name, "ConsoleWindowClass", true, CultureInfo.InvariantCulture) == 0){
-      IntPtr lngPid = System.IntPtr.Zero;
-      GetWindowThreadProcessId(hwnd, out lngPid);
-      int PID = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
-      Console.Error.WriteLine("handle: " + hwnd + 
-        /* " class name: " + window_class_name + */ 
-        " PID:" + PID);
-    }    
-    return true;   // continue
-  }
+  public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out IntPtr lpdwProcessId);
+
   public static bool Report(IntPtr hwnd, int lParam) {
-    String window_class_name = GetWindowClassName(hwnd);
-    if (string.Compare(window_class_name, "ConsoleWindowClass", true, CultureInfo.InvariantCulture) == 0){
+    String windowClassName = GetWindowClassName(hwnd);
+    if (string.Compare(windowClassName, "ConsoleWindowClass", true, CultureInfo.InvariantCulture) == 0){
       IntPtr lngPid = System.IntPtr.Zero;
       GetWindowThreadProcessId(hwnd, out lngPid);
-      int PID = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
-        Console.WriteLine("handle: " + hwnd +  " class name: " + window_class_name + " PID:" + PID);
+      int processId = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
+      String report = "window handle: " + hwnd +  " pid: " + processId + "\n";
+      EnumReport.results.Append(report);
+      if (debug){
+        Console.Error.WriteLine(report);
+      }
     }
     return true;   // continue
   }
-private static string GetWindowClassName(IntPtr hWnd) {
+  private static string GetWindowClassName(IntPtr hWnd) {
     StringBuilder ClassName = new StringBuilder(256);
     int nRet = GetClassName(hWnd, ClassName, ClassName.Capacity);
     return (nRet != 0) ? ClassName.ToString() : null;
   }
-  public static void Collect() {
-     callBackPtr = new CallBackPtr(EnumReport.Report);
+  public static String Collect(Boolean debug) {
+    EnumReport.debug = debug;
+    results.Clear();
+    callBackPtr = new CallBackPtr(EnumReport.Report);
     EnumWindows(callBackPtr, 0);
+    String result = EnumReport.results.ToString();
+    if (debug){
+      Console.Error.WriteLine(result);
+    }
+    return result;
   }
 }
 '@
-write-output $pid
-[EnumReport]::Collect()
 
-exit 0
-# hides and shows self
-$proc = get-process -id $pid
+# skip self
+$ownProcessId = get-process -id $pid
 $code = '[DllImport("user32.dll")]public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);'
-$helper = add-type -memberdefinition $code -name 'win32showwindowasync' -namespace win32functions -pass
-# invoke method by name, case-insensitive
-$helper::ShowWindowAsync($proc.mainwindowhandle, 0) | out-null
-$proc.mainwindowhandle|out-file $($env:temp + '\proc.tmp')
-[EnumReport]::Main()
-start-sleep $delay
-$helper::showwindowasync($proc.mainwindowhandle, 4) | out-null
+$helper = add-type -memberdefinition $code -name 'notused' -namespace win32functions -pass
+
+# TODO: singleton
+write-debug $pid
+$results = ([EnumReport]::Collect($false) -split '\n' )
+$results |
+where-object { -not ($_ -match ('pid: {0}' -f $ownProcessId))}|
+foreach-object {$line = $_
+  $handle = $line -replace 'window handle: (\d+) pid: (\d+)$' , '$1'
+  $processid = $line -replace 'window handle: (\d+) pid: (\d+)$' , '$2'
+  if ($processid -ne 0) {
+    write-output $line
+    get-process -id $processid
+    $helper::showwindowasync(0 + $handle, 4) | out-null
+  }
+}
+exit 0
 #>
 
 write-host ('Restore window {0}' -f $main_window_handle )
