@@ -79,15 +79,21 @@ $data_name = 'TestConfiguration.xls'
 [string]$filename = ('{0}\{1}' -f (Get-ScriptDirectory),$data_name)
 
 $sheet_name = 'Sailings$'
+# Excel 2007 or later
 [string]$oledb_provider = 'Provider=Microsoft.ACE.OLEDB.12.0'
+# previous excel versions
 # 32-bit instances only, included with core image for Windows XP, Server 2013
 # [string]$oledb_provider = 'Provider=Microsoft.Jet.OLEDB.4.0'
 
 $data_source = ('Data Source = {0}' -f $filename)
 $ext_arg = "Extended Properties=Excel 8.0"
 # HDR=YES
+# see also: https://stackoverflow.com/questions/19053141/dealing-with-extra-columns-in-excel-files-c-sharp
 # TODO: sample queries
-[string]$query = "Select * from [${sheet_name}] where [id] <> 0"
+[string]$query = "SELECT * FROM [${sheet_name}] WHERE [id] <> 0"
+# cell range to skip the header row and load columns A through Z
+# string $cell_range = 'A2:Z1000'
+# [string] $excel_data_uery = ('SELECT * FROM [{0}{1}] WHERE [id] <> 0' -f $sheet_name, $cell_range)
 [System.Data.OleDb.OleDbConnection]$connection = New-Object System.Data.OleDb.OleDbConnection ("$oledb_provider;$data_source;$ext_arg")
 $connection.open()
 
