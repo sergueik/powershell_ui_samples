@@ -63,10 +63,14 @@ start-sleep -millisecond 1000
 # TODO: extract into standlone script
 <#
 param (
-  [int]$copies = 10,
-  [int]$delay = 10
+  [int]$copies = 4,
+  [int]$delay = 4,
+  [switch]$debug
 )
-
+$savedDebugpreference = $debugpreference
+if ([bool]$PSBoundParameters['debug'].IsPresent) {
+  $debugpreference = 'continue'
+}
 # origins:
 # https://www.pinvoke.net/default.aspx/user32.enumwindows
 # https://www.pinvoke.net/default.aspx/user32.getwindowthreadprocessid
@@ -144,29 +148,51 @@ out-File -FilePath $demoScript -Encoding ASCII -InputObject 'powershell.exe -win
   start-process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /c ${demoScript}"
 }
 
-$ownProcessId = get-process -id $pid
-$code = '[DllImport("user32.dll")]public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);'
-$helper = add-type -memberdefinition $code -name 'win32showwindowasync' -namespace win32functions -pass
+# a different pid may be chosen
+$ownProcessid = (get-process -id $pid).id
+
+Add-Type -MemberDefinition @'
+private const int SW_SHOWMINIMIZED  = 2;
+private const int SW_SHOWNOACTIVATE = 4;
+private const int SW_RESTORE    = 9;
+t
+[DllImport("user32.dll")]
+public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+'@ -namespace win32 -name 'helper'
+
 start-sleep $delay
 
-# TODO: singleton
-write-debug ('Ignore own process: {0}' -f $ownProcessId)
-$results = ([EnumReport]::Collect($false) -split '\n' )
-$results |
-where-object { -not ($_ -match ('pid: {0}' -f $ownProcessId))}|
-foreach-object {
-  $line = $_
-  if ($line -ne '' ) {
-  $handle = $line -replace 'window handle: (\d+) pid: (\d+)$' , '$1'
-  $processid = $line -replace 'window handle: (\d+) pid: (\d+)$' , '$2'
-  if ($processid -ne 0) {
-    write-debug  ('Process the colletor result {0}' -f $line)
-    get-process -id $processid | out-null
-    write-debug ('Raise the window {0}' -f $hadle)
-    $helper::showwindowasync(0 + $handle, 4) | out-null
+write-debug ('Ignore own process: {0}' -f $ownProcessid )
+
+# TODO: instance
+$results = [EnumReport]::Collect($false) -split '\n'
+$resultsLog = "${env:TEMP}\results.txt"
+if ($debug) {
+  # save a copy of the results to enable testing the following code quickly
+  out-File -FilePath $resultsLog -Encoding ASCII -InputObject  $results
+  $results = (get-content -path $resultsLog )  -split '\n'
 }
+$results | where-object { -not ($_ -match ('pid: {0}' -f $ownProcessid) ) }|
+  foreach-object {
+    $line = $_
+    if ($line -eq '' ) { return }
+    write-debug ('Line: "{0}"' -f $line)
+    $matcher = 'window handle: (\d+) pid: (\d+) *$'
+    $handle = $line -replace $matcher, '$1'
+    $processid = $line -replace $matcher, '$2'
+    if ($processid -ne $null) {
+      if ($debug) {
+        write-debug ('Process id: {0}' -f $processid)
+        $processName = get-process -id $processid | select-object -expandproperty processName
+        $commandLine = get-WmiObject Win32_Process -Filter "processid = ${processid}" | select-Object -expandproperty CommandLine
+        write-debug ('Process name: {0}' -f $processName)
+        write-debug ('Commandline: {0}' -f $commandLine)
+      }
+    write-debug ('Raise the window {0}' -f $handle)
+    [win32.helper]::ShowWindowAsync(0 + $handle, 4) | out-null
   }
 }
+$debugpreference = $savedDebugpreference
 exit 0
 #>
 
@@ -181,4 +207,5 @@ start-sleep -millisecond 1000
 write-host ('Stop process {0}' -f $name )
 
 stop-process -Name $name
+
 
