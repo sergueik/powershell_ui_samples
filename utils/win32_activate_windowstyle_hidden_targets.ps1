@@ -64,7 +64,13 @@ using System.Globalization;
 public class EnumReport {
 
 	public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
-	private StringBuilder results = new StringBuilder();
+	private StringBuilder reports = new StringBuilder();
+	private Results results = new Results();
+	public Results Results {
+		get {
+			return results;
+		}
+	}
 	private Boolean debug;
 	public Boolean Debug {
 		set {
@@ -77,10 +83,10 @@ public class EnumReport {
 			filterClassName = value;
 		}
 	}
-	protected String result = null;
+	protected String report = null;
 
-	public string Result {
-		get { return result; }
+	public string Report {
+		get { return report; }
 	}
 	[DllImport("user32.dll")]
 	private static extern int EnumWindows(CallBackPtr callPtr, int lPar);
@@ -110,7 +116,7 @@ public class EnumReport {
 		GWL_USERDATA = (-21),
 		GWL_ID = (-12)
 	}
-	public bool Report(IntPtr hwnd, int lParam) {
+	public bool ReportGenerator(IntPtr hwnd, int lParam) {
 		String windowClassName = GetWindowClassName(hwnd);
 		// testing the window style
 		int style = (int)GetWindowLongPtr(hwnd, (int)GWL.GWL_STYLE);
@@ -119,7 +125,9 @@ public class EnumReport {
 			GetWindowThreadProcessId(hwnd, out lngPid);
 			int processId = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
 			String report = "window handle: " + hwnd + " pid: " + processId + "\n";
-			results.Append(report);
+			bool visible = (( style & WindowStyles.WS_VISIBLE ) == WindowStyles.WS_VISIBLE  );
+			results.addResult(windowClassName, Convert.ToInt32(hwnd.ToString())/* , processId */, visible);
+			reports.Append(report);
 			if (debug) {
 				Console.Error.WriteLine(report + "style: " + (style & WindowStyles.WS_VISIBLE));
 			}
@@ -132,57 +140,13 @@ public class EnumReport {
 		return (nRet != 0) ? ClassName.ToString() : null;
 	}
 	public void Collect() {
-		results.Clear();
-		EnumWindows(new CallBackPtr(Report), 0);
-		result = results.ToString();
+		reports.Clear();
+		EnumWindows(new CallBackPtr(ReportGenerator), 0);
+		report = reports.ToString();
 		if (debug) {
-			Console.Error.WriteLine(result);
+			Console.Error.WriteLine(report);
 		}
 		return;
-	}
-}
-// TODO: introduce namespace, wrap it up
-public class Results
-{
-	private List<Result> data = new List<Result>();
-	public List<Result> Data {
-		get {
-			return data;
-		}
-	}
-	public Results()
-	{
-		this.data = new List<Result>();
-	}
-
-	public void addResult(String name, int count)
-	{
-		this.data.Add(new Result(name, count));
-	}
-}
-public class Result
-{
-	private String name;
-	public string Name {
-		get { return name; }
-		set {
-			this.name = value;
-		}
-	}
-	private int count;
-	public int Count {
-		get { return count; }
-		set {
-			this.count = value;
-		}
-	}
-	public Result()
-	{
-	}
-	public Result(String name, int count)
-	{
-		this.name = name;
-		this.count = count;
 	}
 }
 public abstract class WindowStyles
@@ -211,6 +175,105 @@ public abstract class WindowStyles
 	public const uint WS_MAXIMIZEBOX = 0x00010000;
 	// rest is truncated
 }
+
+// TODO: introduce namespace, wrap it up
+public class Results {
+  private List<Result> data = new List<Result>();
+  public List<Result> Data {
+    get {
+      return data;
+    }
+  }
+  public Results() {
+    this.data = new List<Result>();
+  }
+
+  public void addResult(String className, int handle) {
+    this.data.Add(new Result(className, handle));
+  }
+  public void addResult(String className, int handle, bool active) {
+    this.data.Add(new Result(className, handle, active));
+  }
+  public void addResult(String className, String title, int handle, bool active) {
+    this.data.Add(new Result(className, title, handle, active));
+  }
+  public void addResult(String className, String title, int handle, bool active, bool topmost) {
+    this.data.Add(new Result(className, title, handle, active,topmost));
+  }
+}
+public class Result {
+  private String className;
+  public string ClassName { 
+    get { return className; }
+    set { 
+      className = value; 
+    }
+  }
+  private String title;
+  public string Title { 
+    get { return title; }
+    set { 
+      title = value; 
+    }
+  }
+  private bool active;
+  public bool Active { 
+    get { return active; }
+    set { 
+      active = value; 
+    }
+  }
+  private bool topmost;
+  public bool Topmost { 
+    get { return topmost; }
+    set { 
+      topmost = value; 
+    }
+  }
+  private int handle;
+  public int Handle { 
+    get { return handle; }
+    set { 
+      handle = value; 
+    }
+  }
+  private int processid;
+  public int Processid { 
+    get { return processid; }
+    set { 
+      processid = value; 
+    }
+  }
+  public Result() { }
+  public Result(String className, int handle) {
+    this.className = className;
+    this.handle = handle;
+    this.active = false;
+    this.topmost = false;
+  }
+  public Result(String className, int handle, bool active) {
+    this.className = className;
+    this.title = null;
+    this.handle = handle;
+    this.active = active;
+    this.topmost = false;
+  }
+  public Result(String className, String title, int handle, bool active) {
+    this.className = className;
+    this.title = title;
+    this.handle = handle;
+    this.active = active;
+    this.topmost = false;
+  }
+  public Result(String className, String title, int handle, bool active, bool topmost) {
+    this.className = className;
+    this.title = title;
+    this.handle = handle;
+    this.active = active;
+    this.topmost = topmost;
+  }
+}
+
 '@
 
 write-debug ('Launch and hide {0} dummies' -f $copies )
@@ -243,14 +306,20 @@ $helper = new-object -typeName 'EnumReport'
 $helper.Debug = $debug
 $helper.FilterClassName = 'ConsoleWindowClass'
 $helper.Collect()
-$results = $helper.Result -split '\n'
-$resultsLog = "${env:TEMP}\results.txt"
-if ($debug) {
-  # save a copy of the results to enable testing the following code quickly
-  out-File -FilePath $resultsLog -Encoding ASCII -InputObject  $results
-  $results = (get-content -path $resultsLog )  -split '\n'
+$results = $helper.Results
+$results | foreach-object { 
+  format-list -inputObject $_.Data	
 }
-$results | where-object { -not ($_ -match ('pid: {0}' -f $ownProcessid) ) }|
+
+
+$reports = $helper.Report -split '\n'
+$reportsLog = "${env:TEMP}\reports.txt"
+if ($debug) {
+  # save a copy of the reports to enable testing the following code quickly
+  out-File -FilePath $reportsLog -Encoding ASCII -InputObject  $reports
+  $reports = (get-content -path $reportsLog )  -split '\n'
+}
+$reports | where-object { -not ($_ -match ('pid: {0}' -f $ownProcessid) ) }|
   foreach-object {
   $line = $_
   if ($line -eq '' ) { return }
@@ -275,5 +344,6 @@ $results | where-object { -not ($_ -match ('pid: {0}' -f $ownProcessid) ) }|
 }
 $debugpreference = $savedDebugpreference
 exit 0
+
 
 
