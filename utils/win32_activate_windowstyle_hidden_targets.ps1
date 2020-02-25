@@ -118,7 +118,8 @@ public class EnumReport {
 	public bool Report(IntPtr hwnd, int lParam) {
 		String windowClassName = GetWindowClassName(hwnd);
 		// testing the window style
-		int style = (int)GetWindowLongPtr(hwnd, (int)GWL.GWL_STYLE);
+		IntPtr stylePtr = GetWindowLongPtr(hwnd, (int)GWL.GWL_STYLE);
+		long style = Convert.ToInt64(stylePtr.ToString());
 		if (filterClassName == null || string.Compare(windowClassName, filterClassName, true, CultureInfo.InvariantCulture) == 0) {
 			IntPtr lngPid = System.IntPtr.Zero;
 			GetWindowThreadProcessId(hwnd, out lngPid);
