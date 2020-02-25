@@ -7,7 +7,7 @@
 #copies of the Software, and to permit persons to whom the Software is
 #furnished to do so, subject to the following conditions:
 #
-#The above copyright notice and this permission notice shall be included in
+#The above copyright notice and this permission notice shall be included in`
 #all copies or substantial portions of the Software.
 #
 #THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -63,9 +63,7 @@ using System.Globalization;
 
 public class EnumReport {
 
-	public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
-	private StringBuilder reports = new StringBuilder();
-	private Results results = new Results();
+	public delegate bool CallBackPtr(IntPtr hwnd, int lParam);	private Results results = new Results();
 	public Results Results {
 		get {
 			return results;
@@ -83,11 +81,7 @@ public class EnumReport {
 			filterClassName = value;
 		}
 	}
-	protected String report = null;
 
-	public string Report {
-		get { return report; }
-	}
 	[DllImport("user32.dll")]
 	private static extern int EnumWindows(CallBackPtr callPtr, int lPar);
 
@@ -103,7 +97,7 @@ public class EnumReport {
 	[DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
 	private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
 
-	// detect CPU through size of pointer hack to make code work on both 32 and 64 window 
+	// detect CPU through size of pointer hack to make code work on both 32 and 64 window
 	public static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex) {
 		return (IntPtr.Size == 8) ? GetWindowLongPtr64(hWnd, nIndex) : GetWindowLongPtr32(hWnd, nIndex);
 	}
@@ -116,7 +110,7 @@ public class EnumReport {
 		GWL_USERDATA = (-21),
 		GWL_ID = (-12)
 	}
-	public bool ReportGenerator(IntPtr hwnd, int lParam) {
+	public bool Report(IntPtr hwnd, int lParam) {
 		String windowClassName = GetWindowClassName(hwnd);
 		// testing the window style
 		int style = (int)GetWindowLongPtr(hwnd, (int)GWL.GWL_STYLE);
@@ -124,12 +118,10 @@ public class EnumReport {
 			IntPtr lngPid = System.IntPtr.Zero;
 			GetWindowThreadProcessId(hwnd, out lngPid);
 			int processId = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
-			String report = "window handle: " + hwnd + " pid: " + processId + "\n";
 			bool visible = (( style & WindowStyles.WS_VISIBLE ) == WindowStyles.WS_VISIBLE  );
-			results.addResult(windowClassName, Convert.ToInt32(hwnd.ToString())/* , processId */, visible);
-			reports.Append(report);
+			results.addResult(windowClassName, null, Convert.ToInt32(hwnd.ToString()), processId, visible);
 			if (debug) {
-				Console.Error.WriteLine(report + "style: " + (style & WindowStyles.WS_VISIBLE));
+				Console.Error.WriteLine( "window handle: " + hwnd + " pid: " + processId + " visible: " + (style & WindowStyles.WS_VISIBLE));
 			}
 		}
 		return true;   // continue
@@ -140,12 +132,7 @@ public class EnumReport {
 		return (nRet != 0) ? ClassName.ToString() : null;
 	}
 	public void Collect() {
-		reports.Clear();
-		EnumWindows(new CallBackPtr(ReportGenerator), 0);
-		report = reports.ToString();
-		if (debug) {
-			Console.Error.WriteLine(report);
-		}
+		EnumWindows(new CallBackPtr(Report), 0);
 		return;
 	}
 }
@@ -197,57 +184,70 @@ public class Results {
   public void addResult(String className, String title, int handle, bool active) {
     this.data.Add(new Result(className, title, handle, active));
   }
+  public void addResult(String className, String title, int handle, int processid, bool active) {
+    this.data.Add(new Result(className, title, handle, processid, active));
+  }
   public void addResult(String className, String title, int handle, bool active, bool topmost) {
     this.data.Add(new Result(className, title, handle, active,topmost));
+  }
+  public void addResult(String className, String title, int handle, int processid, bool active, bool topmost) {
+    this.data.Add(new Result(className, title, handle, processid, active,topmost));
   }
 }
 public class Result {
   private String className;
-  public string ClassName { 
+  public string ClassName {
     get { return className; }
-    set { 
-      className = value; 
+    set {
+      className = value;
     }
   }
   private String title;
-  public string Title { 
+  public string Title {
     get { return title; }
-    set { 
-      title = value; 
+    set {
+      title = value;
     }
   }
   private bool active;
-  public bool Active { 
+  public bool Active {
     get { return active; }
-    set { 
-      active = value; 
+    set {
+      active = value;
     }
   }
   private bool topmost;
-  public bool Topmost { 
+  public bool Topmost {
     get { return topmost; }
-    set { 
-      topmost = value; 
+    set {
+      topmost = value;
     }
   }
   private int handle;
-  public int Handle { 
+  public int Handle {
     get { return handle; }
-    set { 
-      handle = value; 
+    set {
+      handle = value;
     }
   }
   private int processid;
-  public int Processid { 
+  public int Processid {
     get { return processid; }
-    set { 
-      processid = value; 
+    set {
+      processid = value;
     }
   }
   public Result() { }
   public Result(String className, int handle) {
     this.className = className;
     this.handle = handle;
+    this.active = false;
+    this.topmost = false;
+  }
+  public Result(String className, int handle, int processid) {
+    this.className = className;
+    this.handle = handle;
+		this.processid = processid;
     this.active = false;
     this.topmost = false;
   }
@@ -258,6 +258,14 @@ public class Result {
     this.active = active;
     this.topmost = false;
   }
+  public Result(String className, int handle, int processid, bool active) {
+    this.className = className;
+    this.title = null;
+    this.handle = handle;
+		this.processid = processid;
+    this.active = active;
+    this.topmost = false;
+  }
   public Result(String className, String title, int handle, bool active) {
     this.className = className;
     this.title = title;
@@ -265,10 +273,26 @@ public class Result {
     this.active = active;
     this.topmost = false;
   }
+  public Result(String className, String title, int handle, int processid, bool active) {
+    this.className = className;
+    this.title = title;
+    this.handle = handle;
+		this.processid = processid;
+    this.active = active;
+    this.topmost = false;
+  }
   public Result(String className, String title, int handle, bool active, bool topmost) {
     this.className = className;
     this.title = title;
     this.handle = handle;
+    this.active = active;
+    this.topmost = topmost;
+  }
+  public Result(String className, String title, int handle, int processid, bool active, bool topmost) {
+    this.className = className;
+    this.title = title;
+    this.handle = handle;
+		this.processid = processid;
     this.active = active;
     this.topmost = topmost;
   }
@@ -307,29 +331,17 @@ $helper.Debug = $debug
 $helper.FilterClassName = 'ConsoleWindowClass'
 $helper.Collect()
 $results = $helper.Results
-$results | foreach-object { 
-  format-list -inputObject $_.Data	
-}
-
-
-$reports = $helper.Report -split '\n'
-$reportsLog = "${env:TEMP}\reports.txt"
-if ($debug) {
-  # save a copy of the reports to enable testing the following code quickly
-  out-File -FilePath $reportsLog -Encoding ASCII -InputObject  $reports
-  $reports = (get-content -path $reportsLog )  -split '\n'
-}
-$reports | where-object { -not ($_ -match ('pid: {0}' -f $ownProcessid) ) }|
-  foreach-object {
-  $line = $_
-  if ($line -eq '' ) { return }
-  write-debug ('Line: "{0}"' -f $line)
-  $matcher = 'window handle: (\d+) pid: (\d+) *$'
-  $handle = $line -replace $matcher, '$1'
-  $processid = $line -replace $matcher, '$2'
-  # $handle = $line -replace 'window handle: (\d+) pid: (\d+) *$' , '$1'
-  # $processid = $line -replace 'window handle: (\d+) pid: (\d+) *$' , '$2'
-  if ($processid -ne $null) {
+$results.Data | foreach-object {
+  $result =  $_
+	$handle = $result.Handle
+	$processid = $result.Processid
+	$active = $result.Active
+  if ($debug) {
+    write-debug ('Process id: {0}' -f $processid)
+    write-debug ('window handle: {0}' -f $handle)
+    write-debug ('Visible: {0}' -f $active)
+  }	
+  if ($processid -ne $null -and  (-not $active )) {
     if ($debug) {
       write-debug ('Process id: {0}' -f $processid)
       $processName = get-process -id $processid | select-object -expandproperty processName
