@@ -33,6 +33,7 @@
 param (
   [int]$copies = 4,
   [int]$delay = 4,
+  [switch]$showall,
   [switch]$debug
 )
 $savedDebugpreference = $debugpreference
@@ -47,6 +48,8 @@ if ([bool]$PSBoundParameters['debug'].IsPresent) {
 # https://www.pinvoke.net/default.aspx/user32.getwindowlong
 # https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowlonga
 # http://pinvoke.net/default.aspx/Constants/Window%20styles.html
+# https://www.pinvoke.net/default.aspx/user32.iswindowvisible
+
 add-type -typedefinition @'
 
 using System;
@@ -95,6 +98,10 @@ public class EnumReport {
 	[DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
 	private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
 
+	// https://blogs.msdn.microsoft.com/jaredpar/2008/10/14/pinvoke-and-bool-or-should-i-say-bool/
+	[DllImport("user32.dll")]
+	private static extern int IsWindowVisible(IntPtr hWnd);
+
 	// detect CPU through size of pointer hack to make code work on both 32 and 64 window
 	public static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex) {
 		return (IntPtr.Size == 8) ? GetWindowLongPtr64(hWnd, nIndex) : GetWindowLongPtr32(hWnd, nIndex);
@@ -116,11 +123,12 @@ public class EnumReport {
 			IntPtr lngPid = System.IntPtr.Zero;
 			GetWindowThreadProcessId(hwnd, out lngPid);
 			int processId = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
-			bool visible = (( style & WindowStyles.WS_VISIBLE ) == WindowStyles.WS_VISIBLE  );
+			bool visible = (IsWindowVisible(hwnd) == 1);
+			// bool visible = (( style & WindowStyles.WS_VISIBLE ) == WindowStyles.WS_VISIBLE  );
 			bool topmost = (( style & WindowStyles.WS_EX_TOPMOST   ) == WindowStyles.WS_EX_TOPMOST   );
 			results.addResult(windowClassName, null, Convert.ToInt32(hwnd.ToString()), processId, visible, topmost);
 			if (debug) {
-				Console.Error.WriteLine( "window handle: " + hwnd + " pid: " + processId + " visible: " + (style & WindowStyles.WS_VISIBLE).ToString("x"));
+				Console.Error.WriteLine( "window handle: " + hwnd + " pid: " + processId + " visible: "  + visible + " " + (style & WindowStyles.WS_VISIBLE).ToString("x") );
 			}
 		}
 		return true;   // continue
@@ -135,39 +143,15 @@ public class EnumReport {
 		return;
 	}
 }
-public abstract class WindowStyles
-{
-	public const uint WS_OVERLAPPED = 0x00000000;
-	public const uint WS_POPUP = 0x80000000;
-	public const uint WS_CHILD = 0x40000000;
-	public const uint WS_MINIMIZE = 0x20000000;
+public abstract class WindowStyles {
 	public const uint WS_VISIBLE = 0x10000000;
 	public const uint WS_DISABLED = 0x08000000;
-	public const uint WS_CLIPSIBLINGS = 0x04000000;
-	public const uint WS_CLIPCHILDREN = 0x02000000;
-	public const uint WS_MAXIMIZE = 0x01000000;
-	public const uint WS_CAPTION = 0x00C00000;
-	/* WS_BORDER | WS_DLGFRAME  */
-	public const uint WS_BORDER = 0x00800000;
-	public const uint WS_DLGFRAME = 0x00400000;
-	public const uint WS_VSCROLL = 0x00200000;
-	public const uint WS_HSCROLL = 0x00100000;
 	public const uint WS_SYSMENU = 0x00080000;
-	public const uint WS_THICKFRAME = 0x00040000;
-	public const uint WS_GROUP = 0x00020000;
-	public const uint WS_TABSTOP = 0x00010000;
 
-	public const uint WS_MINIMIZEBOX = 0x00020000;
-	public const uint WS_MAXIMIZEBOX = 0x00010000;
-	
 	//Extended Window Styles
-
 	public const uint WS_EX_DLGMODALFRAME     = 0x00000001;
-	public const uint WS_EX_NOPARENTNOTIFY    = 0x00000004;
 	public const uint WS_EX_TOPMOST       = 0x00000008;
-	public const uint WS_EX_ACCEPTFILES       = 0x00000010;
-	public const uint WS_EX_TRANSPARENT       = 0x00000020;
-	// rest is truncated
+	// most of the class is truncated
 }
 
 // TODO: introduce namespace, wrap it up
@@ -335,8 +319,13 @@ write-debug ('Ignore own process: {0}' -f $ownProcessid )
 
 $helper = new-object -typeName 'EnumReport'
 $helper.Debug = $debug
-# comment next line to list evry found windows: Note: verbose
-# $helper.FilterClassName = 'ConsoleWindowClass'
+if ($showall){
+  # commenting next line to list every found windows: Note: verbose
+  write-output 'Show all windows'
+} else {
+  $helper.FilterClassName = 'ConsoleWindowClass'
+  write-output 'Show all console windows'
+}
 $helper.Collect()
 $results = $helper.Results
 
