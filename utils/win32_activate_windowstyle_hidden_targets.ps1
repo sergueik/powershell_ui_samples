@@ -18,7 +18,6 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-
 #
 # Activate a console window of already running command started earlier with -windowstyle hidden options
 #
@@ -30,7 +29,6 @@
 # see also: https://www.cyberforum.ru/powershell/thread2587244.html (in Russian
 # same topic discussed for spying for the window handle
 # of the already launched process with -windowstyle hidden
-# TODO: extract into standlone script
 
 param (
   [int]$copies = 4,
@@ -114,14 +112,15 @@ public class EnumReport {
 		String windowClassName = GetWindowClassName(hwnd);
 		// testing the window style
 		int style = (int)GetWindowLongPtr(hwnd, (int)GWL.GWL_STYLE);
-		if (string.Compare(windowClassName, filterClassName, true, CultureInfo.InvariantCulture) == 0) {
+		if (filterClassName == null || string.Compare(windowClassName, filterClassName, true, CultureInfo.InvariantCulture) == 0) {
 			IntPtr lngPid = System.IntPtr.Zero;
 			GetWindowThreadProcessId(hwnd, out lngPid);
 			int processId = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
 			bool visible = (( style & WindowStyles.WS_VISIBLE ) == WindowStyles.WS_VISIBLE  );
-			results.addResult(windowClassName, null, Convert.ToInt32(hwnd.ToString()), processId, visible);
+			bool topmost = (( style & WindowStyles.WS_EX_TOPMOST   ) == WindowStyles.WS_EX_TOPMOST   );
+			results.addResult(windowClassName, null, Convert.ToInt32(hwnd.ToString()), processId, visible, topmost);
 			if (debug) {
-				Console.Error.WriteLine( "window handle: " + hwnd + " pid: " + processId + " visible: " + (style & WindowStyles.WS_VISIBLE));
+				Console.Error.WriteLine( "window handle: " + hwnd + " pid: " + processId + " visible: " + (style & WindowStyles.WS_VISIBLE).ToString("x"));
 			}
 		}
 		return true;   // continue
@@ -160,6 +159,14 @@ public abstract class WindowStyles
 
 	public const uint WS_MINIMIZEBOX = 0x00020000;
 	public const uint WS_MAXIMIZEBOX = 0x00010000;
+	
+	//Extended Window Styles
+
+	public const uint WS_EX_DLGMODALFRAME     = 0x00000001;
+	public const uint WS_EX_NOPARENTNOTIFY    = 0x00000004;
+	public const uint WS_EX_TOPMOST       = 0x00000008;
+	public const uint WS_EX_ACCEPTFILES       = 0x00000010;
+	public const uint WS_EX_TRANSPARENT       = 0x00000020;
 	// rest is truncated
 }
 
@@ -178,20 +185,20 @@ public class Results {
   public void addResult(String className, int handle) {
     this.data.Add(new Result(className, handle));
   }
-  public void addResult(String className, int handle, bool active) {
-    this.data.Add(new Result(className, handle, active));
+  public void addResult(String className, int handle, bool visible) {
+    this.data.Add(new Result(className, handle, visible));
   }
-  public void addResult(String className, String title, int handle, bool active) {
-    this.data.Add(new Result(className, title, handle, active));
+  public void addResult(String className, String title, int handle, bool visible) {
+    this.data.Add(new Result(className, title, handle, visible));
   }
-  public void addResult(String className, String title, int handle, int processid, bool active) {
-    this.data.Add(new Result(className, title, handle, processid, active));
+  public void addResult(String className, String title, int handle, int processid, bool visible) {
+    this.data.Add(new Result(className, title, handle, processid, visible));
   }
-  public void addResult(String className, String title, int handle, bool active, bool topmost) {
-    this.data.Add(new Result(className, title, handle, active,topmost));
+  public void addResult(String className, String title, int handle, bool visible, bool topmost) {
+    this.data.Add(new Result(className, title, handle, visible,topmost));
   }
-  public void addResult(String className, String title, int handle, int processid, bool active, bool topmost) {
-    this.data.Add(new Result(className, title, handle, processid, active,topmost));
+  public void addResult(String className, String title, int handle, int processid, bool visible, bool topmost) {
+    this.data.Add(new Result(className, title, handle, processid, visible, topmost));
   }
 }
 public class Result {
@@ -209,11 +216,11 @@ public class Result {
       title = value;
     }
   }
-  private bool active;
-  public bool Active {
-    get { return active; }
+  private bool visible;
+  public bool Visible {
+    get { return visible; }
     set {
-      active = value;
+      visible = value;
     }
   }
   private bool topmost;
@@ -241,59 +248,59 @@ public class Result {
   public Result(String className, int handle) {
     this.className = className;
     this.handle = handle;
-    this.active = false;
+    this.visible = false;
     this.topmost = false;
   }
   public Result(String className, int handle, int processid) {
     this.className = className;
     this.handle = handle;
 		this.processid = processid;
-    this.active = false;
+    this.visible = false;
     this.topmost = false;
   }
-  public Result(String className, int handle, bool active) {
+  public Result(String className, int handle, bool visible) {
     this.className = className;
     this.title = null;
     this.handle = handle;
-    this.active = active;
+    this.visible = visible;
     this.topmost = false;
   }
-  public Result(String className, int handle, int processid, bool active) {
+  public Result(String className, int handle, int processid, bool visible) {
     this.className = className;
     this.title = null;
     this.handle = handle;
 		this.processid = processid;
-    this.active = active;
+    this.visible = visible;
     this.topmost = false;
   }
-  public Result(String className, String title, int handle, bool active) {
+  public Result(String className, String title, int handle, bool visible) {
     this.className = className;
     this.title = title;
     this.handle = handle;
-    this.active = active;
+    this.visible = visible;
     this.topmost = false;
   }
-  public Result(String className, String title, int handle, int processid, bool active) {
+  public Result(String className, String title, int handle, int processid, bool visible) {
     this.className = className;
     this.title = title;
     this.handle = handle;
 		this.processid = processid;
-    this.active = active;
+    this.visible = visible;
     this.topmost = false;
   }
-  public Result(String className, String title, int handle, bool active, bool topmost) {
+  public Result(String className, String title, int handle, bool visible, bool topmost) {
     this.className = className;
     this.title = title;
     this.handle = handle;
-    this.active = active;
+    this.visible = visible;
     this.topmost = topmost;
   }
-  public Result(String className, String title, int handle, int processid, bool active, bool topmost) {
+  public Result(String className, String title, int handle, int processid, bool visible, bool topmost) {
     this.className = className;
     this.title = title;
     this.handle = handle;
 		this.processid = processid;
-    this.active = active;
+    this.visible = visible;
     this.topmost = topmost;
   }
 }
@@ -328,20 +335,27 @@ write-debug ('Ignore own process: {0}' -f $ownProcessid )
 
 $helper = new-object -typeName 'EnumReport'
 $helper.Debug = $debug
-$helper.FilterClassName = 'ConsoleWindowClass'
+# comment next line to list evry found windows: Note: verbose
+# $helper.FilterClassName = 'ConsoleWindowClass'
 $helper.Collect()
 $results = $helper.Results
+
+if ($debug) {
+  $results.Data | format-list
+}
+
 $results.Data | foreach-object {
   $result =  $_
 	$handle = $result.Handle
 	$processid = $result.Processid
-	$active = $result.Active
+	$visible = $result.Visible
+	$className = $result.ClassName
   if ($debug) {
     write-debug ('Process id: {0}' -f $processid)
     write-debug ('window handle: {0}' -f $handle)
-    write-debug ('Visible: {0}' -f $active)
+    write-debug ('Visible: {0}' -f $visible)
   }	
-  if ($processid -ne $null -and  (-not $active )) {
+  if (($className -eq 'ConsoleWindowClass') -and ($processid -ne $null) -and  (-not $visible )) {
     if ($debug) {
       write-debug ('Process id: {0}' -f $processid)
       $processName = get-process -id $processid | select-object -expandproperty processName
@@ -356,6 +370,4 @@ $results.Data | foreach-object {
 }
 $debugpreference = $savedDebugpreference
 exit 0
-
-
 
