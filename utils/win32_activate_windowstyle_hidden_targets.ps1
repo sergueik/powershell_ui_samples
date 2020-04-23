@@ -7,7 +7,7 @@
 #copies of the Software, and to permit persons to whom the Software is
 #furnished to do so, subject to the following conditions:
 #
-#The above copyright notice and this permission notice shall be included in
+#The above copyright notice and this permission notice shall be included in`
 #all copies or substantial portions of the Software.
 #
 #THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -17,7 +17,6 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
-
 
 #
 # Activate a console window of already running command started earlier with -windowstyle hidden options
@@ -30,11 +29,11 @@
 # see also: https://www.cyberforum.ru/powershell/thread2587244.html (in Russian
 # same topic discussed for spying for the window handle
 # of the already launched process with -windowstyle hidden
-# TODO: extract into standlone script
 
 param (
   [int]$copies = 4,
   [int]$delay = 4,
+  [switch]$showall,
   [switch]$debug
 )
 $savedDebugpreference = $debugpreference
@@ -49,6 +48,8 @@ if ([bool]$PSBoundParameters['debug'].IsPresent) {
 # https://www.pinvoke.net/default.aspx/user32.getwindowlong
 # https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowlonga
 # http://pinvoke.net/default.aspx/Constants/Window%20styles.html
+# https://www.pinvoke.net/default.aspx/user32.iswindowvisible
+
 add-type -typedefinition @'
 
 using System;
@@ -63,8 +64,12 @@ using System.Globalization;
 
 public class EnumReport {
 
-	public delegate bool CallBackPtr(IntPtr hwnd, int lParam);
-	private StringBuilder results = new StringBuilder();
+	public delegate bool CallBackPtr(IntPtr hwnd, int lParam);	private Results results = new Results();
+	public Results Results {
+		get {
+			return results;
+		}
+	}
 	private Boolean debug;
 	public Boolean Debug {
 		set {
@@ -77,11 +82,7 @@ public class EnumReport {
 			filterClassName = value;
 		}
 	}
-	protected String result = null;
 
-	public string Result {
-		get { return result; }
-	}
 	[DllImport("user32.dll")]
 	private static extern int EnumWindows(CallBackPtr callPtr, int lPar);
 
@@ -97,7 +98,11 @@ public class EnumReport {
 	[DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
 	private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
 
-	// detect CPU through size of pointer hack to make code work on both 32 and 64 window 
+	// https://blogs.msdn.microsoft.com/jaredpar/2008/10/14/pinvoke-and-bool-or-should-i-say-bool/
+	[DllImport("user32.dll")]
+	private static extern int IsWindowVisible(IntPtr hWnd);
+
+	// detect CPU through size of pointer hack to make code work on both 32 and 64 window
 	public static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex) {
 		return (IntPtr.Size == 8) ? GetWindowLongPtr64(hWnd, nIndex) : GetWindowLongPtr32(hWnd, nIndex);
 	}
@@ -113,15 +118,18 @@ public class EnumReport {
 	public bool Report(IntPtr hwnd, int lParam) {
 		String windowClassName = GetWindowClassName(hwnd);
 		// testing the window style
-		int style = (int)GetWindowLongPtr(hwnd, (int)GWL.GWL_STYLE);
-		if (string.Compare(windowClassName, filterClassName, true, CultureInfo.InvariantCulture) == 0) {
+		IntPtr stylePtr = GetWindowLongPtr(hwnd, (int)GWL.GWL_STYLE);
+		long style = Convert.ToInt64(stylePtr.ToString());
+		if (filterClassName == null || string.Compare(windowClassName, filterClassName, true, CultureInfo.InvariantCulture) == 0) {
 			IntPtr lngPid = System.IntPtr.Zero;
 			GetWindowThreadProcessId(hwnd, out lngPid);
 			int processId = Convert.ToInt32(/* Marshal.ReadInt32 */ lngPid.ToString());
-			String report = "window handle: " + hwnd + " pid: " + processId + "\n";
-			results.Append(report);
+			bool visible = (IsWindowVisible(hwnd) == 1);
+			// bool visible = (( style & WindowStyles.WS_VISIBLE ) == WindowStyles.WS_VISIBLE  );
+			bool topmost = (( style & WindowStyles.WS_EX_TOPMOST   ) == WindowStyles.WS_EX_TOPMOST   );
+			results.addResult(windowClassName, null, Convert.ToInt32(hwnd.ToString()), processId, visible, topmost);
 			if (debug) {
-				Console.Error.WriteLine(report + "style: " + (style & WindowStyles.WS_VISIBLE));
+				Console.Error.WriteLine( "window handle: " + hwnd + " pid: " + processId + " visible: "  + visible + " " + (style & WindowStyles.WS_VISIBLE).ToString("x") );
 			}
 		}
 		return true;   // continue
@@ -132,85 +140,156 @@ public class EnumReport {
 		return (nRet != 0) ? ClassName.ToString() : null;
 	}
 	public void Collect() {
-		results.Clear();
 		EnumWindows(new CallBackPtr(Report), 0);
-		result = results.ToString();
-		if (debug) {
-			Console.Error.WriteLine(result);
-		}
 		return;
 	}
 }
-// TODO: introduce namespace, wrap it up
-public class Results
-{
-	private List<Result> data = new List<Result>();
-	public List<Result> Data {
-		get {
-			return data;
-		}
-	}
-	public Results()
-	{
-		this.data = new List<Result>();
-	}
-
-	public void addResult(String name, int count)
-	{
-		this.data.Add(new Result(name, count));
-	}
-}
-public class Result
-{
-	private String name;
-	public string Name {
-		get { return name; }
-		set {
-			this.name = value;
-		}
-	}
-	private int count;
-	public int Count {
-		get { return count; }
-		set {
-			this.count = value;
-		}
-	}
-	public Result()
-	{
-	}
-	public Result(String name, int count)
-	{
-		this.name = name;
-		this.count = count;
-	}
-}
-public abstract class WindowStyles
-{
-	public const uint WS_OVERLAPPED = 0x00000000;
-	public const uint WS_POPUP = 0x80000000;
-	public const uint WS_CHILD = 0x40000000;
-	public const uint WS_MINIMIZE = 0x20000000;
+public abstract class WindowStyles {
 	public const uint WS_VISIBLE = 0x10000000;
 	public const uint WS_DISABLED = 0x08000000;
-	public const uint WS_CLIPSIBLINGS = 0x04000000;
-	public const uint WS_CLIPCHILDREN = 0x02000000;
-	public const uint WS_MAXIMIZE = 0x01000000;
-	public const uint WS_CAPTION = 0x00C00000;
-	/* WS_BORDER | WS_DLGFRAME  */
-	public const uint WS_BORDER = 0x00800000;
-	public const uint WS_DLGFRAME = 0x00400000;
-	public const uint WS_VSCROLL = 0x00200000;
-	public const uint WS_HSCROLL = 0x00100000;
 	public const uint WS_SYSMENU = 0x00080000;
-	public const uint WS_THICKFRAME = 0x00040000;
-	public const uint WS_GROUP = 0x00020000;
-	public const uint WS_TABSTOP = 0x00010000;
 
-	public const uint WS_MINIMIZEBOX = 0x00020000;
-	public const uint WS_MAXIMIZEBOX = 0x00010000;
-	// rest is truncated
+	//Extended Window Styles
+	public const uint WS_EX_DLGMODALFRAME     = 0x00000001;
+	public const uint WS_EX_TOPMOST       = 0x00000008;
+	// most of the class is truncated
 }
+
+// TODO: introduce namespace, wrap it up
+public class Results {
+  private List<Result> data = new List<Result>();
+  public List<Result> Data {
+    get {
+      return data;
+    }
+  }
+  public Results() {
+    this.data = new List<Result>();
+  }
+
+  public void addResult(String className, int handle) {
+    this.data.Add(new Result(className, handle));
+  }
+  public void addResult(String className, int handle, bool visible) {
+    this.data.Add(new Result(className, handle, visible));
+  }
+  public void addResult(String className, String title, int handle, bool visible) {
+    this.data.Add(new Result(className, title, handle, visible));
+  }
+  public void addResult(String className, String title, int handle, int processid, bool visible) {
+    this.data.Add(new Result(className, title, handle, processid, visible));
+  }
+  public void addResult(String className, String title, int handle, bool visible, bool topmost) {
+    this.data.Add(new Result(className, title, handle, visible,topmost));
+  }
+  public void addResult(String className, String title, int handle, int processid, bool visible, bool topmost) {
+    this.data.Add(new Result(className, title, handle, processid, visible, topmost));
+  }
+}
+public class Result {
+  private String className;
+  public string ClassName {
+    get { return className; }
+    set {
+      className = value;
+    }
+  }
+  private String title;
+  public string Title {
+    get { return title; }
+    set {
+      title = value;
+    }
+  }
+  private bool visible;
+  public bool Visible {
+    get { return visible; }
+    set {
+      visible = value;
+    }
+  }
+  private bool topmost;
+  public bool Topmost {
+    get { return topmost; }
+    set {
+      topmost = value;
+    }
+  }
+  private int handle;
+  public int Handle {
+    get { return handle; }
+    set {
+      handle = value;
+    }
+  }
+  private int processid;
+  public int Processid {
+    get { return processid; }
+    set {
+      processid = value;
+    }
+  }
+  public Result() { }
+  public Result(String className, int handle) {
+    this.className = className;
+    this.handle = handle;
+    this.visible = false;
+    this.topmost = false;
+  }
+  public Result(String className, int handle, int processid) {
+    this.className = className;
+    this.handle = handle;
+		this.processid = processid;
+    this.visible = false;
+    this.topmost = false;
+  }
+  public Result(String className, int handle, bool visible) {
+    this.className = className;
+    this.title = null;
+    this.handle = handle;
+    this.visible = visible;
+    this.topmost = false;
+  }
+  public Result(String className, int handle, int processid, bool visible) {
+    this.className = className;
+    this.title = null;
+    this.handle = handle;
+		this.processid = processid;
+    this.visible = visible;
+    this.topmost = false;
+  }
+  public Result(String className, String title, int handle, bool visible) {
+    this.className = className;
+    this.title = title;
+    this.handle = handle;
+    this.visible = visible;
+    this.topmost = false;
+  }
+  public Result(String className, String title, int handle, int processid, bool visible) {
+    this.className = className;
+    this.title = title;
+    this.handle = handle;
+		this.processid = processid;
+    this.visible = visible;
+    this.topmost = false;
+  }
+  public Result(String className, String title, int handle, bool visible, bool topmost) {
+    this.className = className;
+    this.title = title;
+    this.handle = handle;
+    this.visible = visible;
+    this.topmost = topmost;
+  }
+  public Result(String className, String title, int handle, int processid, bool visible, bool topmost) {
+    this.className = className;
+    this.title = title;
+    this.handle = handle;
+		this.processid = processid;
+    this.visible = visible;
+    this.topmost = topmost;
+  }
+}
+
 '@
 
 write-debug ('Launch and hide {0} dummies' -f $copies )
@@ -241,26 +320,32 @@ write-debug ('Ignore own process: {0}' -f $ownProcessid )
 
 $helper = new-object -typeName 'EnumReport'
 $helper.Debug = $debug
-$helper.FilterClassName = 'ConsoleWindowClass'
-$helper.Collect()
-$results = $helper.Result -split '\n'
-$resultsLog = "${env:TEMP}\results.txt"
-if ($debug) {
-  # save a copy of the results to enable testing the following code quickly
-  out-File -FilePath $resultsLog -Encoding ASCII -InputObject  $results
-  $results = (get-content -path $resultsLog )  -split '\n'
+if ($showall){
+  # commenting next line to list every found windows: Note: verbose
+  write-output 'Show all windows'
+} else {
+  $helper.FilterClassName = 'ConsoleWindowClass'
+  write-output 'Show all console windows'
 }
-$results | where-object { -not ($_ -match ('pid: {0}' -f $ownProcessid) ) }|
-  foreach-object {
-  $line = $_
-  if ($line -eq '' ) { return }
-  write-debug ('Line: "{0}"' -f $line)
-  $matcher = 'window handle: (\d+) pid: (\d+) *$'
-  $handle = $line -replace $matcher, '$1'
-  $processid = $line -replace $matcher, '$2'
-  # $handle = $line -replace 'window handle: (\d+) pid: (\d+) *$' , '$1'
-  # $processid = $line -replace 'window handle: (\d+) pid: (\d+) *$' , '$2'
-  if ($processid -ne $null) {
+$helper.Collect()
+$results = $helper.Results
+
+if ($debug) {
+  $results.Data | format-list
+}
+
+$results.Data | foreach-object {
+  $result =  $_
+	$handle = $result.Handle
+	$processid = $result.Processid
+	$visible = $result.Visible
+	$className = $result.ClassName
+  if ($debug) {
+    write-debug ('Process id: {0}' -f $processid)
+    write-debug ('window handle: {0}' -f $handle)
+    write-debug ('Visible: {0}' -f $visible)
+  }	
+  if (($className -eq 'ConsoleWindowClass') -and ($processid -ne $null) -and  (-not $visible )) {
     if ($debug) {
       write-debug ('Process id: {0}' -f $processid)
       $processName = get-process -id $processid | select-object -expandproperty processName
@@ -275,5 +360,4 @@ $results | where-object { -not ($_ -match ('pid: {0}' -f $ownProcessid) ) }|
 }
 $debugpreference = $savedDebugpreference
 exit 0
-
 

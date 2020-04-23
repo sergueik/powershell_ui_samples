@@ -1,4 +1,4 @@
-#Copyright (c) 2015,2019 Serguei Kouzmine
+#Copyright (c) 2015,2020 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the 'Software'), to deal
@@ -50,7 +50,6 @@ public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 write-host ('Minimize window {0}' -f $main_window_handle )
 [win32.helper]::ShowWindowAsync($main_window_handle, 2)
 start-sleep -millisecond 1000
-
 write-host ('Restore window {0}' -f $main_window_handle )
 [win32.helper]::ShowWindowAsync($main_window_handle, 4)
 start-sleep -millisecond 1000
@@ -62,6 +61,3 @@ start-sleep -millisecond 1000
 write-host ('Stop process {0}' -f $name )
 
 stop-process -Name $name
-
-
-
