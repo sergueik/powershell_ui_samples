@@ -1,4 +1,4 @@
-#Copyright (c) 2014,2020 Serguei Kouzmine
+#Copyright (c) 2020 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,8 @@ param(
 function PromptGrid {
   param(
     [System.Collections.IList]$data,
-    [System.Data.DataSet]$dataset
+    [System.Data.DataSet]$dataset,
+    [System.Data.Datatable]$datatable
   )
 
   # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagrid?view=netframework-4.5
@@ -101,7 +102,7 @@ function PromptGrid {
         if ($debug) {
           write-host ('Row: {0} Index: {0} ' -f $row_num, $row_index)
         }
-        $rows += $data[$row_index]
+        $rows += $row_index
       }
       if ($debug) {
         write-host ('Total selected rows: {0} ' -f $selected_rows_count.ToString())
@@ -116,19 +117,21 @@ function PromptGrid {
       $caller.Data = $rows.count;
       $caller.Message = ''
       $rows | foreach-object {
-        $value = $_
+        $row_num = $_
+        $row = $datatable.Rows[$row_num]
         if ($debug) {
           write-host $value | format-list
         }
-        $caller.Message += ("{0} {1}`n" -f $value.'Substance', $value.'Action'  )
+        $caller.Message += ("{0} {1}`n" -f $row['First'], $row['Second'] )
       }
       }
       $f.Close()
     })
-  $grid.DataSource = $data
+  $grid.DataSource = $datatable
   $f.ShowDialog([win32window]($caller)) | Out-Null
 
   $f.Topmost = $True
+
 
   $f.Refresh()
 
@@ -169,24 +172,18 @@ $DebugPreference = 'Continue'
 @( 'System.Windows.Forms', 'System.ComponentModel', 'System.Data', 'System.Drawing') | ForEach-Object { [void][System.Reflection.Assembly]::LoadWithPartialName($_) }
 $caller = new-object Win32Window -ArgumentList ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
 
-$data = @{
-  1 = @( 'wind','blows...');
-  2 = @( 'fire','burns...');
-  3 = @( 'water','falls...')
-  4 = @( 'thunder','strikes...')
-}
+$datatable = New-Object System.Data.Datatable
+[void]$datatable.Columns.Add('First')
+[void]$datatable.Columns.Add('Second')
+[void]$datatable.Columns.Add('Third')
 
-$array = new-object System.Collections.ArrayList
+# Add a row manually
+[void]$datatable.Rows.Add('wind','blows','...')
+[void]$datatable.Rows.Add('fire','burns','...')
+[void]$datatable.Rows.Add('rain','falls','...')
+[void]$datatable.Rows.Add('thunder','strucks','...')
 
-foreach ($key in $data.Keys) {
-  $value = $data[$key]
-  $o = new-object PSObject
-  $o | Add-Member Noteproperty 'Substance' $value[0]
-  $o | Add-Member Noteproperty 'Action' $value[1]
-
-  $array.Add($o)
-}
-
-$ret = PromptGrid $array
+$ret = PromptGrid -datatable $datatable
+# -data $array
 
 write-output $caller.Message
