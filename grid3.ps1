@@ -26,8 +26,7 @@ param(
 )
 function PromptGrid {
   param(
-    [System.Collections.IList]$data,
-    [System.Data.DataSet]$dataset
+    [System.Collections.IList]$data
   )
 
   # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagrid?view=netframework-4.5
@@ -101,7 +100,7 @@ function PromptGrid {
         if ($debug) {
           write-host ('Row: {0} Index: {0} ' -f $row_num, $row_index)
         }
-        $rows += $data[$row_index]
+        $rows += $row_index
       }
       if ($debug) {
         write-host ('Total selected rows: {0} ' -f $selected_rows_count.ToString())
@@ -116,11 +115,12 @@ function PromptGrid {
       $caller.Data = $rows.count;
       $caller.Message = ''
       $rows | foreach-object {
-        $value = $_
+        $data_row = $_
+        $value = $data[$data_row]
         if ($debug) {
           write-host $value | format-list
         }
-        $caller.Message += ("{0} {1}`n" -f $value.'Substance', $value.'Action'  )
+        $caller.Message += ("{0} {1}`n" -f $value.'First', $value.'Second'  )
       }
       }
       $f.Close()
@@ -170,10 +170,10 @@ $DebugPreference = 'Continue'
 $caller = new-object Win32Window -ArgumentList ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
 
 $data = @{
-  1 = @( 'wind','blows...');
-  2 = @( 'fire','burns...');
-  3 = @( 'water','falls...')
-  4 = @( 'thunder','strikes...')
+  1 = @( 'wind','blows','...');
+  2 = @( 'fire','burns','..');
+  3 = @( 'rain','falls','...');
+  4 = @( 'thunder','strikes','...')
 }
 
 $array = new-object System.Collections.ArrayList
@@ -181,8 +181,8 @@ $array = new-object System.Collections.ArrayList
 foreach ($key in $data.Keys) {
   $value = $data[$key]
   $o = new-object PSObject
-  $o | Add-Member Noteproperty 'Substance' $value[0]
-  $o | Add-Member Noteproperty 'Action' $value[1]
+  $o | Add-Member Noteproperty 'First' $value[0]
+  $o | Add-Member Noteproperty 'Second' $value[1]
 
   $array.Add($o)
 }

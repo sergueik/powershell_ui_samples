@@ -27,7 +27,7 @@ param(
 function PromptGrid {
   param(
     [System.Collections.IList]$data,
-    [System.Data.DataSet]$dataset,
+    # [System.Data.DataSet]$dataset,
     [System.Data.Datatable]$datatable
   )
 
@@ -75,7 +75,7 @@ function PromptGrid {
     if ($selected_cells_count -gt 0) {
       if ($grid.AreAllCellsSelected($true)){
         write-host 'All cells are selected'
-        # to simplify extraction
+        # TODO: modify logic simplify extraction
       } else  {
         0..($selected_cells_count - 1) | foreach-object {
           $cell_num = $_
@@ -117,8 +117,8 @@ function PromptGrid {
       $caller.Data = $rows.count;
       $caller.Message = ''
       $rows | foreach-object {
-        $row_num = $_
-        $row = $datatable.Rows[$row_num]
+        $datatable_index = $_
+        $row = $datatable.Rows[$datatable_index]
         if ($debug) {
           write-host $value | format-list
         }
@@ -182,8 +182,8 @@ $datatable = New-Object System.Data.Datatable
 [void]$datatable.Rows.Add('fire','burns','...')
 [void]$datatable.Rows.Add('rain','falls','...')
 [void]$datatable.Rows.Add('thunder','strucks','...')
-
+# see also:
+# https://stackoverflow.com/questions/39590167/how-to-loop-through-datatable-in-powershell
 $ret = PromptGrid -datatable $datatable
-# -data $array
 
 write-output $caller.Message

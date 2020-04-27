@@ -1,4 +1,4 @@
-#Copyright (c) 2014,2020 Serguei Kouzmine
+#Copyright (c) 2020 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -21,12 +21,35 @@
 # based on:
 # https://docs.microsoft.com/en-us/dotnet/framework/winforms/controls/selected-cells-rows-and-columns-datagridview
 # effectively just converted to Powershell
-
+param(
+  [switch]$debug
+)
 function PromptGrid {
   param(
-    [System.Collections.IList]$data,
-    [System.Data.DataSet]$dataset
+      [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
+      [Validateset('datatable', 'list')]
+      $kind,
+      [ValidateNotNull()]
+      $value
   )
+
+  switch ($kind) {
+    'datatable'{
+      try {
+        [System.Data.Datatable]$data = $value
+      } catch [exception]{
+        write-debug ("Exception : {0} ...`nvalue='{1}'" -f (($_.Exception.Message) -split "`n")[0],$value)
+      }
+    }
+    'list'{
+      try {
+        [System.Collections.IList]$data = $value
+      } catch [exception]{
+        write-debug ("Exception : {0} ...`nvalue='{1}'" -f (($_.Exception.Message) -split "`n")[0],$value)
+      }
+    }
+    # [System.Data.DataSet] ?
+  }
 
   # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagrid?view=netframework-4.5
   $f = new-object System.Windows.Forms.Form
@@ -63,60 +86,81 @@ function PromptGrid {
   # http://msdn.microsoft.com/en-us/library/system.windows.forms.datagridviewrow.cells%28v=vs.110%29.aspx
   # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagrid.datasource?view=netframework-4.5
   $button.add_click({
-
-    $cells = @(
-    
-    )
-    $rows = @(
-    
-    )
+    $cells = @()
+    $rows = @()
     # walk over selected cells
-    $selectedCellCount = $grid.GetCellCount([System.Windows.Forms.DataGridViewElementStates]::Selected)
+    $selected_cells_count = $grid.GetCellCount([System.Windows.Forms.DataGridViewElementStates]::Selected)
 
     #  https://docs.microsoft.com/en-us/dotnet/framework/winforms/controls/selected-cells-rows-and-columns-datagridview
-    if ($selectedCellCount -gt 0) {
+    if ($selected_cells_count -gt 0) {
       if ($grid.AreAllCellsSelected($true)){
         write-host 'All cells are selected'
-        # to simplify extraction
+        # TODO: modify logic simplify extraction
       } else  {
-        0..($selectedCellCount - 1) | foreach-object {
+        0..($selected_cells_count - 1) | foreach-object {
           $cell_num = $_
-          write-host ('Cell: {0} ' -f $cell_num)
-          write-host ('Row: {0}' -f ($grid.SelectedCells[$cell_num].RowIndex.ToString()))
-          write-host ('Col: {0}' -f ($grid.SelectedCells[$cell_num].ColumnIndex.ToString()))
+          if ($debug) {
+            write-host ('Selected cell {0} row: {1} col: {2}' -f $cell_num, ($grid.SelectedCells[$cell_num].RowIndex.ToString()), ($grid.SelectedCells[$cell_num].ColumnIndex.ToString()))
+          }
         }
       }
-      write-host ('Total selected cells: {0}' -f $selectedCellCount.ToString())
+      if ($debug) {
+        write-host ('Total selected cells: {0}' -f $selected_cells_count.ToString())
+      }
     } else {
-      write-host 'Nothing selected'
+      if ($debug) {
+        write-host 'Nothing selected'
+      }
     }
 
     # iterate over selected rows
-    [int]$selectedRowCount = $grid.Rows.GetRowCount([System.Windows.Forms.DataGridViewElementStates]::Selected)
-    if ($selectedRowCount -gt 0) {
-      0..($selectedRowCount -1) | foreach-object {
+    [int]$selected_rows_count = $grid.Rows.GetRowCount([System.Windows.Forms.DataGridViewElementStates]::Selected)
+    if ($selected_rows_count -gt 0) {
+      0..($selected_rows_count -1) | foreach-object {
         $row_num = $_
-        write-host ('Row: {0} ' -f $row_num)
         $row_index = 0 + $grid.SelectedRows[$row_num].Index.ToString()
-        write-host ('Index: {0} ' -f $row_index)
-        $rows += $data[$row_index]
+        if ($debug) {
+          write-host ('Row: {0} Index: {0} ' -f $row_num, $row_index)
+        }
+        $rows += $row_index
       }
-      write-host ('Total selected rows: {0} ' -f $selectedRowCount.ToString())
+      if ($debug) {
+        write-host ('Total selected rows: {0} ' -f $selected_rows_count.ToString())
+      }
     } else {
-      write-host 'Nothing selected'
+      if ($debug) {
+        write-host 'Nothing selected'
+      }
     }
-      # https://docs.microsoft.com/en-us/dotnet/framework/winforms/controls/selected-cells-rows-and-columns-datagridview
-      if ($rows.count -gt 0) {      
-        $caller.Data = $rows.count;
-        $caller.Message = ''
+    # https://docs.microsoft.com/en-us/dotnet/framework/winforms/controls/selected-cells-rows-and-columns-datagridview
+    if ($rows.count -gt 0) {
+      $caller.Data = $rows.count;
+      $caller.Message = ''
+      if ( $kind -eq 'datatable' ){
         $rows | foreach-object {
-          $value = $_
-          $caller.Message +=  $value[0]
+          $datatable_index = $_
+          $row = $datatable.Rows[$datatable_index]
+          if ($debug) {
+            write-host $row | format-list
+            # will print: System.Data.DataRow
+          }
+          $caller.Message += ("{0} {1}`n" -f $row['First'], $row['Second'] )
         }
       }
-      $f.Close()
-
-    })
+      if ( $kind -eq 'list' ){
+        $rows | foreach-object {
+          $data_row = $_
+          $row = $data[$data_row]
+          if ($debug) {
+            write-host $row | format-list
+            # will print: @{First=fire; Second=burns}
+          }
+          $caller.Message += ("{0} {1}`n" -f $row.'First', $row.'Second'  )
+        }
+      }
+    }
+    $f.Close()
+  })
 
   $grid.DataSource = $data
   $f.ShowDialog([win32window]($caller)) | Out-Null
@@ -128,32 +172,6 @@ function PromptGrid {
 
 }
 
-
-function display_result {
-  param([object]$result)
-
-  $array = new-object System.Collections.ArrayList
-
-  foreach ($key in $result.Keys) {
-    $value = $result[$key]
-    $o = new-object PSObject
-    $o | Add-Member Noteproperty 'Substance' $value[0]
-    $o | Add-Member Noteproperty 'Action' $value[1]
-
-    $array.Add($o)
-  }
-
-  $ret = PromptGrid $array
-}
-
-$RESULT_OK = 0
-$RESULT_CANCEL = 2
-$Readable = @{
-  $RESULT_OK = 'OK'
-  $RESULT_CANCEL = 'CANCEL'
-}
-
-
 # collect stuff down from callbacks
 
 Add-Type -TypeDefinition @"
@@ -161,30 +179,26 @@ using System;
 using System.Windows.Forms;
 public class Win32Window : IWin32Window
 {
-    private IntPtr _hWnd;
-    private int _data;
-    private string _message;
+  private IntPtr _hWnd;
+  private int _data;
+  private string _message;
 
-    public int Data
-    {
-        get { return _data; }
-        set { _data = value; }
-    }
-    public string Message
-    {
-        get { return _message; }
-        set { _message = value; }
-    }
+  public int Data{
+    get { return _data; }
+    set { _data = value; }
+  }
+  public string Message {
+    get { return _message; }
+    set { _message = value; }
+  }
 
-    public Win32Window(IntPtr handle)
-    {
-        _hWnd = handle;
-    }
+  public Win32Window(IntPtr handle){
+    _hWnd = handle;
+  }
 
-    public IntPtr Handle
-    {
-        get { return _hWnd; }
-    }
+  public IntPtr Handle {
+    get { return _hWnd; }
+  }
 }
 
 "@ -ReferencedAssemblies 'System.Windows.Forms.dll'
@@ -193,9 +207,28 @@ $DebugPreference = 'Continue'
 @( 'System.Windows.Forms', 'System.ComponentModel', 'System.Data', 'System.Drawing') | ForEach-Object { [void][System.Reflection.Assembly]::LoadWithPartialName($_) }
 $caller = new-object Win32Window -ArgumentList ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
 
-$data = @{ 1 = @( 'wind','blows...');
-  2 = @( 'fire','burns...');
-  3 = @( 'water','falls...')
+$datatable = New-Object System.Data.Datatable
+[void]$datatable.Columns.Add('First')
+[void]$datatable.Columns.Add('Second')
+[void]$datatable.Columns.Add('Third')
+
+# Add a row manually
+[void]$datatable.Rows.Add('wind','blows','...')
+[void]$datatable.Rows.Add('fire','burns','...')
+[void]$datatable.Rows.Add('rain','falls','...')
+[void]$datatable.Rows.Add('thunder','strucks','...')
+# see also:
+# https://stackoverflow.com/questions/39590167/how-to-loop-through-datatable-in-powershell
+$ret = PromptGrid -kind 'datatable' -value $datatable
+# -data $array
+
+write-output $caller.Message
+
+$data = @{
+  1 = @( 'wind','blows','...');
+  2 = @( 'fire','burns','..');
+  3 = @( 'rain','falls','...');
+  4 = @( 'thunder','strikes','...')
 }
 
 $array = new-object System.Collections.ArrayList
@@ -203,12 +236,12 @@ $array = new-object System.Collections.ArrayList
 foreach ($key in $data.Keys) {
   $value = $data[$key]
   $o = new-object PSObject
-  $o | Add-Member Noteproperty 'Substance' $value[0]
-  $o | Add-Member Noteproperty 'Action' $value[1]
+  $o | Add-Member Noteproperty 'First' $value[0]
+  $o | Add-Member Noteproperty 'Second' $value[1]
 
   $array.Add($o)
 }
 
-$ret = PromptGrid $array
+$ret = PromptGrid -kind 'list' -value $array
 
 write-output $caller.Message
