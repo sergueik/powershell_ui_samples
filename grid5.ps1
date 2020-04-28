@@ -51,6 +51,7 @@ function PromptGrid {
     # [System.Data.DataSet] ?
   }
 
+
   # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagrid?view=netframework-4.5
   $f = new-object System.Windows.Forms.Form
   $f.Text = 'Action on GridView Selections'
@@ -90,7 +91,6 @@ function PromptGrid {
     $rows = @()
     # walk over selected cells
     $selected_cells_count = $grid.GetCellCount([System.Windows.Forms.DataGridViewElementStates]::Selected)
-
     #  https://docs.microsoft.com/en-us/dotnet/framework/winforms/controls/selected-cells-rows-and-columns-datagridview
     if ($selected_cells_count -gt 0) {
       if ($grid.AreAllCellsSelected($true)){
@@ -112,7 +112,6 @@ function PromptGrid {
         write-host 'Nothing selected'
       }
     }
-
     # iterate over selected rows
     [int]$selected_rows_count = $grid.Rows.GetRowCount([System.Windows.Forms.DataGridViewElementStates]::Selected)
     if ($selected_rows_count -gt 0) {
@@ -121,6 +120,15 @@ function PromptGrid {
         $row_index = 0 + $grid.SelectedRows[$row_num].Index.ToString()
         if ($debug) {
           write-host ('Row: {0} Index: {0} ' -f $row_num, $row_index)
+        }
+        if ($debug) {
+          # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagridview.cellvaluechanged?view=netframework-4.0
+          $column_name = 'Second'
+          $cell = $grid.Rows[$row_index].Cells[$column_name]
+          write-host ( 'Named column: {0}' -f $cell.Value)
+          if ($cell.Visible -eq $true) {
+            $cell.Value = $cell.Value + '!'
+          }
         }
         $rows += $row_index
       }
