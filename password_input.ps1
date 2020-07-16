@@ -248,7 +248,32 @@ if ($debug_flag){
   $DebugPreference = 'Continue'
 }
 $title = 'Enter credentials'
-$caller = New-Object Win32Window -ArgumentList ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
+<#
+NOTE: launch powershell window
+[System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
+788284
+within powershell window, launch powershell again
+- this is often done when debugging c# code embedded in Powershell script via add-type
+ - this will lose MainWindowHandle
+powershell.exe
+Windows PowerShell
+Copyright (C) 2015 Microsoft Corporation. All rights reserved.
+
+[System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
+0
+#>
+
+$window_handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
+write-output ('Using current process handle {0}' -f $window_handle)
+if ($window_handle -eq 0) {
+  $processid = [System.Diagnostics.Process]::GetCurrentProcess().Id
+  $parent_process_id = get-wmiobject win32_process | where-object {$_.processid -eq  $processid } | select-object -expandproperty parentprocessid
+
+  $window_handle = get-process -id $parent_process_id | select-object -expandproperty MainWindowHandle
+  write-output ('Using current process parent process {0} handle {1}' -f $parent_process_id, $window_handle)
+}
+
+$caller = new-object Win32Window -ArgumentList ($window_handle)
 
 PromptPassword -Title $title -user $user -caller $caller
 if ($caller.Data -ne $RESULT_CANCEL) {

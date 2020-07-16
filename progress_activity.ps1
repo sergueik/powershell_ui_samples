@@ -446,11 +446,17 @@ static extern bool GetWindowRect(HandleRef hWnd, out RECT lpRect);
 # TODO: choose another handle than console window, or second mouse event is not delivered
 $title = 'Untitled'
 $window_handle = Get-Process -name 'notepad' -errorAction SilentlyContinue| Where-Object { $_.MainWindowTitle -match $title } | select-object -first 1 | select-object -expandproperty MainWindowHandle
-write-output ('Dealing with window handle "{0}"' -f $window_handle)
 
 if ($window_handle -eq $null -or $window_handle -eq '') {
   $window_handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
-  write-output ('Using current process handle "{0}"' -f $window_handle)
+  write-output ('Using current process handle {0}' -f $window_handle)
+  if ($window_handle -eq 0) {
+    $processid = [System.Diagnostics.Process]::GetCurrentProcess().Id
+    $parent_process_id = get-wmiobject win32_process | where-object {$_.processid -eq  $processid } | select-object -expandproperty parentprocessid
+
+    $window_handle = get-process -id $parent_process_id | select-object -expandproperty MainWindowHandle
+    write-output ('Using current process parent process {0} handle {1}' -f $parent_process_id, $window_handle)
+  }
 }
 write-output ('Dealing with window handle {0}' -f $window_handle)
 $demo = new-object Win32Window -ArgumentList ($window_handle)
