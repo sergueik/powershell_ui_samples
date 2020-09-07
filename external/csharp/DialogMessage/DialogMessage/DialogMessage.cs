@@ -140,5 +140,22 @@ namespace DialogMessage {
 			OKCancel = 1,
 			YesNo = 2
 		}
+		// https://docs.microsoft.com/en-us/dotnet/api/system.enum.tryparse?view=netframework-4.0
+		public static MsgIcons setMsgIcon(string data) {
+			MsgIcons value = MsgIcons.None;
+			if (!System.Enum.TryParse(data, false, out value)) {
+				value = MsgIcons.None;
+			}
+			return value;
+		}
+
+		public static MsgButtons setMsgButton(string data) {
+			MsgButtons value = MsgButtons.OK;
+			if (!System.Enum.TryParse(data, false, out value)) {
+				value = MsgButtons.OK;
+			}
+			return value;
+		}
+
 	}
 }
