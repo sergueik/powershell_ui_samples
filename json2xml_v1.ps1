@@ -34,13 +34,13 @@ $json_obj | get-member -MemberType NoteProperty | foreach-object {
 
 $cnt = 0 
 [xml]$Doc = new-object System.Xml.XmlDocument
-$declaration = $Doc.CreateXmlDeclaration('1.0','UTF-8',$null)
+$declaration = $Doc.CreateXmlDeclaration('1.0', 'UTF-8', $null)
 $doc.AppendChild($declaration)
 $root = $doc.CreateNode('element', $root_element, $null)
 $result.Keys  | foreach-object {
-  $key = $_;
+  $key = $_
   $value = $result[$key]
-  $node = $doc.CreateNode('element',$key,$null)
+  $node = $doc.CreateNode('element', $key, $null)
   $text = $doc.CreateTextNode($value)
   $node.appendChild($text)
   if ($debug) {
