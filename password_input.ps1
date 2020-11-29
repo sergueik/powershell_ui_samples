@@ -1,4 +1,5 @@
-#Copyright (c) 2014,2018 Serguei Kouzmine
+
+#Copyright (c) 2014,2018,2020 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -20,11 +21,14 @@
 
 # https://support.microsoft.com/en-us/help/4026814/windows-accessing-credential-manager
 # Control Panel -> User Accounts -> Credential Manager -> Windows Credential
+
 param (
   [string]$user = 'demouser',
   [switch]$store,
+  [switch]$clipboard,
   [switch]$debug
 )
+
 $RESULT_OK = 0
 $RESULT_CANCEL = 2
 
@@ -32,94 +36,124 @@ function PromptPassword {
   param(
     [string]$title,
     [string]$user,
-    [object]$caller
+    [object]$caller,
+    [switch]$clipboard
   )
+  $clipboard_flag = [bool]$PSBoundParameters['clipboard'].IsPresent
 
   @( 'System.Drawing','System.Windows.Forms') | ForEach-Object { [void][System.Reflection.Assembly]::LoadWithPartialName($_) }
 
-  $f = New-Object System.Windows.Forms.Form
+  $f = new-object System.Windows.Forms.Form
   $f.MaximizeBox = $false
   $f.MinimizeBox = $false
   $f.Text = $title
+  $f.size = new-object System.Drawing.Size(290,172)
 
-  $l1 = New-Object System.Windows.Forms.Label
-  $l1.Location = New-Object System.Drawing.Size (10,20)
-  $l1.Size = New-Object System.Drawing.Size (100,20)
+  $l1 = new-object System.Windows.Forms.Label
+  $l1.Location = new-object System.Drawing.Size (10,20)
+  $l1.Size = new-object System.Drawing.Size (100,20)
   $l1.Text = 'Username'
   $f.Controls.Add($l1)
 
-  $f.Font = New-Object System.Drawing.Font ('Microsoft Sans Serif',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
+  $f.Font = new-object System.Drawing.Font ('Microsoft Sans Serif',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
 
-  $t1 = New-Object System.Windows.Forms.TextBox
-  $t1.Location = New-Object System.Drawing.Point (120,20)
-  $t1.Size = New-Object System.Drawing.Size (140,20)
+  $t1 = new-object System.Windows.Forms.TextBox
+  $t1.Location = new-object System.Drawing.Point (120,20)
+  $t1.Size = new-object System.Drawing.Size (140,20)
   $t1.Text = $user
   $t1.Name = 'txtUser'
   $f.Controls.Add($t1)
 
-  $l2 = New-Object System.Windows.Forms.Label
-  $l2.Location = New-Object System.Drawing.Size (10,50)
-  $l2.Size = New-Object System.Drawing.Size (100,20)
+  $l2 = new-object System.Windows.Forms.Label
+  $l2.Location = new-object System.Drawing.Size (10,50)
+  $l2.Size = new-object System.Drawing.Size (100,20)
   $l2.Text = 'Password'
   $f.Controls.Add($l2)
 
-  $t2 = New-Object System.Windows.Forms.TextBox
-  $t2.Location = New-Object System.Drawing.Point (120,50)
-  $t2.Size = New-Object System.Drawing.Size (140,20)
+  $t2 = new-object System.Windows.Forms.TextBox
+  $t2.Location = new-object System.Drawing.Point (120,50)
+  $t2.Size = new-object System.Drawing.Size (140,20)
   $t2.Text = ''
   $t2.Name = 'txtPassword'
   $t2.PasswordChar = '*'
   $f.Controls.Add($t2)
 
-  $btnOK = New-Object System.Windows.Forms.Button
-  $x2 = 20
-  $y1 = ($t1.Location.Y + $t1.Size.Height + + $btnOK.Size.Height + 20)
-  $btnOK.Location = New-Object System.Drawing.Point ($x2,$y1)
+  $btnOK = new-object System.Windows.Forms.Button
+  $btnOK.Location = new-object System.Drawing.Point(20, 89)
   $btnOK.Text = 'OK'
   $btnOK.Name = "btnOK"
   $f.Controls.Add($btnOK)
-  $btnCancel = New-Object System.Windows.Forms.Button
-  $x1 = (($f.Size.Width - $btnCancel.Size.Width) - 20)
 
-  $btnCancel.Location = New-Object System.Drawing.Point ($x1,$y1)
+  $btnCancel = new-object System.Windows.Forms.Button
+  $btnCancel.Location = new-object System.Drawing.Point(175, 89)
   $btnCancel.Text = 'Cancel'
   $btnCancel.Name = 'btnCancel'
   $f.Controls.Add($btnCancel)
 
-  $s1 = ($f.Size.Width - $btnCancel.Size.Width) - 20
-  $y2 = ($t1.Location.Y + $t1.Size.Height + $btnOK.Size.Height)
-
-  $f.Size = New-Object System.Drawing.Size ($f.Size.Width,(($btnCancel.Location.Y +
-        $btnCancel.Size.Height + 40)))
-
   $btnCancel.add_click({
+    if ($clipboard_flag) {
+      [System.Windows.Forms.Clipboard]::Clear()
+    } else {
       $caller.txtPassword = $null
       $caller.txtUser = $null
-      $f.Close()
-    })
+    }
+    $f.Close()
+  })
   $btnOK.add_click({
+    if ($clipboard_flag) {
+      $Password = $t2.Text
+      $user = $t1.Text
+
+      [String]$cred = "${user}:${Password}"
+      write-host ('Encoding {0}' -f $cred)
+      $encodedCred = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($cred))
+
+      # $basicAuthValue = "Basic $encodedCred"
+      #
+      # $Headers = @{
+      #  Authorization = $basicAuthValue
+      # }
+
+      # ContentType = 'application/json'
+      # $uri = 'https://www.github.com
+      # Invoke-WebRequest -Uri $uri -ContentType 'text/json' -Headers $Headers
+
+      [System.Windows.Forms.Clipboard]::SetText($encodedCred)
+    } else {
       $caller.Data = $RESULT_OK
       $caller.txtPassword = $t2.Text
       $caller.txtUser = $t1.Text
-      $f.Close()
-    })
+    }
+    $f.Close()
+  })
 
   $f.Controls.Add($l)
   $f.Topmost = $true
 
-
-  $caller.Data = $RESULT_CANCEL
+  if ($clipboard_flag) {
+      [System.Windows.Forms.Clipboard]::Clear()
+  } else {
+    $caller.Data = $RESULT_CANCEL
+  }
   $f.Add_Shown({ $f.Activate() })
   $f.KeyPreview = $True
   $f.Add_KeyDown({
+    if ($_.KeyCode -eq 'Escape') {
+      if ($clipboard_flag) {
+        [System.Windows.Forms.Clipboard]::Clear()
+      } else {
+        $caller.Data = $RESULT_CANCEL
+      }
+    }
+    else { return }
+    $f.Close()
+  })
 
-      if ($_.KeyCode -eq 'Escape') { $caller.Data = $RESULT_CANCEL }
-      else { return }
-      $f.Close()
-    })
-
-  [void]$f.ShowDialog([win32window]($caller))
-
+  if ($clipboard_flag) {
+    [void]$f.ShowDialog()
+  } else {
+    [void]$f.ShowDialog([win32window]($caller))
+  }
   $f.Dispose()
 }
 
@@ -164,37 +198,37 @@ public class Win32Window : IWin32Window
 
 "@ -ReferencedAssemblies 'System.Windows.Forms.dll'
 
+[void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
+[void][System.Reflection.Assembly]::LoadWithPartialName('System.Drawing')
 
 
-[void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-[void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+$store_flag = [bool]$PSBoundParameters['store'].IsPresent
+if ($store_flag){
+  $shared_assemblies = @(
+    'CredentialManagement.dll',
+    'nunit.framework.dll'
+  )
 
-$shared_assemblies = @(
-  'CredentialManagement.dll',
-  'nunit.framework.dll'
-)
+  $selenium_drivers_path = $shared_assemblies_path = "c:\Users\${env:USERNAME}\Downloads"
 
-$selenium_drivers_path = $shared_assemblies_path = "c:\Users\${env:USERNAME}\Downloads"
+  if (($env:SHARED_ASSEMBLIES_PATH -ne $null) -and ($env:SHARED_ASSEMBLIES_PATH -ne '')) {
+    $shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
+  }
 
-if (($env:SHARED_ASSEMBLIES_PATH -ne $null) -and ($env:SHARED_ASSEMBLIES_PATH -ne '')) {
-  $shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
-}
+  pushd $shared_assemblies_path
 
-pushd $shared_assemblies_path
+  $shared_assemblies | ForEach-Object { Unblock-File -Path $_; Add-Type -Path $_ }
+  popd
+  # https://www.c-sharpcorner.com/forums/windows-credential-manager-with-c-sharp
+  # one can install wth nuget
 
-$shared_assemblies | ForEach-Object { Unblock-File -Path $_; Add-Type -Path $_ }
-popd
+  # https://www.nuget.org/packages/CredentialManagement/
 
-# https://www.c-sharpcorner.com/forums/windows-credential-manager-with-c-sharp
-# one can install wth nuget
+  # cmdkey can create, list, and deletes stored user names and passwords or credentials.
+  # Passwords will not be displayed once they are stored
+  # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey
 
-# https://www.nuget.org/packages/CredentialManagement/
-
-# cmdkey can create, list, and deletes stored user names and passwords or credentials.
-# Passwords will not be displayed once they are stored
-# https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey
-
-Add-Type -TypeDefinition @"
+  Add-Type -TypeDefinition @"
 // "
 using System;
 using CredentialManagement;
@@ -221,7 +255,7 @@ public class Helper {
         cred.Save();
       }
     } catch(Exception ex){
-      Console.Error.WriteLine("Exception (ignord) " + ex.ToString());
+      Console.Error.WriteLine("Exception (ignored) " + ex.ToString());
     }
   }
 
@@ -233,7 +267,7 @@ public class Helper {
         return cred.Password;
       }
     } catch (Exception ex) {
-      Console.Error.WriteLine("Exception (ignord) " + ex.ToString());
+      Console.Error.WriteLine("Exception (ignored) " + ex.ToString());
     }
     return "";
   }
@@ -241,7 +275,8 @@ public class Helper {
 
 "@  -ReferencedAssemblies 'System.Security.dll', "c:\Users\${env:USERNAME}\Downloads\CredentialManagement.dll"
 
-$store_flag = [bool]$PSBoundParameters['store'].IsPresent
+}
+$clipboard_flag = [bool]$PSBoundParameters['clipboard'].IsPresent
 
 $debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
 if ($debug_flag){
@@ -262,39 +297,51 @@ Copyright (C) 2015 Microsoft Corporation. All rights reserved.
 [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
 0
 #>
+if (-not $clipboard_flag) {
+  write-output '1'
+  $window_handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
+  write-output ('Using current process handle {0}' -f $window_handle)
+  if ($window_handle -eq 0) {
+    $processid = [System.Diagnostics.Process]::GetCurrentProcess().Id
+    $parent_process_id = get-wmiobject win32_process | where-object {$_.processid -eq  $processid } | select-object -expandproperty parentprocessid
 
-$window_handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
-write-output ('Using current process handle {0}' -f $window_handle)
-if ($window_handle -eq 0) {
-  $processid = [System.Diagnostics.Process]::GetCurrentProcess().Id
-  $parent_process_id = get-wmiobject win32_process | where-object {$_.processid -eq  $processid } | select-object -expandproperty parentprocessid
-
-  $window_handle = get-process -id $parent_process_id | select-object -expandproperty MainWindowHandle
-  write-output ('Using current process parent process {0} handle {1}' -f $parent_process_id, $window_handle)
-}
-
-$caller = new-object Win32Window -ArgumentList ($window_handle)
-
-PromptPassword -Title $title -user $user -caller $caller
-if ($caller.Data -ne $RESULT_CANCEL) {
-  if ($debug_flag){
-    Write-Debug ('Oridinal username/password was: {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
+    $window_handle = get-process -id $parent_process_id | select-object -expandproperty MainWindowHandle
+    write-output ('Using current process parent process {0} handle {1}' -f $parent_process_id, $window_handle)
   }
-  $o = new-object Helper
-  $o.UserName = $caller.txtUser
-  if ($store_flag) {
-    $o.Password = $caller.txtPassword
-    $o.SavePassword()
-    write-output 'Password is stored in the vault'
+
+  $caller = new-object Win32Window -ArgumentList ($window_handle)
+  PromptPassword -Title $title -user $user -caller $caller
+  if ($caller.Data -ne $RESULT_CANCEL) {
+    if ($debug_flag){
+      Write-Debug ('Oridinal username/password was: {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
+    }
+      $o = new-object Helper
+    $o.UserName = $caller.txtUser
+    if ($store_flag) {
+      $o.Password = $caller.txtPassword
+      $o.SavePassword()
+      write-output 'Password is stored in the vault'
+    } else {
+    if ([system.String]::Compare($o.GetPassword(), $caller.txtPassword) -eq 0 ){
+      $result = 'valid'
+    } else {
+      $result = 'invalid'
+    }
+    write-output ('Password is ' + $result)
+    if ($debug_flag){
+      write-debug ('Password loaded from Vault: {0}' -f $o.GetPassword())
+    }
+    }
+  }
+} else {
+  PromptPassword -Title $title -user $user -clipboard
+  $data = [System.Windows.Forms.Clipboard]::GetText()
+  if ($debug){
+  [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String( $data))
+
   } else {
-  if ([system.String]::Compare($o.GetPassword(), $caller.txtPassword) -eq 0 ){
-    $result = 'valid'
-  } else {
-    $result = 'invalid'
+    write-output ('clipboard: {0}' -f $data)
   }
-  write-output ('Password is ' + $result)
-  if ($debug_flag){
-    write-debug ('Password loaded from Vault: {0}' -f $o.GetPassword())
-  }
-  }
+  [System.Windows.Forms.Clipboard]::Clear()
+
 }
