@@ -26,20 +26,52 @@ param (
   [string]$user = 'demouser',
   [switch]$store,
   [switch]$clipboard,
+  [switch]$allow_automatic, # probably not useful, keep as an option to demonstrate
   [switch]$debug
 )
 
-$RESULT_OK = 0
+function measure_width{
+  # NOTE no type declarations
+  param(
+    $control,
+    [System.Drawing.Font]$font,
+    # both options are not precise
+    [switch]$allow_automatic
+  )
+ $text_width = ($control.CreateGraphics().MeasureString($control.Text, $font).Width)
+ if ($text_width -lt $control.Size.Width) {
+  write-host ('Width: automatic {0}' -f $control.Size.Width)
+  if ([bool]$PSBoundParameters['allow_automatic'].IsPresent) {
+    $result = $control.Size.Width
+  } else {
+    $result = $text_width
+  }
+} else {
+  $result = $text_width
+  write-host ('Width: calculated {0}' -f $result)
+}
+ return $result
+}
+
+  $RESULT_OK = 0
 $RESULT_CANCEL = 2
+
 
 function PromptPassword {
   param(
     [string]$title,
     [string]$user,
     [object]$caller,
-    [switch]$clipboard
+    [switch]$clipboard,
+    [switch]$allow_automatic
   )
   $clipboard_flag = [bool]$PSBoundParameters['clipboard'].IsPresent
+
+  if ([bool]$PSBoundParameters['allow_automatic'].IsPresent) {
+  $allow_automatic_flag = '-allow_automatic' 
+} else {
+  $allow_automatic_flag = $null
+}
 
   @( 'System.Drawing','System.Windows.Forms') | ForEach-Object { [void][System.Reflection.Assembly]::LoadWithPartialName($_) }
 
@@ -47,7 +79,7 @@ function PromptPassword {
   $f.MaximizeBox = $false
   $f.MinimizeBox = $false
   $f.Text = $title
-  $f.size = new-object System.Drawing.Size(290,172)
+  $f.size = new-object System.Drawing.Size(390,272)
 
   $l1 = new-object System.Windows.Forms.Label
   $l1.Location = new-object System.Drawing.Size (10,20)
@@ -78,19 +110,68 @@ function PromptPassword {
   $t2.PasswordChar = '*'
   $f.Controls.Add($t2)
 
-  $btnOK = new-object System.Windows.Forms.Button
-  $btnOK.Location = new-object System.Drawing.Point(20, 89)
-  $btnOK.Text = 'OK'
-  $btnOK.Name = "btnOK"
-  $f.Controls.Add($btnOK)
+  $bOK = new-object System.Windows.Forms.Button
+  $bOK.Text = 'OK'
+  $bOK.Name = 'btnOK'
+  $right_margin = 60
+  $margin_y = 16
+  $left_margin = 24
+  $y = ($t2.Location.Y +  $t2.Size.Height + $margin_y)
+  $bOK.Location = new-object System.Drawing.Point($left_margin, $y)
+  $f.Controls.Add($bOK)
 
-  $btnCancel = new-object System.Windows.Forms.Button
-  $btnCancel.Location = new-object System.Drawing.Point(175, 89)
-  $btnCancel.Text = 'Cancel'
-  $btnCancel.Name = 'btnCancel'
-  $f.Controls.Add($btnCancel)
+  # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.control.creategraphics
+  # https://docs.microsoft.com/en-us/dotnet/api/system.drawing.graphics.measurestring
 
-  $btnCancel.add_click({
+  $bCancel = new-object System.Windows.Forms.Button
+  $bCancel.Text = 'Cancel'
+  $bCancel.Name = 'btnCancel'
+  $bCancel.AutoSize = $true
+  $w = measure_width  -font $f.Font -control $bCancel $allow_automatic_flag
+  write-host ('measure_width: {0}' -f $w)
+  $bCancel.Location = new-object System.Drawing.Point(($f.Size.Width - $w - $right_margin), $bOK.Location.y)
+  $f.Controls.Add($bCancel)
+
+
+  $bE1 = new-object System.Windows.Forms.Button
+  $bE1.Text = 'Really Cancel'
+  $bE1.Name = 'bE1'
+  $bE1.AutoSize = $true
+  $right_margin = 60
+  $w = measure_width  -font $f.Font -control $bE1 $allow_automatic_flag
+  write-host ('measure_width: {0}' -f $w)
+
+  $bE1.Location = new-object System.Drawing.Point(($f.Size.Width - $w - $right_margin), ($bCancel.Location.y + $bCancel.Size.Height + $margin_y))
+  $f.Controls.Add($bE1)
+
+  $bE2 = new-object System.Windows.Forms.Button
+  $bE2.Text = 'Really Really Cancel'
+  $bE2.Name = 'bE2'
+  $bE2.AutoSize = $true
+  $right_margin = 60
+  $w = measure_width  -font $f.Font -control $bE2 $allow_automatic_flag
+  write-host ('measure_width: {0}' -f $w)
+
+  $bE2.Location = new-object System.Drawing.Point(($f.Size.Width - $w - $right_margin), ($bE1.Location.y + $bE1.Size.Height + $margin_y))
+  $f.Controls.Add($bE2)
+
+<#
+  $f.SuspendLayout()
+  $f.Controls.AddRange(@(
+    $l1,
+    $t1,
+    $l2,
+    $t2,
+    $bOK,
+    $bCancel,
+    $bE1,
+    $bE2
+    ))
+  $f.ResumeLayout($true)
+  $f.PerformLayout()
+#>
+
+  $bCancel.add_click({
     if ($clipboard_flag) {
       [System.Windows.Forms.Clipboard]::Clear()
     } else {
@@ -99,7 +180,7 @@ function PromptPassword {
     }
     $f.Close()
   })
-  $btnOK.add_click({
+  $bOK.add_click({
     if ($clipboard_flag) {
       $Password = $t2.Text
       $user = $t1.Text
@@ -277,7 +358,11 @@ public class Helper {
 
 }
 $clipboard_flag = [bool]$PSBoundParameters['clipboard'].IsPresent
-
+if ([bool]$PSBoundParameters['allow_automatic'].IsPresent) {
+  $allow_automatic_flag = '-allow_automatic' 
+} else {
+  $allow_automatic_flag = $null
+}
 $debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
 if ($debug_flag){
   $DebugPreference = 'Continue'
@@ -305,7 +390,7 @@ if (-not $clipboard_flag) {
     $processid = [System.Diagnostics.Process]::GetCurrentProcess().Id
     $parent_process_id = get-wmiobject win32_process | where-object {$_.processid -eq  $processid } | select-object -expandproperty parentprocessid
 
-    $window_handle = get-process -id $parent_process_id | select-object -expandproperty MainWindowHandle
+    $window_handle = get-process -id $parent_process_id | select-object -expandproperty MainWindowHandle $allow_automatic_flag
     write-output ('Using current process parent process {0} handle {1}' -f $parent_process_id, $window_handle)
   }
 
@@ -313,9 +398,9 @@ if (-not $clipboard_flag) {
   PromptPassword -Title $title -user $user -caller $caller
   if ($caller.Data -ne $RESULT_CANCEL) {
     if ($debug_flag){
-      Write-Debug ('Oridinal username/password was: {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
+      Write-Debug ('Original username/password was: {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
     }
-      $o = new-object Helper
+    $o = new-object Helper
     $o.UserName = $caller.txtUser
     if ($store_flag) {
       $o.Password = $caller.txtPassword
@@ -334,7 +419,7 @@ if (-not $clipboard_flag) {
     }
   }
 } else {
-  PromptPassword -Title $title -user $user -clipboard
+  PromptPassword -Title $title -user $user -clipboard $allow_automatic_flag
   $data = [System.Windows.Forms.Clipboard]::GetText()
   if ($debug){
   [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String( $data))
