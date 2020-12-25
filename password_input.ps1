@@ -68,7 +68,7 @@ function PromptPassword {
   $clipboard_flag = [bool]$PSBoundParameters['clipboard'].IsPresent
 
   if ([bool]$PSBoundParameters['allow_automatic'].IsPresent) {
-  $allow_automatic_flag = '-allow_automatic' 
+  $allow_automatic_flag = '-allow_automatic'
 } else {
   $allow_automatic_flag = $null
 }
@@ -111,6 +111,7 @@ function PromptPassword {
   $f.Controls.Add($t2)
 
   $bOK = new-object System.Windows.Forms.Button
+
   $bOK.Text = 'OK'
   $bOK.Name = 'btnOK'
   $right_margin = 60
@@ -119,7 +120,7 @@ function PromptPassword {
   $y = ($t2.Location.Y +  $t2.Size.Height + $margin_y)
   $bOK.Location = new-object System.Drawing.Point($left_margin, $y)
   $f.Controls.Add($bOK)
-
+  $f.AcceptButton = $bOK
   # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.control.creategraphics
   # https://docs.microsoft.com/en-us/dotnet/api/system.drawing.graphics.measurestring
 
@@ -131,7 +132,7 @@ function PromptPassword {
   write-host ('measure_width: {0}' -f $w)
   $bCancel.Location = new-object System.Drawing.Point(($f.Size.Width - $w - $right_margin), $bOK.Location.y)
   $f.Controls.Add($bCancel)
-
+<#
 
   $bE1 = new-object System.Windows.Forms.Button
   $bE1.Text = 'Really Cancel'
@@ -154,7 +155,7 @@ function PromptPassword {
 
   $bE2.Location = new-object System.Drawing.Point(($f.Size.Width - $w - $right_margin), ($bE1.Location.y + $bE1.Size.Height + $margin_y))
   $f.Controls.Add($bE2)
-
+#>
 <#
   $f.SuspendLayout()
   $f.Controls.AddRange(@(
@@ -164,8 +165,6 @@ function PromptPassword {
     $t2,
     $bOK,
     $bCancel,
-    $bE1,
-    $bE2
     ))
   $f.ResumeLayout($true)
   $f.PerformLayout()
@@ -216,7 +215,10 @@ function PromptPassword {
   } else {
     $caller.Data = $RESULT_CANCEL
   }
-  $f.Add_Shown({ $f.Activate() })
+  $f.Add_Shown({
+    $f.ActiveControl = $t2
+    $f.Activate()
+  })
   $f.KeyPreview = $True
   $f.Add_KeyDown({
     if ($_.KeyCode -eq 'Escape') {
@@ -285,6 +287,7 @@ public class Win32Window : IWin32Window
 
 $store_flag = [bool]$PSBoundParameters['store'].IsPresent
 if ($store_flag){
+}
   $shared_assemblies = @(
     'CredentialManagement.dll',
     'nunit.framework.dll'
@@ -309,7 +312,7 @@ if ($store_flag){
   # Passwords will not be displayed once they are stored
   # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey
 
-  Add-Type -TypeDefinition @"
+add-type -TypeDefinition @"
 // "
 using System;
 using CredentialManagement;
@@ -355,11 +358,11 @@ public class Helper {
 }
 
 "@  -ReferencedAssemblies 'System.Security.dll', "c:\Users\${env:USERNAME}\Downloads\CredentialManagement.dll"
+$o = new-object Helper
 
-}
 $clipboard_flag = [bool]$PSBoundParameters['clipboard'].IsPresent
 if ([bool]$PSBoundParameters['allow_automatic'].IsPresent) {
-  $allow_automatic_flag = '-allow_automatic' 
+  $allow_automatic_flag = '-allow_automatic'
 } else {
   $allow_automatic_flag = $null
 }
@@ -382,6 +385,7 @@ Copyright (C) 2015 Microsoft Corporation. All rights reserved.
 [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
 0
 #>
+$o = new-object Helper
 if (-not $clipboard_flag) {
   write-output '1'
   $window_handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
@@ -400,9 +404,8 @@ if (-not $clipboard_flag) {
     if ($debug_flag){
       Write-Debug ('Original username/password was: {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
     }
-    $o = new-object Helper
-    $o.UserName = $caller.txtUser
     if ($store_flag) {
+      $o.UserName = $caller.txtUser
       $o.Password = $caller.txtPassword
       $o.SavePassword()
       write-output 'Password is stored in the vault'
