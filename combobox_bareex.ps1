@@ -26,10 +26,10 @@
 # https://www.codeproject.com/Articles/2316/Windows-Explorer-in-C
 # https://www.codeproject.com/Articles/2672/My-Explorer-In-C
 
+# NOTE: when passing multiple itmes need quotes around the value:
+# -preselected 'C:\Users\sergueik\Documents\b.csv,C:\Users\sergueik\Desktop\a.csv'
 param(
   [String]$preselected = '',
-  # NOTE: when passing multiple itmes need quotes around the value:
-  # -preselected 'C:\Users\sergueik\Documents\b.csv,C:\Users\sergueik\Desktop\a.csv'
   [switch]$debug
 )
 
@@ -68,7 +68,10 @@ $c.TabIndex = 0
 $c.Font = new-object System.Drawing.Font('Verdana',10.25,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
 
 $c.Add_TextChanged({
-  param([object]$s,[System.EventArgs]$e)
+  param(
+    [object]$s,
+    [System.EventArgs]$e
+  )
   $result = $s.Text
   if ($debug) {
     write-host ('text changed {0}' -f $result )
@@ -76,17 +79,31 @@ $c.Add_TextChanged({
 })
 
 $c.Add_KeyPress({
-  param([object]$s,[System.Windows.Forms.KeyPressEventArgs]$e)
+  param(
+    [object]$s,
+    [System.Windows.Forms.KeyPressEventArgs]$e
+  )
   if ($debug) {
     write-host ('key pressed {0}' -f $s.Text )
   } 
 })
 $c.Add_DropDown({
-  param([object]$s,[System.EventArgs]$e)
+  param(
+    [object]$s,
+    [System.EventArgs]$e
+  )
+  # https://4sysops.com/archives/how-to-create-an-open-file-folder-dialog-box-with-powershell/
+
+  # NOTE: a typo in Filter constructor property leads to nasty error with invalid line number
+  # Filter = 'CSV (*.csv)|*.csv|SpreadSheet (*.xlsx)|*.xlsx|*.csv)'
+  # new-object : The value supplied is not valid, or the property is read-only.
+  # Change the value, and then try again.
   $FileBrowser = new-object System.Windows.Forms.OpenFileDialog -Property @{ 
     InitialDirectory = [Environment]::GetFolderPath('Desktop') 
-    Filter = 'CSV (*.csv)|*.csv|SpreadSheet (*.xlsx)|*.xlsx|*.csv)'
-  }
+    Filter = 'CSV Documents (*.csv)|*.csv|SpreadSheet (*.xlsx)|*.xlsx'
+}
+
+
   $null = $FileBrowser.ShowDialog()
   $selected_file = $FileBrowser.FileName 
   if ($debug) {
@@ -95,7 +112,10 @@ $c.Add_DropDown({
   $c.DataSource += ($selected_file)
 })
 $c.Add_SelectedIndexChanged({
-  param([object]$s,[System.EventArgs]$e)
+  param(
+    [object]$s,
+    [System.EventArgs]$e
+  )
   if ($c.DataSource.count -eq 0) {
   } else {
     if ($debug) {
@@ -149,3 +169,4 @@ $form_closed_handler = [System.Windows.Forms.FormClosedEventHandler]{
 }
 $f.add_FormClosed($form_closed_handler)
 [void]$f.ShowDialog($null)
+
