@@ -1,4 +1,4 @@
-#Copyright (c) 2014 Serguei Kouzmine
+#Copyright (c) 2014,2020 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -58,65 +58,89 @@ public class Win32Window : IWin32Window
 function PromptWithCheckboxesAndRadionbuttons(
     [String] $title,
     [String] $message,
+    [String] $arg_data,
     [Object] $caller = $null
     ){
 
-  @('System.Drawing','System.Collections', 'System.ComponentModel' , 'System.Windows.Forms', 'System.Data') |  foreach-object {   [void] [System.Reflection.Assembly]::LoadWithPartialName($_) } 
+  $arg_obj = $arg_data | convertFrom-json
 
-  $f = New-Object System.Windows.Forms.Form
+  @('System.Drawing','System.Collections', 'System.ComponentModel' , 'System.Windows.Forms', 'System.Data') |  foreach-object {   [void] [System.Reflection.Assembly]::LoadWithPartialName($_) }
+
+  $f = new-object System.Windows.Forms.Form
   $f.Text = $title
-  $groupBox1 = New-Object System.Windows.Forms.GroupBox
-  $checkBox1 = New-Object System.Windows.Forms.CheckBox
-  $checkBox2 = New-Object System.Windows.Forms.CheckBox
-  $checkBox3 = New-Object System.Windows.Forms.CheckBox
-  $radioButton1 = New-Object System.Windows.Forms.RadioButton
-  $radioButton2 = New-Object System.Windows.Forms.RadioButton
-  $radioButton3 = New-Object System.Windows.Forms.RadioButton
-  $button1  = New-Object System.Windows.Forms.Button
-  $components =  New-Object System.ComponentModel.Container
+  $groupBox1 = new-object System.Windows.Forms.GroupBox
+  $groupBox2 = new-object System.Windows.Forms.GroupBox
+
+  $checkBox1 = new-object System.Windows.Forms.CheckBox
+  $checkBox2 = new-object System.Windows.Forms.CheckBox
+  $checkBox3 = new-object System.Windows.Forms.CheckBox
+
+  $radioButton1 = new-object System.Windows.Forms.RadioButton
+  $radioButton2 = new-object System.Windows.Forms.RadioButton
+  $radioButton3 = new-object System.Windows.Forms.RadioButton
+  $button1  = new-object System.Windows.Forms.Button
+  $components =  new-object System.ComponentModel.Container
 
   $groupBox1.SuspendLayout()
+  $groupBox2.SuspendLayout()
   $f.SuspendLayout()
   $color = ''
   $shapes = @()
 
   # groupBox1
-  $groupBox1.Controls.AddRange(
-     @(
-       $radioButton1,
-       $radioButton2,
-       $radioButton3
-      ))
-  $groupBox1.Location = New-Object System.Drawing.Point(8, 120)
+  $groupBox1.Controls.AddRange( @( $radioButton1, $radioButton2, $radioButton3 ))
+  # groupBox2
+  $groupBox2.Controls.AddRange( @(  $checkBox1, $checkBox2, $checkBox3 ))
+  $groupBox1.Location = new-object System.Drawing.Point(8, 120)
   $groupBox1.Name = 'groupBox1'
-  $groupBox1.Size = New-Object System.Drawing.Size(120, 144)
-  $groupBox1.TabIndex = 0
+  $groupBox1.Size = new-object System.Drawing.Size(120, 144)
+  $groupBox1.TabIndex = 1
   $groupBox1.TabStop = $false
   $groupBox1.Text = 'Color'
 
+
+  $groupBox2.Location = new-object System.Drawing.Point(8, 8)
+  $groupBox2.Name = 'groupBox2'
+  $groupBox2.Size = new-object System.Drawing.Size(124, 112)
+  $groupBox2.TabIndex = 0
+  $groupBox2.TabStop = $false
+  $groupBox2.Text = 'Shape'
+
+  $color = $arg_obj.'Color'
+  $shapes = $arg_obj.'Shape'
+
   # checkBox1
-  $checkBox1.Location = New-Object System.Drawing.Point(8, 8)
+  $checkBox1.Location = new-object System.Drawing.Point(16, 16)
   $checkBox1.Name = 'checkBox1'
   $checkBox1.TabIndex = 1
   $checkBox1.Text = 'Circle'
 
   # checkBox2
 
-  $checkBox2.Location = New-Object System.Drawing.Point(8, 40)
+  $checkBox2.Location = new-object System.Drawing.Point(16, 48)
   $checkBox2.Name = 'checkBox2'
   $checkBox2.TabIndex = 2
   $checkBox2.Text = 'Rectangle'
 
   # checkBox3
 
-  $checkBox3.Location = New-Object System.Drawing.Point(8, 72)
+  $checkBox3.Location = new-object System.Drawing.Point(16, 80)
   $checkBox3.Name = 'checkBox3'
   $checkBox3.TabIndex = 3
   $checkBox3.Text = 'Triangle'
 
+  @($checkBox1, $checkBox2, $checkBox3) | foreach-object {
+    $control = $_
+    # NOTE: fancy implementation of "find"
+    if ($shapes.where( { $_ -eq $control.Text })){
+      # write-host ('Setting {0} to checked' -f $control.Text)
+      $control.Checked  = $true
+    }
+  }
+
   # radioButton1
 
-  $radioButton1.Location = New-Object System.Drawing.Point(8, 32)
+  $radioButton1.Location = new-object System.Drawing.Point(8, 32)
   $radioButton1.Name = 'radioButton1'
   $radioButton1.TabIndex = 4
   $radioButton1.Text = 'Red'
@@ -124,68 +148,74 @@ function PromptWithCheckboxesAndRadionbuttons(
 
   # radioButton2
 
-  $radioButton2.Location = New-Object System.Drawing.Point(8, 64)
+  $radioButton2.Location = new-object System.Drawing.Point(8, 64)
   $radioButton2.Name = 'radioButton2'
   $radioButton2.TabIndex = 5
   $radioButton2.Text = 'Green'
 
   # radioButton3
 
-  $radioButton3.Location = New-Object System.Drawing.Point(8, 96)
+  $radioButton3.Location = new-object System.Drawing.Point(8, 96)
   $radioButton3.Name = 'radioButton3'
   $radioButton3.TabIndex = 6
   $radioButton3.Text = 'Blue'
 
+  @($radioButton1, $radioButton2, $radioButton3) | foreach-object {
+    $control = $_
+    if ($color -eq $control.Text){
+      # write-host ('Setting {0} to checked' -f $control.Text)
+      $control.Checked  = $true
+    }
+  }
+
   # button1
 
-  $button1.Location = New-Object System.Drawing.Point(8, 280)
+  $button1.Location = new-object System.Drawing.Point(8, 280)
   $button1.Name = 'button1'
-  $button1.Size = New-Object System.Drawing.Size(112, 32)
+  $button1.Size = new-object System.Drawing.Size(112, 32)
   $button1.TabIndex = 4
   $button1.Text = 'Draw'
 
+  # NOTE: no event args specified or used
   $button1.Add_Click({
 
+  # effectively clear the $arg_obj
   $color = ''
   $shapes = @()
+
   foreach ($o in @($radioButton1, $radioButton2, $radioButton3)){
   if ($o.Checked){
       $color = $o.Text}
   }
   foreach ($o in @($checkBox1, $checkBox2, $checkBox3)){
-  if ($o.Checked){
-      $shapes += $o.Text}
-
+    if ($o.Checked){
+      $shapes += $o.Text
+    }
   }
+  $arg_obj.'Shape' = $shapes
+  $arg_obj.'Color' = $color
+  $caller.Message = convertTo-json $arg_obj
   $g = [System.Drawing.Graphics]::FromHwnd($f.Handle)
-  $rc = New-Object System.Drawing.Rectangle(150, 50, 250, 250)
-  $brush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::White)
+  $rc = new-object System.Drawing.Rectangle(160, 50, 250, 250)
+  $brush = new-object System.Drawing.SolidBrush([System.Drawing.Color]::White)
   $g.FillRectangle($brush, $rc)
-  $font = New-Object System.Drawing.Font('Verdana', 12)
-  $col = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::Black)
+  $font = new-object System.Drawing.Font('Verdana', 12)
+  $col = new-object System.Drawing.SolidBrush([System.Drawing.Color]::Black)
   $str = [String]::Join(';', $shapes )
-  $pos1 = New-Object System.Drawing.PointF(160, 60)
-  $pos2 = New-Object System.Drawing.PointF(160, 80)
+  $pos1 = new-object System.Drawing.PointF(176, 60)
+  $pos2 = new-object System.Drawing.PointF(176, 80)
 
   $g.DrawString($color, $font, $col , $pos1)
   $g.DrawString($str, $font, $col , $pos2)
   start-sleep 1
-
-  $caller.Message =  ('color:{0} shapes:{1}' -f $color , $str)
-
   $f.Close()
  })
 
   # Form1
 
-  $f.AutoScaleBaseSize = New-Object System.Drawing.Size(5, 13)
-  $f.ClientSize = New-Object System.Drawing.Size(408, 317)
-  $f.Controls.AddRange( @(
-     $button1,
-     $checkBox3,
-     $checkBox2,
-     $checkBox1,
-     $groupBox1))
+  $f.AutoScaleBaseSize = new-object System.Drawing.Size(5, 13)
+  $f.ClientSize = new-object System.Drawing.Size(308, 317)
+  $f.Controls.AddRange( @( $button1, $groupBox1, $groupBox2))
 
   $f.Name = 'Form1'
   $f.Text = 'CheckBox and RadioButton Sample'
@@ -196,8 +226,14 @@ function PromptWithCheckboxesAndRadionbuttons(
 
   $f.KeyPreview = $True
 
+  # NOTE: using default script argument $_ (providing the signature)
   $f.Add_KeyDown({
-
+  <#
+    param(
+      [object]$s,
+      [System.Windows.Forms.KeyPressEventArgs]$e
+    )
+  #>
     if ($_.KeyCode -eq 'Escape')  { $caller.Data = $RESULT_CANCEL }
     else          {  }
     $f.Close()
@@ -205,17 +241,23 @@ function PromptWithCheckboxesAndRadionbuttons(
 
   $f.Topmost = $True
   if ($caller -eq $null ){
-    $caller = New-Object Win32Window -ArgumentList `
+    $caller = new-object Win32Window -ArgumentList `
     ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
   }
 
   $f.Add_Shown( { $f.Activate() } )
 
   [Void] $f.ShowDialog([Win32Window] ($caller) )
-  $F.Dispose()
-
-  return $caller.Data
+  $f.Dispose()
+  # this does data return explicitly
+  return $caller.Message
 }
 
-
-PromptWithCheckboxesAndRadionbuttons -message 'x,y,z'
+$arg_data = @'
+{
+  "Shape": ["Triangle", "Circle"],
+  "Color": "Green"
+}
+'@ -join ''
+$result = PromptWithCheckboxesAndRadionbuttons -message 'x,y,z' -arg_data $arg_data
+write-output ($result | convertfrom-json)
