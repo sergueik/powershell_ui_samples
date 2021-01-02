@@ -63,9 +63,10 @@ function PromptPassword {
   $l1.Size = new-object System.Drawing.Size (100,20)
   $l1.Text = 'Username'
   $f.Controls.Add($l1)
-
+  
   $f.Font = new-object System.Drawing.Font ('Microsoft Sans Serif',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
-
+  # alternatively just
+  $l1.Font = 'Microsoft Sans Serif,10'
   $t1 = new-object System.Windows.Forms.TextBox
   $t1.Location = new-object System.Drawing.Point (120,20)
   $t1.Size = new-object System.Drawing.Size (140,20)
@@ -111,14 +112,7 @@ function PromptPassword {
   $f.Controls.Add($bCancel)
 <#
   $f.SuspendLayout()
-  $f.Controls.AddRange(@(
-    $l1,
-    $t1,
-    $l2,
-    $t2,
-    $bOK,
-    $bCancel,
-    ))
+  $f.Controls.AddRange(@( $l1, $t1, $l2, $t2, $bOK, $bCancel))
   $f.ResumeLayout($true)
   $f.PerformLayout()
 #>
