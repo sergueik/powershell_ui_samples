@@ -132,10 +132,58 @@ function PromptWithCheckboxesAndRadionbuttons(
   @($checkBox1, $checkBox2, $checkBox3) | foreach-object {
     $control = $_
     # NOTE: fancy implementation of "find"
+
     if ($shapes.where( { $_ -eq $control.Text })){
       # write-host ('Setting {0} to checked' -f $control.Text)
       $control.Checked  = $true
     }
+<#
+NOTE: using raw c# collection methods from Powershell appears to be a challenge
+[String[]] $y = [Array]::CreateInstance([String],$shapes.count)
+[System.Array]::Copy($shapes,$y,$shapes.count)
+$y.getType() will show
+BaseType
+--------
+System.Array
+and
+Name
+----
+String[]
+
+but attempt to invoke Array methods
+https://docs.microsoft.com/en-us/dotnet/api/system.array.createinstance?view=netframework-4.0
+will fail:
+
+$y.Find("")
+Method invocation failed because [System.String] does not contain a method named 'Find'.
+
+$z = New-Object System.Collections.ArrayList
+$z.GetType()
+will return
+Name
+----
+ArrayList
+and
+
+BaseType
+--------
+System.Object
+$shapes | foreach-object  {$z.add($_) }
+
+Now despite
+$z  |get-member
+listing methods of underlying type (String) but not of collection
+
+
+$z will support the ArrayList methods
+https://docs.microsoft.com/en-us/dotnet/api/system.collections.arraylist?view=netframework-4.0
+e.g.
+$z.Item(1)
+'b'
+$z.Contains('b')
+True
+
+#>
   }
 
   # radioButton1
@@ -179,37 +227,33 @@ function PromptWithCheckboxesAndRadionbuttons(
   # NOTE: no event args specified or used
   $button1.Add_Click({
 
-  # effectively clear the $arg_obj
-  $color = ''
-  $shapes = @()
+    $color = ''
+    $shapes = @()
 
-  foreach ($o in @($radioButton1, $radioButton2, $radioButton3)){
-  if ($o.Checked){
-      $color = $o.Text}
-  }
-  foreach ($o in @($checkBox1, $checkBox2, $checkBox3)){
-    if ($o.Checked){
-      $shapes += $o.Text
+    foreach ($o in @($radioButton1, $radioButton2, $radioButton3)){
+      if ($o.Checked){
+        $color = $o.Text
+      }
     }
-  }
-  $arg_obj.'Shape' = $shapes
-  $arg_obj.'Color' = $color
-  $caller.Message = convertTo-json $arg_obj
-  $g = [System.Drawing.Graphics]::FromHwnd($f.Handle)
-  $rc = new-object System.Drawing.Rectangle(160, 50, 250, 250)
-  $brush = new-object System.Drawing.SolidBrush([System.Drawing.Color]::White)
-  $g.FillRectangle($brush, $rc)
-  $font = new-object System.Drawing.Font('Verdana', 12)
-  $col = new-object System.Drawing.SolidBrush([System.Drawing.Color]::Black)
-  $str = [String]::Join(';', $shapes )
-  $pos1 = new-object System.Drawing.PointF(176, 60)
-  $pos2 = new-object System.Drawing.PointF(176, 80)
+    foreach ($o in @($checkBox1, $checkBox2, $checkBox3)){
+      if ($o.Checked){
+        $shapes += $o.Text
+      }
+    }
+    $arg_obj.'Shape' = $shapes
+    $arg_obj.'Color' = $color
+    $caller.Message = convertTo-json $arg_obj
+    # visual
+    $g = [System.Drawing.Graphics]::FromHwnd($f.Handle)
+    $g.FillRectangle(new-object System.Drawing.SolidBrush([System.Drawing.Color]::White), new-object System.Drawing.Rectangle(160, 50, 250, 250))
+    $font = new-object System.Drawing.Font('Verdana', 12)
+    $col = new-object System.Drawing.SolidBrush([System.Drawing.Color]::Black)
 
-  $g.DrawString($color, $font, $col , $pos1)
-  $g.DrawString($str, $font, $col , $pos2)
-  start-sleep 1
-  $f.Close()
- })
+    $g.DrawString($color, $font, $col , new-object System.Drawing.PointF(176, 60))
+    $g.DrawString([String]::Join(';', $shapes ), $font, $col , new-object System.Drawing.PointF(176, 80))
+    start-sleep 1
+    $f.Close()
+  })
 
   # Form1
 
@@ -224,7 +268,7 @@ function PromptWithCheckboxesAndRadionbuttons(
 
   $f.StartPosition = 'CenterScreen'
 
-  $f.KeyPreview = $True
+  $f.KeyPreview = $true
 
   # NOTE: using default script argument $_ (providing the signature)
   $f.Add_KeyDown({
@@ -234,12 +278,13 @@ function PromptWithCheckboxesAndRadionbuttons(
       [System.Windows.Forms.KeyPressEventArgs]$e
     )
   #>
-    if ($_.KeyCode -eq 'Escape')  { $caller.Data = $RESULT_CANCEL }
-    else          {  }
+    if ($_.KeyCode -eq 'Escape') {
+      $caller.Data = $RESULT_CANCEL
+    } else {  }
     $f.Close()
   })
 
-  $f.Topmost = $True
+  $f.Topmost = $true
   if ($caller -eq $null ){
     $caller = new-object Win32Window -ArgumentList `
     ([System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle)
