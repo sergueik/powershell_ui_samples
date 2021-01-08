@@ -1,0 +1,312 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+	<!-- I copied the codeproject stylesheet into this project so I could see what it will look 
+		like on the CodeProject site. -->
+	<link type="text/css" rel="stylesheet" href="Codeprojectstyles.css"/>
+	<!-- These styles modify the CodeProject styles mostly regarding color, along with some 
+		readability enhancements for use when you read the article from within the project, 
+		using the Visual Studio "Open in browser" feature. -->
+	<style>
+		/* not included in the actual cp article ===================== */
+		/* give ourselves a 10 pixel padding to space the body from the edge of the screen (this 
+			style won't be included in the article on CP.*/
+		body { padding:10px; color:black;}
+		pre { border: 1px solid darkorange; border-radius:5px; }
+		/* =========================================================== */
+	</style>
+	<style>
+		/* make the colors for all of the headers the same, and set the spacing so that text is 
+			a little closer together */
+		h1, h2, h3, h4, h5, h6 { color: #f90; margin-bottom:0px !important; padding-bottom: 0px !important;line-height:1.1em;}
+		/* make paragraphs flow vertically closer to the previous element */
+		p { margin-top:5px;}
+		/* make a text pre block have different colors (cp-oriented) to differentiate them from 
+			actual code blocks. */
+		.preText { background-color:#dfd; border-color:green; }
+		h1 code,h2 code,h3 code,h4 code,h5 code,h6 code { color:saddlebrown; font-size:inherit; }
+	</style>
+</head>
+<body style="width:800px;">
+
+	<h2>Introduction</h2>
+	<div>
+		<p>I'm old. Really old. And as a result or age (or maybe just because of bad choices made 
+		in my inptemperate youth), my eyesight is beginging to fail me. Everything is out of focus, 
+		I can't find quite the right distance at which to hold a book, and if it weren't so annoying, 
+		I might find the kaliedoscope color halos that seemingly surround everything somewhat pretty. </p>
+
+		<p>A particular annoyance related to failing eyesight is the infinitesimally small text that 
+		Windows uses unless you increase the font size in 10% increments. The problem with this is 
+		that even at 110%, the text is WAY bigger than it really needs to be. In any case, this tiny 
+		text is used in the WPF MessageBoxe, and it cannot be changed. In fact, NOTHING about the 
+		standard WPF messagebox can be changed. This realization finally got the better of me, and 
+		I was forced to come up this code.</p>
+	</div>
+
+	<h3>But First, Complaints</h3>
+	<div>
+		When I started researchng the standard WPF MessageBox, I was surprised and appalled that it 
+		wasn't a WPF-specific object. It turns out that it's entirely implemented by the 
+		Win32.Inetrop functionality, and doesn't have a single drop of WPF goodness thrown in. I 
+		suppose a Microsoft apologist could try making a case about how their approach probably 
+		reduced the overall .Net code footprint by a few thousand bytes, but I ain't buying it. 
+		There was a true opportunity here, and Microsoft squandered it. By the way, this is the 
+		reason that it's not configurable in any way - it uses Windows system properties and that's 
+		that. You're not allowed to stray from those parameters. BAD PROGRAMMER! BAD! BAD!
+	</div>
+
+	<h2>What I Wanted to Achieve</h2>
+	<div>
+		<p>My primary goal was to develop a replacement for the standard message box that was 
+		reasonably configurable, while being totally WPF-based, as well as presenting an interface 
+		that was as close as possible to the original message box. Through some <code>static</code> 
+		wizardry, I was able to accomplish this without too much heartburn.</p>
+	</div>
+
+	<h2>Features</h2>
+	<div>
+		<h3>Default MessageBox Functionality</h3>
+		<div>
+			<p>If you don't use any of the static configuration methods, <code>MessageBoxEx</code> 
+			behaves and appears pretty much exactly like the standard <code>MessageBox</code> 
+			does. This includes the use of icons, system sounds, buttons, and coloration. But 
+			that's not why we're here, is it?</p>
+		</div>
+
+		<h3>Extended Appearance</h3>
+		<div>
+			The following standard appearance items can be altered:
+
+			<ul>
+				<li>Font<b></b> - This message box can optionally adopt the fonts of the parent 
+				application, or even specify the font family and size individually. This was 
+				the original reason I came up with the code, but I then decided to take it to 
+				new and exciting extremes.<br/><br/></li>
+
+				<li><b>Color</b> - You can optionally specify the foreground and background 
+				color of the message itself, as well as the button panel. I leave it as an 
+				exercise for the developer to come up with visually please color combinations 
+				for his/her own applications.<br/><br/></li>
+
+				<li><b>Button Template</b> - You can optionally specify your own button 
+				template so that the message box takes on the same button appearance as your 
+				application.<br/><br/></li>
+
+				<li><b>Size</b> - The standard message box can become too big to see the 
+				buttons if the message is really long. This implementation limits the max 
+				height to the primary work area, so the buttons are always in view. You can 
+				also optionally specify the maximum width. The messagebox itself will size 
+				itself to the content within the max size constraints. If the message is so 
+				large as to make the message box as tall as it's allowed to be, the message 
+				becomes vertically scrollable.<br/><br/></li>
+			</ul>
+		</div>
+
+		<h3>Extended Functionality</h3>
+
+		<p>The following extended functionality is added to the standard MessageBox functionality.</p>
+
+		<ul>
+			<li><b>System Sounds</b> - When you specify a system icon (question, error, 
+			warning, or information), the default behavior is to also play the assosicate 
+			system sound, if one has been associated with that icon in Windows. If you prefer not 
+			to hear the system sound, you can use <code>MessageBoxEx.SetAsSilent(true)</code> to 
+			suppress the sounds. Most of the time, this would be done when the application starts 
+			up, but it can be turned on/off whenever you deem it necessary.<br/><br/></li>
+
+			<li><b>Clickable Error icon</b> - When you display an error message, you can optionally 
+			specify what I call an "error delegate" object which allowss the message box to perform 
+			some action when the icon is clicked. The is limited to the error icon because that's 
+			when you'd most likely want to do something like this. The idea was spurred by a 
+			discussion in the CodeProject lounge regarding screen shot generation for emailing to 
+			the support team. It ddn't make any sense to me to make this available for any other 
+			icon, but it would be easy to change if you need the behaior for the other icons. The 
+			code is commented to permit easy modification.<br/><br/></li>
+
+			<li><b>Details</b> - The message box can display both a message, and "details". This 
+			could be useful for those times when you want to display an <code>Exception.Message</code>, 
+			as well as an <code>Exception.StackTrace</code>, but you don't want to have a huge 
+			message box. The details panel is an expander, and is initially collapsed when the 
+			message box is displayed.<br/><br/></li>
+
+			<li><b>Checkbox</b> - this displays a Checkbox with a prompt (content) that you 
+			specify. Some possible uses for this would be to supress the display of the message 
+			box in certain instances, or affect some other functionality in your application. It 
+			is up to the developer as fas as handling the checlkbox value. The messagebox does 
+			not care beyond presenting itself. See the <code>BtnClickme3c_Click()</code> method 
+			in the sample application for an example of how this feature might be used.<br/><br/></li>
+		</ul>
+	</div>
+
+	<h2>The Code</h2>
+	<div>
+		<p>The amount of code needed to implement this message box is suprisingly small. So small 
+		that it only took me a few hours to implement it, and then move it to a sample project for 
+		this article.</p>
+
+		<p>The original version of this article included several code dumps, but with the frequency 
+		of change, it became tedious to try to keep them synced up with what's really doing on in 
+		the code, so I deleted them from the article. If you want to see what I did, either browse 
+		the code here on CodeProject, or just download the code and check it out.</p>
+
+		<h3>Basic Design Goals</h3>
+		<div>
+			<p>As you know, the standard <code>MessageBox</code> is a static object that doesn't 
+			need to be instantiated to use. This new <code>MessageBoxEx</code> is static as well, 
+			or at least "static-ish". In order to implement it, I created a standard WPF Window 
+			that contains both static and non-static properties and methods. The idea is that the 
+			programmer would call the static <code>MessageBox.Show()</code> method, which would 
+			then instantiate a non-static version of the window. I also wanted to make the 
+			outward-facing experience as identical as possible to the standard 
+			<code>MessageBox</code>, so the return values are the same as what you get from the 
+			standard message box.</p>
+		</div>
+
+		<h3>Implementation - XAML</h3>
+		<div>
+			<p>The xaml for this form is fairly limited because we're not really doing anything fancy. 
+			I think the comments in the XAML provide sufficient enough documentation as to not 
+			require an accompanying narrative.</p>
+
+			<p><b>Clickable Icon</b> - Since images aren't "clickable", I had to resort to handling 
+			the <code>MouseLeftButtonUp</code> event. On top of that, I wanted to make the visual 
+			appearance of the icon change when the mouse hovered over it, so I set the default 
+			opacity to 0.85, and when the message box is displaying an error, I add a custom style 
+			(in the code behind) to the image that reacts to mouse hover, which changes the oacity 
+			to 1.0. I also use the code behind to add a tooltip to the image (actually the imiage's 
+			parent grid), so the user gets some sort of indication that the icon is indeed clickable.</p>
+		</div>
+
+		<h3>Implementation - C#</h3>
+		<div>
+			<p>The code-behind really isn't anything special or technically difficult to understand 
+			after a cursory inspection. As stated earlier, the code is essentially broken up into 
+			static, and non-static fields, properties, and methods. The message box itself needs to 
+			be instantiated, but the class has static properties and methods that can be used for 
+			easy configuration and rendering of the message box. Just like <code>MessageBox</code>, 
+			<code>MessageBoxEx</code> provides several overloads of the <code>Show()</code> method 
+			(and its variants) to display itself.</p>
+
+			<p>As far as code organization is concerned, I did something I don't normally do, but 
+			it was done in the interest of making it easy to copy the files into your own code. 
+			First, all of the classes related to the <code>MessageBoxEx</code> class are located 
+			in the MessageBoxEx.xaml.cs file. Second, I took advantage of the fact that the class 
+			is a partial class, and separated the static parts from the non-static parts. It might 
+			seem weird, but it helps me, and that's the most important thing.</p>
+
+			<p>To make the form size itself appropriately, I utilized the window <code>SizeToContent</code> 
+			property (in the XAML). This property allows the window to grow/shrink to fit its 
+			content, allowing the window to only be as big as it needs to be, given the minimum and 
+			maximum width/height limitations specified in the XAML. A curious side-effect of the 
+			<code>SizeToContent</code> property is that it takes affect AFTER the window has been 
+			positioned on the screen. This means that if the window needs to display more than a 
+			single line message, the window won't be "centered" on the screen as intended. To 
+			mitigate this behavior, I had handle the window's <code>SizeChanged</code> event, and 
+			manually re-center the form on the screen. The code was simple enough, but I figuered 
+			I'd cite it here.</p>
+		</div>
+
+		<h3>Useage</h3>
+		<div>
+			<p>Somewhere in your app startup (I recommend using the constructor in the <code>MainWindow</code> 
+			because at that point you can specify the parent window from which to inherit the appropriate 
+			font properties (if you want to do that). In the sample app, I created a method called 
+			<code>InitMessageBox()</code> containing calls to some of the configuration methods.</p>
+			<pre lang="c#">
+// this lets the messagebox inherit font properties from the parent
+MessageBoxEx.SetParentWindow(this);
+// set colors
+MessageBoxEx.SetMessageForeground(Colors.White);
+MessageBoxEx.SetMessageBackground(Colors.Black);
+MessageBoxEx.SetButtonBackground(MessageBoxEx.ColorFromString("#333333"));
+// if you have a custome button template (like I do), you can specify it here
+MessageBoxEx.SetButtonTemplateName("AefCustomButton");
+// set the max form width. Lowest possible value is 300.
+MessageBoxEx.SetMaxFormWidth(800);
+// 2021.01.03 - silence! No noises from the messagebox
+MessageBox.SetAsSilent(true);
+			</pre>
+			<p>After you've done this once in the application, using <code>MessageBoxEx</code> is 
+			identical to using the original <code>MessageBox</code>.</p>
+			<pre lang="c#">
+MessageBoxResult result = MessageBoxEx.Show("Your message. Continue?", "Caption", MessageBoxButton.YesNoCancel);
+			</pre>
+			<p>Of course, the button specification defaults to MessageBoxButton.OK if no button 
+			group is specified.</p>
+			<p>There are a few variants of the <code>Show</code> method that allow you to specify details, a 
+			checkbox, or both. Since these actually add functionality to the message box, I 
+			figured it would be okay to call them something other than just <code>Show</code>.</p>
+		</div>
+	</div>
+
+	<h3>The Sample Application</h3>
+	<div>
+		<img src="MainWindow.jpg" alt="MainWindow" style="margin:5px 0 5px 0;"/><br/>
+		<p>The sample application is simple in and of itself, provides a number of buttons that 
+		exercise various apects of the <code>MessageBoxEx</code> code. Wherevapplicable, the 
+		standard message box is displayed, followed by the extended message boxHere are some 
+		screen shots of various combinations of features:</p>
+		<ul>
+			<li><b>A very short 1-line message with the OK button.  
+			<code>MessageBoxButton.YesNoCancel</code> buttons. Displays the <code>MessageBoxImage.Asterisk</code> icon/sound.<br/>
+			<img src="ClickMe_1.jpg" alt="Small message" style="margin:5px 0 5px 0;" />
+			<br/></li>
+			<li><b>A message that's long enough to make the window the widest it can be, and wrap 
+			the message text, displays the OK button, and plays the "error" icon/sound.<br/>
+			<img src="ClickMe_2.jpg" alt="Medium message" style="margin:5px 0 5px 0;" />
+			<br/></li>
+			<li><b>Click Me (info)</b> - displays a message that's long enough to cause the window to 
+			be the widest/tallest it can be, and force the vertical scrollbar to be enabled. Displays the info icon/sound.<br/>
+			<img src="../Screenshots/ClickMe_3.jpg" alt="Huge message" style="margin:5px 0 5px 0;" />
+			<br/></li>
+			<li><b>Click Me (question)</b> - displays a message that's long enough to make the window the 
+			widest it can be, and wrap the message text. Displays thequestion icon/sound.<br/>
+			<img src="../Screenshots/ClickMe_3.jpg" alt="Huge message" style="margin:5px 0 5px 0;" />
+			<br/></li>
+			<li><b>Click Me (info/details)</b> - displays the specified message, and includes a "Details" 
+			area that, when expanded, displays the specified detail text in a scrolling <code>TextBox</code>. 
+			It also displays the info icon/sound.<br/>
+			<img src="../Screenshots/ClickMe_5.jpg" alt="Huge message" style="margin:5px 0 5px 0;" />
+			<br/></li>
+		</ul>
+
+		<p>If you don't hear a sound, it's because you haven't specified an associated system sound in 
+		Windows. This will most likely happen on the "question" button (that's where it happened to me, 
+		and setting a sound caused both the standard message box and the extended oine to play the 
+		appropriate sound).</p>
+	</div>
+
+	<h2>History</h2>
+	<div>
+		<ul>
+			<li><b>2021.01.09</b> - Made the following changes:<br/>
+			<span>- The error icon (if displayed) can be made clickable, and can trigger an action 
+				defined by the developer, such as sending the message text (and details if 
+				spcified).</span><br/>
+			<span>- A new set <code>Show...</code> overloads that allows the developer to 
+				specify amplifying detail text in the message box</span><br/>
+			<span>- The ability to present a "Do not show this message again" checkbox that will 
+				disallow the display of the message box.</span><br/>
+			<br/></li>
+
+			<li><b>2021.01.04</b> - Made the MessageBoxIcon allignment the same as the standard 
+			MessageBox. I also took a stab at fixing the ssue that caused the message box to be 
+			replaced as the top-most window of an application. Finally, I updated the screen shots 
+			and included screen shots from the standard MessageBox for a more immediate visual 
+			comparison within the article. Once again, I did NOT update the source code displayed 
+			in the article, but there is a new ZIP file download.<br/><br/></li>
+
+			<li><b>2021.01.03</b> - Added support for <code>MessageBoxIcon</code> and system sounds, 
+			changed to using a TextBox for the message display so you can copy the message to the 
+			clipboard, and changed some control alignment to make it "better".
+			<br/><br/></li>
+			<li><b>2020.12.26</b> - Initial publication<br/><br/></li>
+		</ul>
+	</div>
+
+</body>
+</html>

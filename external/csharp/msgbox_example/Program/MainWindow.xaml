@@ -1,0 +1,57 @@
+﻿<Window x:Class="MsgBoxExample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MsgBoxExample"
+        mc:Ignorable="d"
+        Title="MessageBoxEx Example" Height="265" Width="500"
+		FontFamily="Verdana" FontSize="14" WindowStartupLocation="CenterScreen">
+
+	<Grid Margin="10">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+		<Grid Grid.Row="0">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="Auto" />
+		</Grid.ColumnDefinitions>
+		<Grid Grid.Column="0" VerticalAlignment="Top">
+			<StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" >
+				<TextBlock Text="Button Group Examples" />
+				<Button x:Name="btnClickme1a" Content=" OK "            Template="{DynamicResource AefCustomButton}" Click="BtnClickme1a_Click" Margin="0,5" />
+				<Button x:Name="btnClickme2a" Content=" Okay/Cancel "   Template="{DynamicResource AefCustomButton}" Click="BtnClickme2a_Click" Margin="0,5" />
+				<Button x:Name="btnClickme3a" Content=" Yes/No "        Template="{DynamicResource AefCustomButton}" Click="BtnClickme3a_Click" Margin="0,5" />
+				<Button x:Name="btnClickme4a" Content=" Yes/No/Cancel " Template="{DynamicResource AefCustomButton}" Click="BtnClickme3a_Click" Margin="0,5" />
+			</StackPanel>
+		</Grid>
+		<Grid Grid.Column="1" VerticalAlignment="Top" Margin="10,0,0,0">
+			<StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" >
+				<TextBlock Text="Icon Examples" />
+				<Button x:Name="btnClickme1b" Content=" Info "     Template="{DynamicResource AefCustomButton}" Click="BtnClickme1b_Click"  Margin="0,5" />
+				<Button x:Name="btnClickme2b" Content=" Warning "  Template="{DynamicResource AefCustomButton}" Click="BtnClickme2b_Click"  Margin="0,5" />
+				<Button x:Name="btnClickme3b" Content=" Question " Template="{DynamicResource AefCustomButton}" Click="BtnClickme3b_Click"  Margin="0,5" />
+				<Button x:Name="btnClickme4b" Content=" Error "    Template="{DynamicResource AefCustomButton}" Click="BtnClickme4b_Click"  Margin="0,5" />
+			</StackPanel>
+		</Grid>
+		<Grid Grid.Column="2" VerticalAlignment="Top" Margin="20,0,0,0">
+			<StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" >
+				<TextBlock Text="Extended Functionality" />
+				<Button x:Name="btnClickme1c" Content=" Clickable Error "      Template="{DynamicResource AefCustomButton}" Click="BtnClickme1c_Click"  Margin="0,5" />
+				<Button x:Name="btnClickme2c" Content=" Details "              Template="{DynamicResource AefCustomButton}" Click="BtnClickme2c_Click"  Margin="0,5" />
+				<Button x:Name="btnClickme3c" Content=" Checkbox "             Template="{DynamicResource AefCustomButton}" Click="BtnClickme3c_Click"  Margin="0,5" />
+				<Button x:Name="btnClickme4c" Content=" Details and CheckBox " Template="{DynamicResource AefCustomButton}" Click="BtnClickme4c_Click"  Margin="0,5" />
+			</StackPanel>
+		</Grid>
+		</Grid>
+		<Grid Grid.Row="1" VerticalAlignment="Top" Margin="0,30,0,0">
+			<StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" >
+				<CheckBox Content="Play system sounds with icon examples" IsChecked="{Binding PlaySystemSounds}" />
+			</StackPanel>
+		</Grid>
+	</Grid>
+</Window>
