@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+# SharpDevelop 5.0
+VisualStudioVersion = 12.0.20827.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBoxExDemo", "MessageBoxExDemo\MessageBoxExDemo.csproj", "{69E4A5E2-96EF-4412-AE8B-DAF571C00CF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBoxExLib", "MessageBoxExLib\MessageBoxExLib.csproj", "{4847D05C-EB58-49D9-B280-D22F8FF01857}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69E4A5E2-96EF-4412-AE8B-DAF571C00CF2}.Debug|x86.ActiveCfg = Debug|x86
+		{69E4A5E2-96EF-4412-AE8B-DAF571C00CF2}.Debug|x86.Build.0 = Debug|x86
+		{69E4A5E2-96EF-4412-AE8B-DAF571C00CF2}.Release|x86.ActiveCfg = Release|x86
+		{69E4A5E2-96EF-4412-AE8B-DAF571C00CF2}.Release|x86.Build.0 = Release|x86
+		{4847D05C-EB58-49D9-B280-D22F8FF01857}.Debug|x86.ActiveCfg = Debug|x86
+		{4847D05C-EB58-49D9-B280-D22F8FF01857}.Debug|x86.Build.0 = Debug|x86
+		{4847D05C-EB58-49D9-B280-D22F8FF01857}.Release|x86.ActiveCfg = Release|x86
+		{4847D05C-EB58-49D9-B280-D22F8FF01857}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+EndGlobal
