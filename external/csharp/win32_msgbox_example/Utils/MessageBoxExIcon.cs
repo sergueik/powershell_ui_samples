@@ -1,12 +1,7 @@
 using System;
 
-namespace MessageBoxExLib
-{
-	/// <summary>
-	/// Standard MessageBoxEx icons
-	/// </summary>
-	public enum MessageBoxExIcon
-	{
+namespace MessageBoxExLib {
+	public enum MessageBoxExIcon {
 		None,
 		Asterisk,
 		Error,

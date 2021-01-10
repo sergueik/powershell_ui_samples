@@ -6,15 +6,8 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace MessageBoxExLib
-{
-	/// <summary>
-	/// An advanced MessageBox that supports customizations like Font, Icon,
-	/// Buttons and Saved Responses
-	/// </summary>
-	internal class MessageBoxExForm : System.Windows.Forms.Form
-	{
-		#region Constants
+namespace MessageBoxExLib {
+	internal class MessageBoxExForm : System.Windows.Forms.Form {
 		private const int LEFT_PADDING = 12;
 		private const int RIGHT_PADDING = 12;
 		private const int TOP_PADDING = 12;
@@ -39,9 +32,6 @@ namespace MessageBoxExLib
 		private const int IMAGE_INDEX_QUESTION = 1;
 		private const int IMAGE_INDEX_STOP = 2;
 		private const int IMAGE_INDEX_INFORMATION = 3;
-		#endregion
-
-		#region Fields
 
 		private System.ComponentModel.IContainer components;
 		private System.Windows.Forms.CheckBox chbSaveResponse;
@@ -63,9 +53,6 @@ namespace MessageBoxExLib
 		private bool _allowCancel = true;
 		private string _result = null;
 
-		/// <summary>
-		/// Used to determine the alert sound to play
-		/// </summary>
 		private MessageBoxIcon _standardIcon = MessageBoxIcon.None;
         private Icon _iconImage = null;
 
@@ -75,127 +62,87 @@ namespace MessageBoxExLib
         private System.Windows.Forms.Panel panelIcon;
         private System.Windows.Forms.RichTextBox rtbMessage;
 
-        /// <summary>
-        /// Maps MessageBoxEx buttons to Button controls
-        /// </summary>
         private Hashtable _buttonControlsTable = new Hashtable();
-		#endregion
 
-		#region Properties
-		public string Message
-		{
+		public string Message {
 			set{ rtbMessage.Text = value; }
 		}
 
-		public string Caption
-		{
+		public string Caption {
 			set{ this.Text = value; }
 		}
 
-		public Font CustomFont
-		{
+		public Font CustomFont {
 			set{ this.Font = value; }
 		}
 
-		public ArrayList Buttons
-		{
+		public ArrayList Buttons {
 			get{ return _buttons; }
 		}
 
-		public bool AllowSaveResponse
-		{
+		public bool AllowSaveResponse {
 			get{ return _allowSaveResponse; }
 			set{ _allowSaveResponse = value; }
 		}
 
-		public bool SaveResponse
-		{
+		public bool SaveResponse {
 			get{ return chbSaveResponse.Checked; }
 		}
 
-		public string SaveResponseText
-		{
+		public string SaveResponseText {
 			set{ chbSaveResponse.Text = value; }
 		}
 
-		public MessageBoxIcon StandardIcon
-		{
+		public MessageBoxIcon StandardIcon {
 			set{ SetStandardIcon(value); }
 		}
 
-		public Icon CustomIcon
-		{
-			set
-			{
+		public Icon CustomIcon {
+			set {
 				_standardIcon = MessageBoxIcon.None;
                 _iconImage = value;
 			}
 		}
 
-		public MessageBoxExButton CustomCancelButton
-		{
+		public MessageBoxExButton CustomCancelButton {
 			set{ _cancelButton = value; }
 		}
 
-		public string Result
-		{
+		public string Result {
 			get{ return _result; }
 		}
 
-		public bool PlayAlertSound
-		{
+		public bool PlayAlertSound {
 			get{ return _playAlert; }
 			set{ _playAlert = value; }
 		}
 
-        public int Timeout
-        {
+        public int Timeout {
             get{ return _timeout; }
             set{ _timeout = value; }
         }
 
-        public TimeoutResult TimeoutResult
-        {
+        public TimeoutResult TimeoutResult {
             get{ return _timeoutResult; }
             set{ _timeoutResult = value; }
         }
-		#endregion
 
-		#region Ctor/Dtor
-		public MessageBoxExForm()
-		{
-			//
-			// Required for Windows Form Designer support
-			//
-			InitializeComponent();
-			
+		public MessageBoxExForm() {
+			InitializeComponent();			
 			_maxWidth = (int)(SystemInformation.WorkingArea.Width * 0.60);
 			_maxHeight = (int)(SystemInformation.WorkingArea.Height * 0.90);
 		}
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
-				if(components != null)
-				{
+		protected override void Dispose( bool disposing ) {
+			if( disposing ) {
+				if(components != null) {
 					components.Dispose();
 				}
 			}
 			base.Dispose( disposing );
 		}
-		#endregion
 
-		#region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+        private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.Resources.ResourceManager resources = new System.Resources.ResourceManager(typeof(MessageBoxExForm));
             this.panelIcon = new System.Windows.Forms.Panel();
@@ -258,15 +205,7 @@ namespace MessageBoxExLib
             this.ResumeLayout(false);
 
         }
-		#endregion
-
-		#region Overrides
-        /// <summary>
-        /// This will get called everytime we call ShowDialog on the form
-        /// </summary>
-        /// <param name="e"></param>
-		protected override void OnLoad(EventArgs e)
-		{
+		protected override void OnLoad(EventArgs e) {
 			//Reset result
 			_result = null;
 
@@ -299,63 +238,39 @@ namespace MessageBoxExLib
 		}
 
 		
-		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-		{
-			if((int)keyData == (int)(Keys.Alt | Keys.F4) && !_allowCancel)
-			{	
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
+			if((int)keyData == (int)(Keys.Alt | Keys.F4) && !_allowCancel) {	
 				return true;
 			}
-
 			return base.ProcessCmdKey(ref msg, keyData);
 		}
 
-
-		protected override void OnClosing(CancelEventArgs e)
-		{
-			if(_result == null)
-			{
-				if(_allowCancel)
-				{
+		protected override void OnClosing(CancelEventArgs e) {
+			if(_result == null) {
+				if(_allowCancel) {
 					_result = _cancelButton.Value;
-				}
-				else
-				{
+				} else {
 					e.Cancel = true;
 					return;
 				}
 			}
 
-            if(timerTimeout != null)
-            {
+            if(timerTimeout != null) {
                 timerTimeout.Stop();
             }
 
 			base.OnClosing (e);
 		}
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
+        protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint (e);
 
-            if(_iconImage != null)
-            {
+            if(_iconImage != null) {
                 e.Graphics.DrawIcon(_iconImage, new Rectangle(panelIcon.Location, new Size(32, 32)));
             }
         }
 
-		#endregion
-
-		#region Methods
-		/// <summary>
-		/// Measures a string using the Graphics object for this form with
-		/// the specified font
-		/// </summary>
-		/// <param name="str">The string to measure</param>
-		/// <param name="maxWidth">The maximum width available to display the string</param>
-		/// <param name="font">The font with which to measure the string</param>
-		/// <returns></returns>
-		private Size MeasureString(string str, int maxWidth, Font font)
-		{
+		private Size MeasureString(string str, int maxWidth, Font font) {
 			Graphics g = this.CreateGraphics();
 			SizeF strRectSizeF = g.MeasureString(str, font, maxWidth);
 			g.Dispose();
@@ -363,30 +278,15 @@ namespace MessageBoxExLib
 			return new Size((int)Math.Ceiling(strRectSizeF.Width), (int)Math.Ceiling(strRectSizeF.Height));
 		}
 
-		/// <summary>
-		/// Measures a string using the Graphics object for this form and the
-		/// font of this form
-		/// </summary>
-		/// <param name="str"></param>
-		/// <param name="maxWidth"></param>
-		/// <returns></returns>
-		private Size MeasureString(string str, int maxWidth)
-		{
+		private Size MeasureString(string str, int maxWidth) {
 			return MeasureString(str, maxWidth, this.Font);
 		}
 
-		/// <summary>
-		/// Gets the longest button text
-		/// </summary>
-		/// <returns></returns>
-		private string GetLongestButtonText()
-		{
+		private string GetLongestButtonText() {
 			int maxLen = 0;
 			string maxStr = null;
-			foreach(MessageBoxExButton button in _buttons)
-			{
-				if(button.Text != null && button.Text.Length > maxLen)
-				{
+			foreach(MessageBoxExButton button in _buttons) {
+				if(button.Text != null && button.Text.Length > maxLen) {
 					maxLen = button.Text.Length;
 					maxStr = button.Text;
 				}
@@ -395,9 +295,7 @@ namespace MessageBoxExLib
 			return maxStr;
 		}
 
-		/// <summary>
-		/// Sets the size and visibility of the Message
-		/// </summary>
+		
 		private void SetMessageSizeAndVisibility()
 		{
 			if(rtbMessage.Text == null || rtbMessage.Text.Trim().Length == 0)
@@ -788,11 +686,7 @@ namespace MessageBoxExLib
             this.DialogResult = DialogResult.OK;
         }
 
-        #endregion
-
-		#region Event Handlers
-		private void OnButtonClicked(object sender, EventArgs e)
-		{
+		private void OnButtonClicked(object sender, EventArgs e) {
 			Button btn = sender as Button;
 			if(btn == null || btn.Tag == null)
 				return;
@@ -801,23 +695,18 @@ namespace MessageBoxExLib
 			SetResultAndClose(result);
 		}
 
-        private void timerTimeout_Tick(object sender, EventArgs e)
-        {
+        private void timerTimeout_Tick(object sender, EventArgs e) {
             timerTimeout.Stop();
 
-            switch(_timeoutResult)
-            {
+            switch(_timeoutResult) {
                 case TimeoutResult.Default:
                     _defaultButtonControl.PerformClick();
                     break;
 
                 case TimeoutResult.Cancel:
-                    if(_cancelButton != null)
-                    {
+                    if(_cancelButton != null) {
                         SetResultAndClose(_cancelButton.Value);
-                    }
-                    else
-                    {
+                    } else {
                         _defaultButtonControl.PerformClick();
                     }
                     break;
@@ -827,32 +716,23 @@ namespace MessageBoxExLib
                     break;
             }
         }
-		#endregion
 
-		#region P/Invoke - SystemParametersInfo, GetSystemMenu, EnableMenuItem, MessageBeep
-		private Font GetCaptionFont()
-		{
+        private Font GetCaptionFont() {
 			
 			NONCLIENTMETRICS ncm = new NONCLIENTMETRICS();
 			ncm.cbSize = Marshal.SizeOf(typeof(NONCLIENTMETRICS));
-			try
-			{
+			try {
 				bool result = SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, ref ncm, 0);
 			
-				if(result)
-				{
+				if(result) {
 					return Font.FromLogFont(ncm.lfCaptionFont);
-
-				}
-				else
-				{
+				} else {
 					int lastError = Marshal.GetLastWin32Error();
 					return null;
 				}
-			}
-			catch(Exception /*ex*/)
-			{
-				//System.Console.WriteLine(ex.Message);
+			} catch(Exception ) {
+				// ignore
+				//System.Console.WriteLine(e.Message);
 			}
 			
 			return null;
@@ -862,8 +742,7 @@ namespace MessageBoxExLib
 		private const int LF_FACESIZE = 32;
 		
 		[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Auto)]
-		private struct LOGFONT
-		{ 
+		private struct LOGFONT { 
 			public int lfHeight; 
 			public int lfWidth; 
 			public int lfEscapement; 
@@ -882,8 +761,7 @@ namespace MessageBoxExLib
 		}
 
 		[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Auto)]
-		private struct NONCLIENTMETRICS
-		{
+		private struct NONCLIENTMETRICS {
 			public int cbSize;
 			public int iBorderWidth;
 			public int iScrollWidth;
@@ -918,20 +796,17 @@ namespace MessageBoxExLib
 		private const int MF_GRAYED  = 0x1;
 		private const int MF_ENABLED  = 0x0;
 
-		private void DisableCloseButton(Form form)
+		private void DisableCloseButton(Form form) 
 		{
-			try
-			{
+			try {
 				EnableMenuItem(GetSystemMenu(form.Handle, false), SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
-			}
-			catch(Exception /*ex*/)
-			{
-				//System.Console.WriteLine(ex.Message);
+			} catch(Exception ) {
+				//System.Console.WriteLine(e.Message);
+				// ignore
 			}
 		}
 
 		[DllImport("user32.dll", CharSet=CharSet.Auto)]
 		private static extern bool MessageBeep(uint type);
-        #endregion
     }
 }

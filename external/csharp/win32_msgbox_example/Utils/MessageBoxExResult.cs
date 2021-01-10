@@ -1,12 +1,7 @@
 using System;
 
-namespace MessageBoxExLib
-{
-	/// <summary>
-	/// Standard MessageBoxEx results
-	/// </summary>
-	public struct MessageBoxExResult
-	{
+namespace MessageBoxExLib {
+	public struct MessageBoxExResult {
 		public const string Ok = "Ok";
 		public const string Cancel = "Cancel";
 		public const string Yes = "Yes";

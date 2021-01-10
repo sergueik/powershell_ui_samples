@@ -3,20 +3,13 @@ using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
-using System.Data;
 using System.Globalization;
 using System.Threading;
 
 using MessageBoxExLib;
 
-namespace MessageBoxExDemo
-{
-	/// <summary>
-	/// 
-	/// </summary>
-	public class MessageBoxExDemoForm : System.Windows.Forms.Form
-	{
-		#region Fields
+namespace MessageBoxExDemo {
+	public class MessageBoxExDemoForm : System.Windows.Forms.Form {
 
 		private System.Windows.Forms.Button btnShowCustom;
 		private System.Windows.Forms.GroupBox grpBoxIcon;
@@ -59,40 +52,20 @@ namespace MessageBoxExDemo
         private System.Windows.Forms.ComboBox cmbTimeoutResult;
         private System.Windows.Forms.Button button1;
         private System.ComponentModel.IContainer components;
-		#endregion
-		
-		#region Ctor/Dtor
-		public MessageBoxExDemoForm()
-		{
-			//
-			// Required for Windows Form Designer support
-			//
+
+        public MessageBoxExDemoForm() {
 			InitializeComponent();
 		}
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
-				if (components != null) 
-				{
+		protected override void Dispose( bool disposing ) {
+			if( disposing ) {
+				if (components != null) {
 					components.Dispose();
 				}
 			}
 			base.Dispose( disposing );
 		}
-		#endregion
-
-		#region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+       	private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("Ok");
             System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Cancel");
@@ -552,25 +525,15 @@ namespace MessageBoxExDemo
             this.ResumeLayout(false);
 
         }
-		#endregion
 
-		#region Main
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
 		[STAThread]
-		static void Main() 
-		{
+		static void Main()  {
             //Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture("fr");
 			Application.Run(new MessageBoxExDemoForm());
 		}
-		#endregion
 
-        #region Event Handlers
-		private void btnShowCustom_Click(object sender, System.EventArgs e)
-		{
-			if(listViewMessageBoxes.SelectedItems.Count == 0)
-			{
+		private void btnShowCustom_Click(object sender, System.EventArgs e) {
+			if(listViewMessageBoxes.SelectedItems.Count == 0) {
 				MessageBox.Show(this,"Select a message box to show","Select message box",MessageBoxButtons.OK,MessageBoxIcon.Information);
 				return;
 			}
@@ -586,8 +549,7 @@ namespace MessageBoxExDemo
             txtResult.Text = msgBox.Show(this);
 		}
 
-		private void btnAddButton_Click(object sender, System.EventArgs e)
-		{
+		private void btnAddButton_Click(object sender, System.EventArgs e) {
 			MessageBoxExButton button = new MessageBoxExButton();
 			button.Text = txtButtonText.Text;
 			button.Value = txtButtonVal.Text;
@@ -601,15 +563,11 @@ namespace MessageBoxExDemo
 			listViewButtons.Items.Add(item);
 		}
 
-		private void btnAddMessageBox_Click(object sender, System.EventArgs e)
-		{
+		private void btnAddMessageBox_Click(object sender, System.EventArgs e) {
 			MessageBoxEx msgBox = null;
-			try
-			{
+			try {
 				msgBox = CreateMessageBox(txtName.Text);
-			}
-			catch(Exception ex)
-			{
+			} catch(Exception ex) {
 				MessageBox.Show(this,"Error occured while creating message box. "+ex.Message,"Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
 			}
 
@@ -627,30 +585,21 @@ namespace MessageBoxExDemo
 			btnShowCustom.PerformClick();
 		}
 
-        private void MessageBoxExDemoForm_Load(object sender, System.EventArgs e)
-        {
+        private void MessageBoxExDemoForm_Load(object sender, System.EventArgs e) {
             cmbTimeoutResult.SelectedIndex = 0;
         }
-		#endregion
-
-		#region Methods
-		private MessageBoxExButton[] GetButtons()
-		{
+		
+		private MessageBoxExButton[] GetButtons() {
 			ArrayList buttons = new ArrayList();
-			foreach(ListViewItem item in listViewButtons.Items)
-			{
-				if(item.Checked)
-				{
-					if(item.Tag == null)
-					{
+			foreach(ListViewItem item in listViewButtons.Items) {
+				if(item.Checked) {
+					if(item.Tag == null) {
 						//Standard buttons
 						MessageBoxExButton button = new MessageBoxExButton();
 						button.Text = item.Text;
 						button.Value = item.Text;
 						buttons.Add(button);
-					}
-					else
-					{
+					} else {
 						//Custom buttons
 						MessageBoxExButton button = item.Tag as MessageBoxExButton;
 						if(button != null)
@@ -662,8 +611,7 @@ namespace MessageBoxExDemo
 			return (MessageBoxExButton[])buttons.ToArray(typeof(MessageBoxExButton));
 		}
 
-		private MessageBoxExIcon GetIcon()
-		{
+		private MessageBoxExIcon GetIcon() {
 			RadioButton selIcon = null;
 			foreach(Control ctrl in grpBoxIcon.Controls)
 			{
@@ -680,16 +628,14 @@ namespace MessageBoxExDemo
 			return (MessageBoxExIcon)Enum.Parse(typeof(MessageBoxExIcon), selIcon.Text);
 		}
 
-		private MessageBoxEx CreateMessageBox(string name)
-		{
+		private MessageBoxEx CreateMessageBox(string name) {
 			MessageBoxEx mbox = MessageBoxExManager.CreateMessageBox(name);
 			mbox.Caption = txtCaption.Text;
 			mbox.Text = txtMessage.Text;
 			mbox.AllowSaveResponse = chbAllowSaveResponse.Checked;
 			mbox.SaveResponseText = txtSaveResponse.Text;
 
-			foreach(MessageBoxExButton button in GetButtons())
-			{
+			foreach(MessageBoxExButton button in GetButtons()) {
 				mbox.AddButton(button);
 			}
 
@@ -698,8 +644,7 @@ namespace MessageBoxExDemo
 		}
 
 		#region Ignore
-		private void Test()
-		{
+		private void Test() {
 			MessageBoxEx msgBox = MessageBoxExManager.CreateMessageBox("Test");
 			msgBox.Caption = "Question";
 			msgBox.Text = "Do you want to save the data?";
@@ -715,8 +660,7 @@ namespace MessageBoxExDemo
             string result = msgBox.Show();
 		}
 
-		private void Test2()
-		{
+		private void Test2() {
 			MessageBoxEx msgBox = MessageBoxExManager.CreateMessageBox("Test2");
 			msgBox.Caption = "Question";
 			msgBox.Text = "Do you want to save the data?";
@@ -744,27 +688,18 @@ namespace MessageBoxExDemo
 			string result = msgBox.Show();
 		}
 
-        /// <summary>
-        /// Test case which exposed the AutoScale bug, this was submitted by Harry Stein
-        /// </summary>
-        private void Test3()
-        {
+        private void Test3() {
             // as an experiment, I moved these from class members to local members
-
             // to see if it helps -- it didn't -- but it helps show you nothing else
-
             // is going on!
 
             MessageBoxEx       m_msgBoxSummary1 = null;
-
             MessageBoxExButton m_btnYes = null;
 
             // Tahoma 8.25 in Ex originally
 
             m_msgBoxSummary1 = MessageBoxExManager.CreateMessageBox("Summary1");
-
             m_btnYes = new MessageBoxExButton();
-
             string m_sPROGRAM_NAME = "Possrv.Debug Merchant Parser";
             string m_sVersion = "1.00A";;
             m_msgBoxSummary1.Caption = m_sPROGRAM_NAME + " " + m_sVersion;
@@ -796,8 +731,7 @@ namespace MessageBoxExDemo
             if(sResult3=="" || (1 + 1 == 2))return; // quiet the compiler
         }
 
-        private void Test4()
-        {
+        private void Test4() {
             MessageBoxEx msgBox = MessageBoxExManager.CreateMessageBox(null);
             msgBox.Caption = "Question";
             msgBox.Text = "Do you want to save the data?";
@@ -816,8 +750,7 @@ namespace MessageBoxExDemo
             }
         }
 
-        public void Test5()
-        {
+        public void Test5() {
             MessageBoxEx msgBox = MessageBoxExManager.CreateMessageBox(null);
             msgBox.Caption = "Question";
             msgBox.Text = "Voulez-vous sauver les données ?";
@@ -827,8 +760,7 @@ namespace MessageBoxExDemo
             msgBox.Show();
         }
 
-        public void Test6()
-        {
+        public void Test6() {
             MessageBoxEx msgBox = MessageBoxExManager.CreateMessageBox("test");
             msgBox.Caption = "Information";
             msgBox.AddButtons(MessageBoxButtons.OK);
@@ -839,8 +771,7 @@ namespace MessageBoxExDemo
             msgBox.Text = "Items:\nItem 1\nItem 2\nItem 3\nItem 4\nItem 5\nItem 6\nItem 7\nItem 8\nItem 9\nItem10\n";
             msgBox.Show();
         }
-        private void button1_Click(object sender, System.EventArgs e)
-        {
+        private void button1_Click(object sender, System.EventArgs e) {
             Test();
             Test2();
             Test3();
@@ -848,7 +779,6 @@ namespace MessageBoxExDemo
             Test5();
             Test6();
         }
-        #endregion
 		#endregion
 	}
 }
