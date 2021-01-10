@@ -6,7 +6,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{009A7621-5E5A-4069-9B3D-8410E4F14578}</ProjectGuid>
     <RootNamespace>MessageBoxIndirect</RootNamespace>
-    <AssemblyName>MessageBoxIndirect</AssemblyName>
+    <AssemblyName>DemoForm</AssemblyName>
     <OutputType>WinExe</OutputType>
     <ApplicationIcon>App.ico</ApplicationIcon>
     <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
@@ -41,6 +41,9 @@
     <OutputPath>bin\Release\</OutputPath>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
+  <PropertyGroup>
+    <applicationicon>icon1.ico</applicationicon>
+  </PropertyGroup>
   <ItemGroup>
     <Content Include="App.ico" />
     <Compile Include="AssemblyInfo.cs" />
@@ -50,20 +53,20 @@
     <EmbeddedResource Include="DemoForm.resx">
       <DependentUpon>DemoForm.cs</DependentUpon>
     </EmbeddedResource>
-    <Content Include="Icon1.ico" />
+    <Content Include="icon1.ico" />
     <None Include="Icons.res" />
-    <Compile Include="MessageBoxIndirect.cs" />
-    <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Utils\Utils.csproj">
+      <Project>{5e8a8396-1d35-4495-ba65-b564e3d33282}</Project>
+      <Name>Utils</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>

@@ -1,1 +1,0 @@
-csc /out:MessageBoxIndirect.exe /target:winexe /win32res:Icons.res DemoForm.cs MessageBoxIndirect.cs AssemblyInfo.cs

@@ -15,7 +15,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
-namespace SMcMaster {
+namespace Utils {
 	public class MessageBoxIndirect {
 		// From winuser.h
 		private const uint MB_OK = 0x00000000;

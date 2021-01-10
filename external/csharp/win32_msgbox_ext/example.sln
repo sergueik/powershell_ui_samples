@@ -4,7 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # SharpDevelop 5.1
 VisualStudioVersion = 12.0.20827.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBoxIndirect", "MessageBoxIndirect.csproj", "{009A7621-5E5A-4069-9B3D-8410E4F14578}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Program", "Program\Program.csproj", "{009A7621-5E5A-4069-9B3D-8410E4F14578}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{5E8A8396-1D35-4495-BA65-B564E3D33282}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,5 +18,9 @@ Global
 		{009A7621-5E5A-4069-9B3D-8410E4F14578}.Debug|x86.Build.0 = Debug|x86
 		{009A7621-5E5A-4069-9B3D-8410E4F14578}.Release|x86.ActiveCfg = Release|x86
 		{009A7621-5E5A-4069-9B3D-8410E4F14578}.Release|x86.Build.0 = Release|x86
+		{5E8A8396-1D35-4495-BA65-B564E3D33282}.Debug|x86.ActiveCfg = Debug|x86
+		{5E8A8396-1D35-4495-BA65-B564E3D33282}.Debug|x86.Build.0 = Debug|x86
+		{5E8A8396-1D35-4495-BA65-B564E3D33282}.Release|x86.ActiveCfg = Release|x86
+		{5E8A8396-1D35-4495-BA65-B564E3D33282}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 EndGlobal
