@@ -245,12 +245,12 @@ True
     $caller.Message = convertTo-json $arg_obj
     # visual
     $g = [System.Drawing.Graphics]::FromHwnd($f.Handle)
-    $g.FillRectangle(new-object System.Drawing.SolidBrush([System.Drawing.Color]::White), new-object System.Drawing.Rectangle(160, 50, 250, 250))
+    $g.FillRectangle((new-object System.Drawing.SolidBrush([System.Drawing.Color]::White)), (new-object System.Drawing.Rectangle(160, 50, 250, 250)))
     $font = new-object System.Drawing.Font('Verdana', 12)
     $col = new-object System.Drawing.SolidBrush([System.Drawing.Color]::Black)
 
-    $g.DrawString($color, $font, $col , new-object System.Drawing.PointF(176, 60))
-    $g.DrawString([String]::Join(';', $shapes ), $font, $col , new-object System.Drawing.PointF(176, 80))
+    $g.DrawString($color, $font, $col , (new-object System.Drawing.PointF(176, 60)))
+    $g.DrawString([String]::Join(';', $shapes ), $font, $col ,( new-object System.Drawing.PointF(176, 80)))
     start-sleep 1
     $f.Close()
   })
