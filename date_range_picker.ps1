@@ -1,4 +1,4 @@
-#Copyright (c) 2020 Serguei Kouzmine
+#Copyright (c) 2021 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -35,8 +35,8 @@ function measure_width{
 
 
 # based on https://devblogs.microsoft.com/scripting/hey-scripting-guy-can-windows-powershell-alleviate-my-need-to-type-dates/
-
-
+# see also https://www.codeproject.com/Articles/232318/Multiple-MonthView-DatePicker-Control-in-Silverlig
+# https://www.codeproject.com/Articles/4632/PallaControls-for-Windows-forms
 function DateRangeReportLauncher {
   param(
     [string]$title,
@@ -52,7 +52,7 @@ function DateRangeReportLauncher {
   $f.MaximizeBox = $false
   $f.MinimizeBox = $false
   $f.Text = $title
-  $f.size = new-object System.Drawing.Size(490,272)
+  $f.size = new-object System.Drawing.Size(490,422)
 
   $l1 = new-object System.Windows.Forms.Label
   $l1.Font = 'Microsoft Sans Serif,10'
@@ -79,21 +79,25 @@ function DateRangeReportLauncher {
   $f.Controls.Add($l2)
 
   $d2 = New-Object System.Windows.Forms.DateTimePicker
-  # TODO: event etc
   $d2.CalendarFont  = 'Microsoft Sans Serif,11'
   $d2.Location = new-object System.Drawing.Point (120,50)
   $d2.Size = new-object System.Drawing.Size (290,20)
   # $d2.Text = $user
   $d2.Name = 'txtTill'
   $f.Controls.Add($d2)
+  # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datetimepicker.closeup?view=netframework-4.0
   $d1.add_CloseUp( {
+    param (
+      [Object] $sender,
+      [System.EventArgs]$eventargs
+    )
     $d2.MinDate  = $d1.value
   })
   $d1.add_ValueChanged( {
-  param (
-    [Object] $sender,
-    [System.EventArgs]$eventargs
-  )
+    param (
+      [Object] $sender,
+      [System.EventArgs]$eventargs
+    )
     $d2.MinDate  = $d1.value
   })
 
@@ -107,12 +111,28 @@ function DateRangeReportLauncher {
 
   $t3 = new-object System.Windows.Forms.TextBox
   $t3.Location = new-object System.Drawing.Point (120,80)
-  $t3.Size = new-object System.Drawing.Size (800,20)
+  $t3.Multiline = $true 
+  $t3.Size = new-object System.Drawing.Size (290,220)
+  
+  $t3.BorderStyle = [System.Windows.Forms.BorderStyle]::Fixed3D
+    $t3.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
+    $t3.Anchor = [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom
+  #   strOriginal = txt.Text;
+  # https://www.codeproject.com/Articles/13394/Multiline-TextBox-with-MaxLength-Validation
   $t3.Text = @'
 curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0)" "from": 1612933200, "till": 1612933200 ,"uri":""
 '@
 
   $t3.Name = 'txtCommand'
+  $t3.add_textChanged({  
+    param (
+      [Object] $sender,
+      [System.EventArgs]$eventargs
+    )
+    $lines = $t3.Lines.Length
+    $text = ($t3.Lines -join ' ')
+    # write-host $text
+  })
   $f.Controls.Add($t3)
 
   $bOK = new-object System.Windows.Forms.Button
@@ -142,8 +162,6 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
   $f.ResumeLayout($true)
   $f.PerformLayout()
 #>
-
-# https://www.codeproject.com/Articles/13394/Multiline-TextBox-with-MaxLength-Validation
 
 
   $bCancel.add_click({
@@ -240,26 +258,24 @@ $caller.Data = 1;
 DateRangeReportLauncher -Title $title -user $user -caller $caller
 
 if ($caller.Data -ne $RESULT_CANCEL) {
-  # https://stackoverflow.com/questions/38717490/convert-a-string-to-datetime-in-powershell
-  # https://stackoverflow.com/questions/22406841/powershell-list-the-dates-between-a-range-of-dates
-  if ($caller.txtFrom -ne $null -and $caller.txtTill -ne $null) {
+  if ($caller.txtFrom -ne '' -and $caller.txtTill -ne '') {
     $command = $caller.txtCommand
     $from = $caller.txtFrom
     $till = $caller.txtTill
     if ($debug) {
       write-output ('Range: {0} / {1}' -f $from, $till)
     }
+    # https://stackoverflow.com/questions/38717490/convert-a-string-to-datetime-in-powershell
     $date1 = [datetime]::parseexact(($caller.txtFrom -replace ' .*$', ''), 'MM/dd/yyyy', $null)
     $date2 = [datetime]::parseexact(($caller.txtTill -replace ' .*$', ''), 'MM/dd/yyyy', $null)
-    for ( $i = $date1; $i -lt $date2; $i = $i.AddDays(1) )  {
-      $h = $i.ToShortDateString()
+    # https://stackoverflow.com/questions/22406841/powershell-list-the-dates-between-a-range-of-dates
+    for ( $day = $date1; $day -lt $date2; $day = $day.AddDays(1) ) {
       # https://stackoverflow.com/questions/4192971/in-powershell-how-do-i-convert-datetime-to-unix-time
-      $u =[Math]::Floor([decimal](Get-Date($i).ToUniversalTime() -uformat '%s'))
+      $from = [Math]::Floor([decimal](Get-Date($day).ToUniversalTime() -uformat '%s'))
       if ($debug) {
-        write-output ('Day: {0} Seconds: {1}' -f $h, $u )
+        write-output ('Day: {0} Seconds: {1}' -f ($day.ToShortDateString()), $from )
       }
-      $from = [Math]::Floor([decimal](Get-Date($i).ToUniversalTime() -uformat '%s'))
-      $till = [Math]::Floor([decimal](Get-Date($i).AddDays(1).ToUniversalTime() -uformat '%s'))
+      $till = [Math]::Floor([decimal](Get-Date($day).AddDays(1).ToUniversalTime() -uformat '%s'))
       write-output (($command -replace '"from": *[0-9]+ *,', "`"from`": ${from} ") -replace '"till": *[0-9]+ *,', "`"till`":${till} ")
     }
   }
