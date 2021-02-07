@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{09CD4358-741A-45DC-8E0A-04E38A0DA440}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MonthCalendar</RootNamespace>
+    <AssemblyName>MonthCalendar</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Calendar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Core\Converters\Background.cs" />
+    <Compile Include="Core\Converters\KeyboardControls.cs" />
+    <Compile Include="Core\Collections\DateItem.cs" />
+    <Compile Include="Core\Collections\DatesCollection.cs" />
+    <Compile Include="Core\Converters\DateItem.cs" />
+    <Compile Include="Core\Converters\MonthDayPadding.cs" />
+    <Compile Include="Core\Designer\Calendar.cs" />
+    <Compile Include="Core\Designer\DateItem.cs">
+    </Compile>
+    <Compile Include="Core\Editors\DateItemCollection.cs" />
+    <Compile Include="Core\Editors\ImageIndex.cs" />
+    <Compile Include="Core\Enums.cs" />
+    <Compile Include="Core\Events\CanChangeMonthEvent.cs" />
+    <Compile Include="Core\Events\CanChangeYearEvent.cs" />
+    <Compile Include="Core\Events\CanSelectDayEvent.cs" />
+    <Compile Include="Core\Events\ChangeMonthEvent.cs" />
+    <Compile Include="Core\Events\ChangeYearEvent.cs" />
+    <Compile Include="Core\Events\CanZoomEvent.cs" />
+    <Compile Include="Core\Events\FooterRenderEvent.cs" />
+    <Compile Include="Core\Events\HeaderRenderEvent.cs" />
+    <Compile Include="Core\Events\MonthDayRenderEvent.cs" />
+    <Compile Include="Core\Events\MonthImageRenderEvent.cs" />
+    <Compile Include="Core\Events\MonthRenderEvent.cs" />
+    <Compile Include="Core\Events\SelectDayEvent.cs" />
+    <Compile Include="Core\Events\WeekDayBackgroundRnderEvent.cs" />
+    <Compile Include="Core\Events\WeekDayRenderEvent.cs" />
+    <Compile Include="Core\Events\WeeknumberRenderEvent.cs" />
+    <Compile Include="Core\Events\WeeknumbersBackgroundRenderEvent.cs" />
+    <Compile Include="Core\Events\YearGroupRenderEvent.cs" />
+    <Compile Include="Core\Events\YearRenderEvent.cs" />
+    <Compile Include="Core\Events\ZoomEvent.cs" />
+    <Compile Include="Core\Hook\GlobalHook.cs" />
+    <Compile Include="Core\Editors\ImageListControlPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Core\Hook\HookHelpers.cs" />
+    <Compile Include="Core\Keyboard\Keyboard.cs" />
+    <Compile Include="Core\StyleData\Background.cs" />
+    <Compile Include="Core\StyleData\Border.cs" />
+    <Compile Include="Core\StyleData\Element.cs" />
+    <Compile Include="Core\StyleData\Footer.cs" />
+    <Compile Include="Core\StyleData\Header.cs" />
+    <Compile Include="Core\StyleData\Hover.cs" />
+    <Compile Include="Core\StyleData\MonthDayPadding.cs" />
+    <Compile Include="Core\StyleData\MonthDays.cs" />
+    <Compile Include="Core\StyleData\MonthImage.cs" />
+    <Compile Include="Core\StyleData\WeekDays.cs" />
+    <Compile Include="Core\StyleData\Weeknumbers.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Core\Collections\SelectedItemsCollection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\previous.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\next.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NextYear.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="images\nextYear.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="images\PrevYear.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
