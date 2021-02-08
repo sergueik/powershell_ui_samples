@@ -69,7 +69,7 @@ function PromptPassword {
   $l1.Font = 'Microsoft Sans Serif,10'
   $t1 = new-object System.Windows.Forms.TextBox
   $t1.Location = new-object System.Drawing.Point (120,20)
-  $t1.Size = new-object System.Drawing.Size (140,20)
+  $t1.Size = new-object System.Drawing.Size (190,20)
   $t1.Text = $user
   $t1.Name = 'txtUser'
   $f.Controls.Add($t1)
@@ -82,7 +82,7 @@ function PromptPassword {
 
   $t2 = new-object System.Windows.Forms.TextBox
   $t2.Location = new-object System.Drawing.Point (120,50)
-  $t2.Size = new-object System.Drawing.Size (140,20)
+  $t2.Size = new-object System.Drawing.Size (190,20)
   $t2.Text = ''
   $t2.Name = 'txtPassword'
   $t2.PasswordChar = '*'
@@ -92,7 +92,7 @@ function PromptPassword {
 
   $bOK.Text = 'OK'
   $bOK.Name = 'btnOK'
-  $right_margin = 60
+  $right_margin = 24
   $margin_y = 16
   $left_margin = 24
   $y = ($t2.Location.Y +  $t2.Size.Height + $margin_y)
@@ -108,7 +108,7 @@ function PromptPassword {
   $bCancel.AutoSize = $true
   $w = measure_width  -font $f.Font -control $bCancel
   write-host ('measure_width: {0}' -f $w)
-  $bCancel.Location = new-object System.Drawing.Point(($f.Size.Width - $w - $right_margin), $bOK.Location.y)
+  $bCancel.Location = new-object System.Drawing.Point(($t2.Location.x + $t2.Size.Width - $w - $right_margin ), $bOK.Location.y)
   $f.Controls.Add($bCancel)
 <#
   $f.SuspendLayout()
