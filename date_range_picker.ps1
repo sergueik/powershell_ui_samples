@@ -18,6 +18,10 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
+param(
+  [switch] $debug
+)
+
 function measure_width{
   # NOTE no type declarations
   param(
@@ -30,7 +34,7 @@ function measure_width{
 } else {
   $result = $text_width
 }
- return $result
+  return $result
 }
 
 
@@ -52,7 +56,9 @@ function DateRangeReportLauncher {
   $f.MaximizeBox = $false
   $f.MinimizeBox = $false
   $f.Text = $title
-  $f.size = new-object System.Drawing.Size(490,422)
+  $f.size = new-object System.Drawing.Size(490,462)
+  $f.FormBorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+  # temporarily disable resize
 
   $l1 = new-object System.Windows.Forms.Label
   $l1.Font = 'Microsoft Sans Serif,10'
@@ -63,6 +69,8 @@ function DateRangeReportLauncher {
 
   $f.Font = new-object System.Drawing.Font ('Microsoft Sans Serif',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
 
+  # possibly more relevant control: System.Windows.Forms.MonthCalendar
+  # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.monthcalendar?view=netframework-4.0
   $d1 = New-Object System.Windows.Forms.DateTimePicker
   $d1.CalendarFont  = 'Microsoft Sans Serif,11'
   $d1.Location = new-object System.Drawing.Point (120,20)
@@ -111,12 +119,13 @@ function DateRangeReportLauncher {
 
   $t3 = new-object System.Windows.Forms.TextBox
   $t3.Location = new-object System.Drawing.Point (120,80)
-  $t3.Multiline = $true 
+  $t3.Multiline = $true
   $t3.Size = new-object System.Drawing.Size (290,220)
-  
+
   $t3.BorderStyle = [System.Windows.Forms.BorderStyle]::Fixed3D
-    $t3.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
-    $t3.Anchor = [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom
+  $t3.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
+
+  $t3.Anchor = [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom
   #   strOriginal = txt.Text;
   # https://www.codeproject.com/Articles/13394/Multiline-TextBox-with-MaxLength-Validation
   $t3.Text = @'
@@ -124,7 +133,7 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
 '@
 
   $t3.Name = 'txtCommand'
-  $t3.add_textChanged({  
+  $t3.add_textChanged({
     param (
       [Object] $sender,
       [System.EventArgs]$eventargs
@@ -135,6 +144,23 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
   })
   $f.Controls.Add($t3)
 
+  $bPaste = new-object System.Windows.Forms.Button
+  $bPaste.Font = 'Wingdings,14'
+  $bPaste.Text = '4' # 'Paste'
+  $bPaste.Name = 'btnPaste'
+  $bPaste.AutoSize = $true
+  $margin_y = 16
+  $right_margin = 120
+  # measure_width is not reliable
+  $y = ($t3.Location.Y +  $t3.Size.Height + $margin_y)
+  $w = measure_width -font $bPaste.Font -control $bPaste
+  $bPaste.Location = new-object System.Drawing.Point(($f.Size.Width - $w - $right_margin), $y)
+  $f.Controls.Add($bPaste)
+
+  $bPaste.add_click({
+     $t3.text = [System.Windows.Forms.Clipboard]::GetText()
+  })
+
   $bOK = new-object System.Windows.Forms.Button
 
   $bOK.Text = 'OK'
@@ -142,7 +168,7 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
   $right_margin = 60
   $margin_y = 16
   $left_margin = 24
-  $y = ($t3.Location.Y +  $t3.Size.Height + $margin_y)
+  $y = ($bPaste.Location.Y +  $bPaste.Size.Height + $margin_y)
   $bOK.Location = new-object System.Drawing.Point($left_margin, $y)
   $f.Controls.Add($bOK)
   $f.AcceptButton = $bOK
@@ -169,6 +195,7 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
     $caller.txtFrom = $null
     $f.Close()
   })
+
   $bOK.add_click({
     $caller.Data = $RESULT_OK
     $caller.TxtTill = $d2.value # using getter
@@ -256,9 +283,13 @@ $window_handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHan
 $caller = new-object Win32Window -ArgumentList ($window_handle)
 $caller.Data = 1;
 DateRangeReportLauncher -Title $title -user $user -caller $caller
-
+$response_file = "${env:USERPROFILE}\Desktop\run.cmd"
+$has_data = $false
 if ($caller.Data -ne $RESULT_CANCEL) {
   if ($caller.txtFrom -ne '' -and $caller.txtTill -ne '') {
+    if (test-path -literalpath $response_file) {
+      remove-item -literalpath $response_file
+    }
     $command = $caller.txtCommand
     $from = $caller.txtFrom
     $till = $caller.txtTill
@@ -266,8 +297,13 @@ if ($caller.Data -ne $RESULT_CANCEL) {
       write-output ('Range: {0} / {1}' -f $from, $till)
     }
     # https://stackoverflow.com/questions/38717490/convert-a-string-to-datetime-in-powershell
-    $date1 = [datetime]::parseexact(($caller.txtFrom -replace ' .*$', ''), 'MM/dd/yyyy', $null)
-    $date2 = [datetime]::parseexact(($caller.txtTill -replace ' .*$', ''), 'MM/dd/yyyy', $null)
+    try {
+      $date1 = [datetime]::parseexact(($caller.txtFrom -replace ' .*$', ''), 'MM/dd/yyyy', $null)
+      $date2 = [datetime]::parseexact(($caller.txtTill -replace ' .*$', ''), 'MM/dd/yyyy', $null)
+      $has_data = $true
+    } catch [Exception] { 
+     # Exception calling "ParseExact" with "3" argument(s): "String was notrecognized as a valid DateTime."
+    }
     # https://stackoverflow.com/questions/22406841/powershell-list-the-dates-between-a-range-of-dates
     for ( $day = $date1; $day -lt $date2; $day = $day.AddDays(1) ) {
       # https://stackoverflow.com/questions/4192971/in-powershell-how-do-i-convert-datetime-to-unix-time
@@ -276,13 +312,19 @@ if ($caller.Data -ne $RESULT_CANCEL) {
         write-output ('Day: {0} Seconds: {1}' -f ($day.ToShortDateString()), $from )
       }
       $till = [Math]::Floor([decimal](Get-Date($day).AddDays(1).ToUniversalTime() -uformat '%s'))
-      write-output (($command -replace '"from": *[0-9]+ *,', "`"from`": ${from} ") -replace '"till": *[0-9]+ *,', "`"till`":${till} ")
+      write-output ((($command -replace '"from": *[0-9]+ *,', "`"from`": ${from} ") -replace '"till": *[0-9]+ *,', "`"till`":${till} ")  + "`n")| out-file -append -encoding ascii -literalpath $response_file
+    }
+    if ($has_data) { 
+      if (test-path -literalpath $response_file) {
+        & notepad.exe $response_file
+      }
+    } else { 
+      write-output 'Something went wrong: no data'
     }
   }
 }
-
 <#
-curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0)"interval_begin "from": 1612242000  "till":1612328400 "uri":""
-curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0)"interval_begin "from": 1612328400  "till":1612414800 "uri":""
-curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0)"interval_begin "from": 1612414800  "till":1612501200 "uri":""
+
+Usage:
+
 #>
