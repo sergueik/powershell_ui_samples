@@ -48,9 +48,12 @@ function measure_width{
  return $result
 }
 
-  $RESULT_OK = 0
+$RESULT_OK = 0
 $RESULT_CANCEL = 2
-
+$Readable = @{
+  $RESULT_OK = 'OK'
+  $RESULT_CANCEL = 'CANCEL'
+}
 
 function PromptPassword {
   param(
@@ -285,8 +288,7 @@ if ([bool]$PSBoundParameters['allow_automatic'].IsPresent) {
 } else {
   $allow_automatic_flag = $null
 }
-$debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
-if ($debug_flag){
+if ($debug){
   $DebugPreference = 'Continue'
 }
 $title = 'Enter credentials'
@@ -320,7 +322,7 @@ if (-not $clipboard_flag) {
   $caller = new-object Win32Window -ArgumentList ($window_handle)
   PromptPassword -Title $title -user $user -caller $caller
   if ($caller.Data -ne $RESULT_CANCEL) {
-    if ($debug_flag){
+    if ($debug){
       Write-Debug ('Original username/password was: {0} / {1}' -f $caller.txtUser, $caller.txtPassword)
     }    
   }

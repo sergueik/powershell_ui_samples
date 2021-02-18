@@ -366,8 +366,7 @@ if ([bool]$PSBoundParameters['allow_automatic'].IsPresent) {
 } else {
   $allow_automatic_flag = $null
 }
-$debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
-if ($debug_flag){
+if ($debug){
   $DebugPreference = 'Continue'
 }
 $title = 'Enter credentials'
@@ -401,7 +400,7 @@ if (-not $clipboard_flag) {
   $caller = new-object Win32Window -ArgumentList ($window_handle)
   PromptPassword -Title $title -user $user -caller $caller
   if ($caller.Data -ne $RESULT_CANCEL) {
-    if ($debug_flag){
+    if ($debug){
       Write-Debug ('Original username/password was: {0} / {1}' -f $caller.txtUser,$caller.txtPassword)
     }
     if ($store_flag) {
@@ -416,7 +415,7 @@ if (-not $clipboard_flag) {
       $result = 'invalid'
     }
     write-output ('Password is ' + $result)
-    if ($debug_flag){
+    if ($debug){
       write-debug ('Password loaded from Vault: {0}' -f $o.GetPassword())
     }
     }

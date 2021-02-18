@@ -62,10 +62,8 @@ function DateRangeReportLauncher {
   $f.Controls.Add($l1)
 
   $f.Font = new-object System.Drawing.Font ('Microsoft Sans Serif',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
-
+  # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.monthcalendar?view=netframework-4.0#examples
   $d1 = New-Object System.Windows.Forms.MonthCalendar
-	# CalendarFont property does not exist for MonthCalendar
-  # $d1.CalendarFont  = 'Microsoft Sans Serif,11'
   $d1.Location = new-object System.Drawing.Point (120,20)
   $d1.Size = new-object System.Drawing.Size (290,20)
   $d1.Name = 'txtFrom'
@@ -79,16 +77,12 @@ function DateRangeReportLauncher {
   $l2.Text = 'End Date'
   $f.Controls.Add($l2)
 
-  $d2 = New-Object System.Windows.Forms.DateTimePicker
-  # CalendarFont property does not exist for MonthCalendar
-	# $d2.CalendarFont  = 'Microsoft Sans Serif,11'
+  $d2 = New-Object System.Windows.Forms.MonthCalendar
   $d2.Location = new-object System.Drawing.Point (120,50)
   $d2.Size = new-object System.Drawing.Size (290,20)
   # $d2.Text = $user
   $d2.Name = 'txtTill'
   $f.Controls.Add($d2)
-  # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datetimepicker.closeup?view=netframework-4.0
-
 
   $d1.add_DateSelected( {
     param (
@@ -96,28 +90,8 @@ function DateRangeReportLauncher {
       [System.Windows.Forms.DateRangeEventArgs]$eventargs
     )
 		# works but looks ugly
-    $d2.MinDate  = $d1.Text
+    $d2.MinDate = $d1.Text.ToShortDateString()
   })
-
-	<#
-  $d1.add_CloseUp( {
-    param (
-      [Object] $sender,
-      [System.EventArgs]$eventargs
-    )
-    $d2.MinDate  = $d1.Text
-  })
-	#>
-	<#
-  $d1.add_ValueChanged( {
-    param (
-      [Object] $sender,
-      [System.EventArgs]$eventargs
-    )
-    $d2.MinDate  = $d1.value
-  })
-
-  #>
 
   $l3 = new-object System.Windows.Forms.Label
   $l3.Location = new-object System.Drawing.Size (10,80)
@@ -150,6 +124,9 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
     # write-host $text
   })
   $f.Controls.Add($t3)
+  
+  
+  
 
   $bOK = new-object System.Windows.Forms.Button
 
@@ -158,7 +135,7 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
   $right_margin = 60
   $margin_y = 16
   $left_margin = 24
-  $y = ($t3.Location.Y +  $t3.Size.Height + $margin_y)
+  $y = ($bPaste.Location.Y +  $bPaste.Size.Height + $margin_y)
   $bOK.Location = new-object System.Drawing.Point($left_margin, $y)
   $f.Controls.Add($bOK)
   $f.AcceptButton = $bOK
@@ -196,8 +173,8 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
   $f.Controls.Add($l)
   $f.Topmost = $true
 
-  $caller.Data = $RESULT_CANCEL
   $f.Add_Shown({
+    $caller.Data = $RESULT_CANCEL
     $f.ActiveControl = $d2
     $f.Activate()
   })
@@ -263,8 +240,7 @@ public class Win32Window : IWin32Window
 [void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
 [void][System.Reflection.Assembly]::LoadWithPartialName('System.Drawing')
 
-$debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
-if ($debug_flag){
+if ($debug){
   $DebugPreference = 'Continue'
 }
 $title = 'Enter Calendar Date Range'
@@ -298,9 +274,3 @@ if ($caller.Data -ne $RESULT_CANCEL) {
     }
   }
 }
-
-<#
-curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0)"interval_begin "from": 1612242000  "till":1612328400 "uri":""
-curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0)"interval_begin "from": 1612328400  "till":1612414800 "uri":""
-curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0)"interval_begin "from": 1612414800  "till":1612501200 "uri":""
-#>

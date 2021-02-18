@@ -18,11 +18,10 @@
 #requires -version 2
 
 # based on: https://www.cyberforum.ru/powershell/thread901801.html
-params(
+param(
   [switch] $debug
 )
 
-$debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
 [void] [System.Reflection.Assembly]::LoadWithPartialName('System.Drawing')
 [void] [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
 
@@ -53,7 +52,7 @@ $b.Add_Click({
   $data = @()
   $data += $t.Text
   $data += 'more data'
-  if ($debug_flag){
+  if ($debug){
     write-host $data
   }
   set-variable -name z -value $data -force -scope Global -option AllScope
@@ -85,12 +84,12 @@ $o.Add_Shown({
 [void] $o.ShowDialog()
 
 # the Powershell script will be blocked until the form is closed
-$data = [System.Windows.Forms.Clipboard]::GetText();
+$data = [System.Windows.Forms.Clipboard]::GetText()
 write-output ('clipboard: {0}' -f $data)
 $z | foreach-object { $o = $_
   write-output ('global variable: {0}' -f $o)
 }
-if ($debug_flag){
+if ($debug){
   write-output ('Data size: {0}' -f $z.Length)
 }
 

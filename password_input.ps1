@@ -37,11 +37,15 @@ function measure_width{
   $result = $text_width
   write-host ('Width: calculated {0}' -f $result)
 }
- return $result
+  return $result
 }
 
 $RESULT_OK = 0
 $RESULT_CANCEL = 2
+$Readable = @{
+  $RESULT_OK = 'OK';
+  $RESULT_CANCEL = 'CANCEL';
+}
 
 function PromptPassword {
   param(
@@ -132,8 +136,8 @@ function PromptPassword {
   $f.Controls.Add($l)
   $f.Topmost = $true
 
-  $caller.Data = $RESULT_CANCEL
   $f.Add_Shown({
+    $caller.Data = $RESULT_CANCEL
     $f.ActiveControl = $t2
     $f.Activate()
   })
@@ -194,8 +198,9 @@ public class Win32Window : IWin32Window
 [void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
 [void][System.Reflection.Assembly]::LoadWithPartialName('System.Drawing')
 
-$debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
-if ($debug_flag){
+# NOTE: unneeded
+# $debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
+if ($debug){
   $DebugPreference = 'Continue'
 }
 $title = 'Enter credentials'
@@ -226,8 +231,11 @@ if ($window_handle -eq 0) {
 
 $caller = new-object Win32Window -ArgumentList ($window_handle)
 PromptPassword -Title $title -user $user -caller $caller
+if ($debug){
+  write-output ('Result is : {0} ({1})' -f $Readable.Item($caller.Data),$caller.Data)
+}
 if ($caller.Data -ne $RESULT_CANCEL) {
-  if ($debug_flag){
+  if ($debug){
     Write-Debug ('Original username/password was: {0} / {1}' -f $caller.txtUser, $caller.txtPassword)
   }    
 }

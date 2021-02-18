@@ -22,6 +22,12 @@ param(
   [switch] $debug
 )
 
+$RESULT_OK = 0
+$RESULT_CANCEL = 2
+$Readable = @{
+  $RESULT_OK = 'OK'
+  $RESULT_CANCEL = 'CANCEL'
+}
 function measure_width{
   # NOTE no type declarations
   param(
@@ -72,6 +78,9 @@ function DateRangeReportLauncher {
   # possibly more relevant control: System.Windows.Forms.MonthCalendar
   # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.monthcalendar?view=netframework-4.0
   $d1 = New-Object System.Windows.Forms.DateTimePicker
+  # make  readonly in the event handler
+  # https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datetimepicker?view=net-5.0
+  # $d1.Enabled = $false
   $d1.CalendarFont  = 'Microsoft Sans Serif,11'
   $d1.Location = new-object System.Drawing.Point (120,20)
   $d1.Size = new-object System.Drawing.Size (290,20)
@@ -101,15 +110,33 @@ function DateRangeReportLauncher {
     )
     $d2.MinDate  = $d1.value
   })
+
   $d1.add_ValueChanged( {
     param (
       [Object] $sender,
       [System.EventArgs]$eventargs
     )
+    if ($debug) {
+      write-host ('in event handler "addValueChanged"')
+    }
     $d2.MinDate  = $d1.value
   })
 
 
+  Register-ObjectEvent -inputObject $d1 -eventName 'ValueChanged' -action {
+    param (
+      [Object] $sender,
+      [System.EventArgs]$eventargs
+    )
+    # when cmdlet is used to do event handler,
+    # the hadler execution is immediate, but logging is delayed
+    # the debuggig message is only printed to console after the form is closed
+    if ($debug) {
+      write-host ('in event handler "Register-ObjectEvent"')
+    }
+    $d2.MinDate  = $d1.value
+
+  } | out-null
 
   $l3 = new-object System.Windows.Forms.Label
   $l3.Location = new-object System.Drawing.Size (10,80)
@@ -207,8 +234,8 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
   $f.Controls.Add($l)
   $f.Topmost = $true
 
-  $caller.Data = $RESULT_CANCEL
   $f.Add_Shown({
+    $caller.Data = $RESULT_CANCEL
     $f.ActiveControl = $d2
     $f.Activate()
   })
@@ -274,8 +301,7 @@ public class Win32Window : IWin32Window
 [void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
 [void][System.Reflection.Assembly]::LoadWithPartialName('System.Drawing')
 
-$debug_flag = [bool]$PSBoundParameters['debug'].IsPresent
-if ($debug_flag){
+if ($debug){
   $DebugPreference = 'Continue'
 }
 $title = 'Enter Calendar Date Range'
@@ -285,6 +311,9 @@ $caller.Data = 1;
 DateRangeReportLauncher -Title $title -user $user -caller $caller
 $response_file = "${env:USERPROFILE}\Desktop\run.cmd"
 $has_data = $false
+if ($debug){
+  write-output ('Result is : {0} ({1})' -f $Readable.Item($caller.Data),$caller.Data)
+}
 if ($caller.Data -ne $RESULT_CANCEL) {
   if ($caller.txtFrom -ne '' -and $caller.txtTill -ne '') {
     if (test-path -literalpath $response_file) {
@@ -300,8 +329,11 @@ if ($caller.Data -ne $RESULT_CANCEL) {
     try {
       $date1 = [datetime]::parseexact(($caller.txtFrom -replace ' .*$', ''), 'MM/dd/yyyy', $null)
       $date2 = [datetime]::parseexact(($caller.txtTill -replace ' .*$', ''), 'MM/dd/yyyy', $null)
+      # https://devblogs.microsoft.com/scripting/formatting-date-strings-with-powershell/
+      # for Selenium datepicker tasks, can
+      # write-output ($date2.tostring('yyyy/MM/d'))
       $has_data = $true
-    } catch [Exception] { 
+    } catch [Exception] {
      # Exception calling "ParseExact" with "3" argument(s): "String was notrecognized as a valid DateTime."
     }
     # https://stackoverflow.com/questions/22406841/powershell-list-the-dates-between-a-range-of-dates
@@ -314,11 +346,11 @@ if ($caller.Data -ne $RESULT_CANCEL) {
       $till = [Math]::Floor([decimal](Get-Date($day).AddDays(1).ToUniversalTime() -uformat '%s'))
       write-output ((($command -replace '"from": *[0-9]+ *,', "`"from`": ${from} ") -replace '"till": *[0-9]+ *,', "`"till`":${till} ")  + "`n")| out-file -append -encoding ascii -literalpath $response_file
     }
-    if ($has_data) { 
+    if ($has_data) {
       if (test-path -literalpath $response_file) {
         & notepad.exe $response_file
       }
-    } else { 
+    } else {
       write-output 'Something went wrong: no data'
     }
   }
