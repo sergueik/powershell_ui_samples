@@ -150,14 +150,15 @@ function PromptPassword {
     $f.Close()
   })
 
-  [void]$f.ShowDialog([win32window]($caller))
+  [void]$f.ShowDialog([System.Windows.Forms.IWin32Window]($caller))
   $f.Dispose()
 }
 
+$caller_class = 'Win32Window_2'
 Add-Type -TypeDefinition @"
 using System;
 using System.Windows.Forms;
-public class Win32Window : IWin32Window
+public class ${caller_class}: IWin32Window
 {
     private IntPtr _hWnd;
     private int _data;
@@ -182,7 +183,7 @@ public class Win32Window : IWin32Window
         set { _txtPassword = value; }
     }
 
-    public Win32Window(IntPtr handle)
+    public ${caller_class}(IntPtr handle)
     {
         _hWnd = handle;
     }
@@ -229,7 +230,7 @@ if ($window_handle -eq 0) {
   write-output ('Using current process parent process {0} handle {1}' -f $parent_process_id, $window_handle)
 }
 
-$caller = new-object Win32Window -ArgumentList ($window_handle)
+$caller = new-object $caller_class -ArgumentList ($window_handle)
 PromptPassword -Title $title -user $user -caller $caller
 if ($debug){
   write-output ('Result is : {0} ({1})' -f $Readable.Item($caller.Data),$caller.Data)

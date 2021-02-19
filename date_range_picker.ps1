@@ -248,14 +248,14 @@ curl.exe "https://www.wikipedia.org" -H "User-Agent: Mozilla/5.0 (Windows NT 10.
     $f.Close()
   })
 
-  [void]$f.ShowDialog([win32window]($caller))
+  [void]$f.ShowDialog([System.Windows.Forms.IWin32Window]($caller))
   $f.Dispose()
 }
-
+$caller_class = 'Win32Window_1'
 Add-Type -TypeDefinition @"
 using System;
 using System.Windows.Forms;
-public class Win32Window : IWin32Window
+public class ${caller_class}: IWin32Window
 {
     private IntPtr _hWnd;
     private int _data;
@@ -285,7 +285,7 @@ public class Win32Window : IWin32Window
         set { _txtTill = value; }
     }
 
-    public Win32Window(IntPtr handle)
+    public ${caller_class}(IntPtr handle)
     {
         _hWnd = handle;
     }
@@ -306,7 +306,7 @@ if ($debug){
 }
 $title = 'Enter Calendar Date Range'
 $window_handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
-$caller = new-object Win32Window -ArgumentList ($window_handle)
+$caller = new-object $caller_class -ArgumentList ($window_handle)
 $caller.Data = 1;
 DateRangeReportLauncher -Title $title -user $user -caller $caller
 $response_file = "${env:USERPROFILE}\Desktop\run.cmd"
