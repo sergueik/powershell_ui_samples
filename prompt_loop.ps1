@@ -103,7 +103,7 @@ function PromptAuto {
   $f = new-object System.Windows.Forms.Form
   $f.Text = $title
 
-  $f.Size = new-object System.Drawing.Size (340,220)
+  $f.Size = new-object System.Drawing.Size (340,290)
 
   $p = new-object TimerPanel
   $p.Size = $f.Size
@@ -167,7 +167,7 @@ function PromptAuto {
     $f.Close()
   })
 
- $p.Controls.Add($button_ok)
+  $p.Controls.Add($button_ok)
   $end = (Get-Date -UFormat '%s')
   $end = ([int]$end + 60)
   $button_cancel = new-object System.Windows.Forms.Button
@@ -187,11 +187,40 @@ function PromptAuto {
   $l.Location = new-object System.Drawing.Size (10,80)
   $l.Size = new-object System.Drawing.Size (280,20)
   if ($message -eq $null) {
-    $l.Text = '.....'
+    $l.Text = ' '
   } else {
     $l.Text = $message
   }
   $p.Controls.Add($l)
+
+  $checkBox1 = new-object System.Windows.Forms.CheckBox
+  $checkBox2 = new-object System.Windows.Forms.CheckBox
+  $groupBox1 = new-object System.Windows.Forms.GroupBox
+  $groupBox1.Controls.AddRange( @(  $checkBox1, $checkBox2))
+  $groupBox1.Location = new-object System.Drawing.Point(8, 140)
+  $groupBox1.Name = 'groupBox1'
+  $groupBox1.Size = new-object System.Drawing.Size(320, 80)
+  $groupBox1.TabIndex = 1
+  $groupBox1.TabStop = $false
+  $groupBox1.Text = 'execution options'
+  $checkBox1.add_CheckedChanged({
+    $caller.Continue = $checkbox1.Checked
+  })
+  $checkBox1.Location = new-object System.Drawing.Point(16, 16)
+  $checkBox1.Name = 'checkBox1'
+  $checkBox1.TabIndex = 1
+  $checkBox1.Text = 'Continue'
+  $checkbox1.Checked = $caller.Continue
+
+  # checkBox2
+
+  $checkBox2.Location = new-object System.Drawing.Point(16, 48)
+  $checkBox2.Name = 'checkBox2'
+  $checkBox2.TabIndex = 2
+  $checkBox2.Text = 'Record'
+  $checkbox2.Enabled = $false
+  $p.Controls.Add($groupBox1)
+
 
   $p.Timer.Stop()
   $p.Timer.Interval = 5000
@@ -227,7 +256,7 @@ function PromptAuto {
   $f.Dispose()
 }
 
-$caller_class = 'Win32Window_18'
+$caller_class = 'Win32Window_2'
 Add-Type -TypeDefinition @"
 
 using System;
@@ -236,6 +265,7 @@ public class ${caller_class}: IWin32Window
 {
     private IntPtr _hWnd;
     private int _data;
+    private bool _continue;
     private string _txtUser;
     private string _txtPassword;
 
@@ -256,6 +286,11 @@ public class ${caller_class}: IWin32Window
         set { _data = value; }
     }
 
+    public bool Continue
+    {
+        get { return _continue; }
+        set { _continue = value; }
+    }
 
     public ${caller_class}(IntPtr handle)
     {
@@ -290,9 +325,11 @@ if ($window_handle -eq 0) {
 
 $caller = new-object $caller_class -ArgumentList ($window_handle)
 $result = $RESULT_OK
-while (($result -ne $RESULT_CANCEL) -and ($result -ne $RESULT_TIMEOUT)) {
+$continue = $true
+while ($continue -and ($result -ne $RESULT_CANCEL) -and ($result -ne $RESULT_TIMEOUT)) { 
   PromptAuto -Title $title -Message $message -caller $caller
   $result = $caller.Data
+  $continue = $caller.Continue
   write-output ('Result is : {0} ({1})'  -f $Readable.Item($result),$result)
   write-output ('Password is : {0}' -f $caller.TxtPassword)
   # call Selenium or other tasks
