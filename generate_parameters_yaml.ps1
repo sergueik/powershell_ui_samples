@@ -1,4 +1,9 @@
+param(
+  [String]$filename = 'environment.yaml'
 
+)
+
+$debugpreference='continue'
 # https://github.com/aaubry/YamlDotNet
 # see also https://www.codeproject.com/Articles/28720/YAML-Parser-in-C
 # https://github.com/scottmuc/PowerYaml
@@ -62,19 +67,35 @@ function Get-ScriptDirectory
   }
 }
 
-load_shared_assemblies
+load_shared_assemblies  
+write-output ('YAML file: {0}' -f ([System.IO.Path]::Combine((Get-location),$filename)))  
+$data = (Get-Content -Path ([System.IO.Path]::Combine((Get-location),$filename))) -join "`n"
 
-$filename = 'environment.yaml'
-$data = (Get-Content -Path ([System.IO.Path]::Combine((Get-ScriptDirectory),$filename))) -join "`n"
+write-output ("YAML data:`n{0}" -f $data)
+	
+$stringReader = new-object System.IO.StringReader($data)
 
-Write-Debug $data
-$stringReader = New-Object System.IO.StringReader ($data)
+$deserializer = new-object -TypeName 'YamlDotNet.Serialization.Deserializer' -ArgumentList $null,$null,$false
 
-$deserializer = New-Object -TypeName 'YamlDotNet.Serialization.Deserializer' -ArgumentList $null,$null,$false
+
 $yaml_obj = $deserializer.Deserialize([System.IO.TextReader]$stringReader)
-# $yaml_obj | get-member
-# $yaml_obj.Keys |  format-list
 
+# https://github.com/cloudbase/powershell-yaml/blob/master/powershell-yaml.psm1
+
+$builder = new-object -TypeName 'YamlDotNet.Serialization.SerializerBuilder'
+
+$builder.Build()
+	
+
+# trouble accessing the
+#    $serializer.WithNamingConvention([YamlDotNet.Serialization.NamingConvention]::CamelCaseNamingConvention.Instance)
+#     $serializer.Build()
+# $yaml = $serializer.Serialize($yaml_obj)
+write-output $yaml
+
+# $yaml_obj | get-member
+write-output 'YAML Keys: '
+$yaml_obj.Keys |  format-list
 
 # convert hash into PSCustomObject
 
@@ -82,8 +103,22 @@ $yaml_obj = $deserializer.Deserialize([System.IO.TextReader]$stringReader)
 $result = @{}
 $yaml_obj.Keys | ForEach-Object {
   $hostname = $_;
-  $data = $yaml_obj[$_]
-  $pscustom_obj = New-Object -TypeName 'PSObject' -Property $data
+  write-output ( 'key:{0}' -f $hostname)
+  $data = $yaml_obj[$hostname]
+  # Powershel sort of makes a boundary between arrays and hashes poor
+  write-output 'Data:'
+  $data_count = $data.Count
+  write-output ('data by key {0} count: {1}' -f $hostname, $data_count)
+  0..($data_count-1) | foreach-object {
+  $cnt = $_
+  write-output ('row {0}' -f $cnt)
+  $row =  $data[$cnt]
+  # $data | get-member
+
+  write-output 'Row Keys:'
+  $row.Keys | format-list
+  <#
+  $pscustom_obj = new-object -TypeName 'PSObject' -Property $row
   # $pscustom_obj
   # Convert the PSCustomObject back to a hashtable
   $data_hash_obj = @{}
@@ -91,6 +126,8 @@ $yaml_obj.Keys | ForEach-Object {
     $data_hash_obj[$_.Name] = $_.value
   }
   $result[$hostname] = $data_hash_obj
+  #>
+  }
 }
 
 <#
