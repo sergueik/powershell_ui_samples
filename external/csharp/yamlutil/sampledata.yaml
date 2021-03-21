@@ -1,0 +1,25 @@
+---
+# NOTE: preserve the filebeat pipeline indentation
+description: "pipeline"
+procesors:
+  - set:
+      # another templating language expression below
+      field: tag.name
+      value: :[tag.value]
+  - dissect:
+      field: 'message'
+      pattern: '%{datetime} [%{class}] [%{thread}] %{message}'
+  - grok:
+      field: 'message'
+      pattern: '%{datetime} [%{thread}] %{message}'
+  - grok:
+      field: message2
+      patterns:
+        - ^%{LETTER:first_char}
+      pattern-definitions:
+        LETTER: .
+  - dissect:
+      if: 'ctx.first_char != " "'
+      field: "message"
+      pattern: "%{level} %{class} - %{message}"
+

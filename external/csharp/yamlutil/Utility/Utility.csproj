@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{207E91B1-C9F8-4913-88E1-3549EF5F3273}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>QiHe.Yaml</RootNamespace>
+    <AssemblyName>YamlUtility</AssemblyName>
+    <TargetFrameworkVersion>v3.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <SignAssembly>False</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <!-- https://stackoverflow.com/questions/10714668/how-do-you-pass-conditional-compilation-symbols-defineconstants-to-msbuild -->
+    <DefineConstants>CUSTOMTYPE-</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Yaml\Custom\BlockScalarModifier.cs" />
+    <Compile Include="Yaml\Custom\MappingEntry.cs" />
+    <Compile Include="Yaml\Custom\Scalar.cs" />
+    <Compile Include="Yaml\Custom\ChompingMethod.cs" />
+    <Compile Include="Yaml\Custom\YamlDocument.cs" />
+    <Compile Include="Yaml\ParserInput.cs" />
+    <Compile Include="Yaml\YamlParser.cs" />
+    <Compile Include="Yaml\ParserCustom.cs" />
+    <Compile Include="Yaml\Syntax\BlockScalarModifier.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CodeLib\Pair.cs" />
+    <Compile Include="CodeLib\StringHelper.cs" />
+    <Compile Include="Yaml\Syntax\DataItem.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\Directive.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\GlobalTagPrefix.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\LocalTagPrefix.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\Mapping.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\MappingEntry.cs" />
+    <Compile Include="Yaml\Syntax\NamedTagHandle.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\NodeProperty.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\NonSpecificTag.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\PrimaryTagHandle.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\ReservedDirective.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\Scalar.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\SecondaryTagHandle.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\Sequence.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\ShorthandTag.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\Tag.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\TagDirective.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\TagHandle.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\TagPrefix.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\VerbatimTag.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\YamlDirective.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\YamlDocument.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\YamlStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\Syntax\YamlVersion.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Yaml\TextInput.cs" />
+    <Compile Include="Yaml\TextParserCommon.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28AnyCPU and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
