@@ -20,8 +20,8 @@
 
 param(
   # NOTE: Powershell does some conversion silently, based on param type 
-  [String]$option = $null,
-  [string[]]$options = @()
+  # [string[]]$options = @(),
+  [String]$option = $null
 )
 
 
@@ -59,7 +59,6 @@ public class ${caller_class}: IWin32Window {
 
 
 
-$global:value = @()
 [void] [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
 Add-Type -AssemblyName System.Windows.Forms
 
@@ -70,14 +69,10 @@ function collect_input {
     [object]$caller
 
   )
-  $global:value = @()
   $f = new-object System.Windows.Forms.Form
   $f.Size = new-object System.Drawing.Size(300,415)
   $f.AutoSize = $true
   $f.StartPosition = 'CenterScreen'
-  # $f.MinimumSize = new-object System.Drawing.Size(200, 30)
-  # $f.MaximumSize = new-object System.Drawing.Size(600, 600)
-  # $f.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
   $f.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::None
   $f.AutoSizeMode = [System.Windows.Forms.AutoSizeMode]::GrowOnly
   # $f.FormBorderStyle = FormBorderStyle.Sizable
@@ -89,15 +84,15 @@ function collect_input {
   $l.Font = New-Object System.Drawing.Font ('Microsoft Sans Serif',11 ,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
   $l.Text = $label
   $l.add_MouseEnter({
-  param(
-    [object] $sender, [System.EventArgs] $e    
-  )
+    param(
+      [object] $sender, [System.EventArgs] $e    
+    )
     $l.Text = 'Press Enter twice to submit'
   })
   $l.add_MouseLeave({
-  param(
-    [object] $sender, [System.EventArgs] $e
-  )
+    param(
+      [object] $sender, [System.EventArgs] $e
+    )
     $l.Text = $label
   })
   # _MouseHover ?
@@ -110,12 +105,12 @@ function collect_input {
   $t.Location = new-object System.Drawing.Size(10,35)
   $t.Size = new-object System.Drawing.Size(290,367)
   $t.Multiline = $true
+  $t.Font = New-Object System.Drawing.Font ('Microsoft Sans Serif',13 ,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
   $t.ScrollBars = 'Vertical'
   $f.Controls.Add($t)
   $t.focus()
 
   $t.Add_TextChanged({
-    $global:value  = @()
     $caller.Input.Clear()
     $debug = $false
     $done = $false
@@ -135,13 +130,11 @@ function collect_input {
       if ($debug){
         write-host ('procesing {0}' -f $line)
       }
-      $global:value += $line
       $caller.Input.Add($line)
     }
     $reader.dispose()
     if ($done) {
       if ($debug){
-        write-host ('returning array: "{0}"' -f ($global:value -join ','))
         write-host ('returning array: "{0}"' -f ($caller.Input.ToArray([System.String]) -join ','))
       }
       # NOTE: $t.Clear() should not be called here:
@@ -173,7 +166,6 @@ if ($option -eq '-') {
   
   collect_input -label 'enter value for option:' -caller $caller
    
-  write-output ('option: "{0}"' -f ($global:value -join ','))
   write-output ('option: "{0}"' -f ($caller.Input.ToArray([System.String]) -join ','))
 } else {
   if (($option -ne $null) -and ($option -ne '')) {
