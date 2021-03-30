@@ -19,7 +19,9 @@
 #THE SOFTWARE.
 
 param(
-  [String]$option = $null
+  # NOTE: Powershell does some conversion silently, based on param type 
+  [String]$option = $null,
+  [string[]]$options = @()
 )
 
 
@@ -73,8 +75,8 @@ function collect_input {
   $f.Size = new-object System.Drawing.Size(300,415)
   $f.AutoSize = $true
   $f.StartPosition = 'CenterScreen'
-  $f.MinimumSize = new-object System.Drawing.Size(200, 30)
-  $f.MaximumSize = new-object System.Drawing.Size(600, 600)
+  # $f.MinimumSize = new-object System.Drawing.Size(200, 30)
+  # $f.MaximumSize = new-object System.Drawing.Size(600, 600)
   # $f.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
   $f.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::None
   $f.AutoSizeMode = [System.Windows.Forms.AutoSizeMode]::GrowOnly
@@ -82,15 +84,31 @@ function collect_input {
   $f.ControlBox = $false
   $f.Text = ''
   $l = new-object System.Windows.Forms.Label
-  $l.Location = new-object System.Drawing.Point(22,20)
+  $l.Location = new-object System.Drawing.Point(10,5)
   $l.Size = new-object System.Drawing.Size(280,20)
+  $l.Font = New-Object System.Drawing.Font ('Microsoft Sans Serif',11 ,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
   $l.Text = $label
+  $l.add_MouseEnter({
+  param(
+    [object] $sender, [System.EventArgs] $e    
+  )
+    $l.Text = 'Press Enter twice to submit'
+  })
+  $l.add_MouseLeave({
+  param(
+    [object] $sender, [System.EventArgs] $e
+  )
+    $l.Text = $label
+  })
+  # _MouseHover ?
+ 
+        
   $f.Controls.Add($l)
  
   
   $t = new-object System.Windows.Forms.TextBox
-  $t.Location = new-object System.Drawing.Size(10,40)
-  $t.Size = new-object System.Drawing.Size(260,300)
+  $t.Location = new-object System.Drawing.Size(10,35)
+  $t.Size = new-object System.Drawing.Size(290,367)
   $t.Multiline = $true
   $t.ScrollBars = 'Vertical'
   $f.Controls.Add($t)
@@ -138,7 +156,6 @@ function collect_input {
   [void] $f.ShowDialog()
 }
 
-write-output ('option = "{0}"' -f $option)
 if ($option -eq '-') {
   
   $window_handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
@@ -154,9 +171,14 @@ if ($option -eq '-') {
   
   $caller = new-object $caller_class -ArgumentList ($window_handle)
   
-  collect_input -label 'input option:' -caller $caller
+  collect_input -label 'enter value for option:' -caller $caller
    
   write-output ('option: "{0}"' -f ($global:value -join ','))
   write-output ('option: "{0}"' -f ($caller.Input.ToArray([System.String]) -join ','))
-
+} else {
+  if (($option -ne $null) -and ($option -ne '')) {
+    write-output ('option: "{0}"' -f (($option -split ' ') -join ','))
+  } else { 
+    write-output ('Usage: {0} -option [-|DATA]' -f ($MyInvocation.MyCommand.Name))
+  }
 }
