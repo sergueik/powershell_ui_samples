@@ -21,29 +21,6 @@ param (
   [switch]$debug
 )
 
-function measure_width{
-  # NOTE no type declarations
-  param(
-    $control,
-    [System.Drawing.Font]$font,
-    # both options are not precise
-    [switch]$allow_automatic
-  )
- $text_width = ($control.CreateGraphics().MeasureString($control.Text, $font).Width)
- if ($text_width -lt $control.Size.Width) {
-
-  if ([bool]$PSBoundParameters['allow_automatic'].IsPresent) {
-    $result = $control.Size.Widths
-  } else {
-    $result = $text_width
-  }
-} else {
-  $result = $text_width
-}
-  write-host ('Width: calculated {0}' -f $result)
- return $result
-}
-
 function PromptPassword {
   param(
     [String]$title,
@@ -101,7 +78,6 @@ function PromptPassword {
   $bCancel.Text = 'Cancel'
   $bCancel.Name = 'btnCancel'
   $bCancel.AutoSize = $true
-  # $w = measure_width  -font $f.Font -control $bCancel $allow_automatic_flag
   $w = 59
   $bCancel.Location = new-object System.Drawing.Point(($f.Size.Width - $w - $right_margin), $bOK.Location.y)
   $f.Controls.Add($bCancel)
@@ -132,8 +108,14 @@ function PromptPassword {
   })
 
   [void]$f.ShowDialog()
-  # $f.Dispose()
-  return $f
+  if ($f.Controls.ContainsKey('txtUser')) {
+    $username = $f.Controls.find('txtUser', $false).Text
+  }
+  if ($f.Controls.ContainsKey('txtPassword')) {
+    $password = $f.Controls.item($f.Controls.IndexOfKey('txtPassword')).Text
+  }
+  $f.Dispose()
+  return @($username,$password)
 }
 
 @( 'System.Drawing','System.Windows.Forms') | ForEach-Object { [void][System.Reflection.Assembly]::LoadWithPartialName($_) }
@@ -142,17 +124,12 @@ if ($debug){
   $DebugPreference = 'Continue'
 }
 $title = 'Enter credentials'
-$form = PromptPassword -Title $title -user $user
-if ($form.Controls.ContainsKey('txtUser')) {
-  $username = $form.Controls.find('txtUser', $false).Text
-}
-if ($form.Controls.ContainsKey('txtPassword')) {
-  $password = $form.Controls.item($form.Controls.IndexOfKey('txtPassword')).Text
-}
+$inputs = PromptPassword -Title $title -user $user
+$username = $inputs[0]
+$password = $inputs[1]
 if (($username -ne '') -and ($password -ne '')){
   Write-Debug ('Entered username: {0} / password : {1}' -f $username, $password )
 } else { 
   Write-Debug ('Dialog was canceled')
 }
 
-$form.Dispose()
