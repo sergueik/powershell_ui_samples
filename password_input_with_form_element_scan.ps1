@@ -71,8 +71,9 @@ function PromptPassword {
   $left_margin = 24
   $y = ($t2.Location.Y +  $t2.Size.Height + $margin_y)
   $bOK.Location = new-object System.Drawing.Point($left_margin, $y)
-  $f.Controls.Add($bOK)
+  $bOK.DialogResult = [System.Windows.Forms.DialogResult]::OK
   $f.AcceptButton = $bOK
+  $f.Controls.Add($bOK)
 
   $bCancel = new-object System.Windows.Forms.Button
   $bCancel.Text = 'Cancel'
@@ -106,13 +107,17 @@ function PromptPassword {
     else { return }
     $f.Close()
   })
-
-  [void]$f.ShowDialog()
-  if ($f.Controls.ContainsKey('txtUser')) {
-    $username = $f.Controls.find('txtUser', $false).Text
-  }
-  if ($f.Controls.ContainsKey('txtPassword')) {
-    $password = $f.Controls.item($f.Controls.IndexOfKey('txtPassword')).Text
+  $username = ''
+  $password = ''
+  $result = $f.ShowDialog()
+  
+  if ($result -eq [System.Windows.Forms.DialogResult]::OK){
+    if ($f.Controls.ContainsKey('txtUser')) {
+      $username = $f.Controls.find('txtUser', $false).Text
+    }
+    if ($f.Controls.ContainsKey('txtPassword')) {
+      $password = $f.Controls.item($f.Controls.IndexOfKey('txtPassword')).Text
+    }
   }
   $f.Dispose()
   return @($username,$password)
@@ -123,6 +128,7 @@ function PromptPassword {
 if ($debug){
   $DebugPreference = 'Continue'
 }
+$inputs =  @()
 $title = 'Enter credentials'
 $inputs = PromptPassword -Title $title -user $user
 $username = $inputs[0]
@@ -132,4 +138,3 @@ if (($username -ne '') -and ($password -ne '')){
 } else { 
   Write-Debug ('Dialog was canceled')
 }
-
