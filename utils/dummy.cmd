@@ -1,0 +1,2 @@
+@echo off
+powershell -executionpolicy remotesigned -noprofile "& { param(  $message )  [void][Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic'); $text = [Microsoft.VisualBasic.Interaction]::InputBox($message, 'test');}" test
