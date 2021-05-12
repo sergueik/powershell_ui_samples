@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="SYSInfo">
+</Property><Property Name="Projektmappendatei" Value="E:\Documents\VS Projects\2010\SysInfo\SYSInfo.sln">
+</Property><Property Name="Date" Value="Montag, 30. April 2012">
+</Property><Property Name="Time" Value="15:07:32">
+</Property></Properties><Event ErrorLevel="0" Project="SYSInfo" Source="SYSInfo.csproj" Description="Projektdatei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\SYSInfo.csproj">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="CPUProcess.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\CPUProcess.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="CPUWorkload.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\CPUWorkload.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="DiskUsage.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\DiskUsage.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="FileBrowser.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\FileBrowser.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form1.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form1.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form1.Designer.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form1.Designer.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form2.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form2.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form2.Designer.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form2.Designer.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="TcpUdpConnForm.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\TcpUdpConnForm.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="TcpUdpConnForm.Designer.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\TcpUdpConnForm.Designer.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="IPHlpAPI32.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\IPHlpAPI32.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="IShellContextMenu.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\IShellContextMenu.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="IShellFolder.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\IShellFolder.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="NetworkAdapter.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\NetworkAdapter.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="NetworkMonitor.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\NetworkMonitor.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="NetworkWorkload.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\NetworkWorkload.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Program.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Program.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Properties\AssemblyInfo.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Properties\Resources.Designer.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Properties\Resources.Designer.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Properties\Settings.Designer.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Properties\Settings.Designer.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Settings.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Settings.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="ShellExtensions.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\ShellExtensions.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="TcpUdpConn.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\TcpUdpConn.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="TcpUdpHelper.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\TcpUdpHelper.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="TcpUdpHelper.Designer.cs" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\TcpUdpHelper.Designer.cs">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Properties\Settings.settings" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Properties\Settings.settings">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="app.config" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\app.config">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Misc\cpuback.png" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Misc\cpuback.png">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Misc\blue.png" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Misc\blue.png">
+</Event><Event ErrorLevel="2" Project="SYSInfo" Source="Misc\gold.png" Description="Fehler beim Sichern der Datei als E:\Documents\VS Projects\2010\SysInfo\Backup\Misc\gold.png.">
+</Event><Event ErrorLevel="2" Project="SYSInfo" Source="Misc\green.png" Description="Fehler beim Sichern der Datei als E:\Documents\VS Projects\2010\SysInfo\Backup\Misc\green.png.">
+</Event><Event ErrorLevel="2" Project="SYSInfo" Source="Misc\cyan.png" Description="Fehler beim Sichern der Datei als E:\Documents\VS Projects\2010\SysInfo\Backup\Misc\cyan.png.">
+</Event><Event ErrorLevel="2" Project="SYSInfo" Source="Misc\darkred.png" Description="Fehler beim Sichern der Datei als E:\Documents\VS Projects\2010\SysInfo\Backup\Misc\darkred.png.">
+</Event><Event ErrorLevel="2" Project="SYSInfo" Source="Misc\turquoise.png" Description="Fehler beim Sichern der Datei als E:\Documents\VS Projects\2010\SysInfo\Backup\Misc\turquoise.png.">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Resources\grey.png" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Resources\grey.png">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Misc\grey.png" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Misc\grey.png">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Win.ico" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Win.ico">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form1.de-DE.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form1.de-DE.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form1.de.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form1.de.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form1.en-GB.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form1.en-GB.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form1.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form1.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form2.de-DE.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form2.de-DE.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form2.de.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form2.de.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form2.en-GB.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form2.en-GB.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form2.en.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form2.en.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Form2.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Form2.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="TcpUdpConnForm.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\TcpUdpConnForm.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Properties\Resources.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Properties\Resources.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="TcpUdpHelper.resx" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\TcpUdpHelper.resx">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="Properties\app.manifest" Description="Datei erfolgreich gesichert als E:\Documents\VS Projects\2010\SysInfo\Backup\Properties\app.manifest">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="SYSInfo.csproj" Description="Projekt erfolgreich konvertiert">
+</Event><Event ErrorLevel="3" Project="SYSInfo" Source="SYSInfo.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="SYSInfo" Source="SYSInfo.csproj" Description="Überprüfung abgeschlossen: Upgrade der Projektdateien nicht erforderlich.">
+</Event></UpgradeLog>

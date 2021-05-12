@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="aktualisierenToolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>145, 22</value>
+  </data>
+  <data name="aktualisierenToolStripMenuItem1.Text" xml:space="preserve">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="SettingsChangeToolStripMenuItem.Text" xml:space="preserve">
+    <value>Ändern</value>
+  </data>
+  <data name="SettingsDelToolStripMenuItem.Text" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="einstellungenToolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>145, 22</value>
+  </data>
+  <data name="einstellungenToolStripMenuItem1.Text" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="englishToolStripMenuItem.Text" xml:space="preserve">
+    <value>Englisch</value>
+  </data>
+  <data name="germanToolStripMenuItem.Text" xml:space="preserve">
+    <value>Deutsch</value>
+  </data>
+  <data name="spracheToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>145, 22</value>
+  </data>
+  <data name="spracheToolStripMenuItem.Text" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="thinBorderTS.Text" xml:space="preserve">
+    <value>dünn</value>
+  </data>
+  <data name="thickBorderTS.Text" xml:space="preserve">
+    <value>dick</value>
+  </data>
+  <data name="borderTS.Size" type="System.Drawing.Size, System.Drawing">
+    <value>145, 22</value>
+  </data>
+  <data name="borderTS.Text" xml:space="preserve">
+    <value>Rahmen</value>
+  </data>
+  <data name="transparentToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>184, 22</value>
+  </data>
+  <data name="transparentToolStripMenuItem.Text" xml:space="preserve">
+    <value>Transparent</value>
+  </data>
+  <data name="aeroEffektabVistaToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>184, 22</value>
+  </data>
+  <data name="aeroEffektabVistaToolStripMenuItem.Text" xml:space="preserve">
+    <value>Aero Effekt (ab Vista)</value>
+  </data>
+  <data name="gradientToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>184, 22</value>
+  </data>
+  <data name="gradientToolStripMenuItem.Text" xml:space="preserve">
+    <value>Farbverlauf</value>
+  </data>
+  <data name="textureToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>184, 22</value>
+  </data>
+  <data name="textureToolStripMenuItem.Text" xml:space="preserve">
+    <value>Textur</value>
+  </data>
+  <data name="hintergrundToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>145, 22</value>
+  </data>
+  <data name="hintergrundToolStripMenuItem.Text" xml:space="preserve">
+    <value>Hintergrund</value>
+  </data>
+  <data name="lockedToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>145, 22</value>
+  </data>
+  <data name="lockedToolStripMenuItem.Text" xml:space="preserve">
+    <value>fixiert</value>
+  </data>
+  <data name="beendenToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>145, 22</value>
+  </data>
+  <data name="beendenToolStripMenuItem.Text" xml:space="preserve">
+    <value>Beenden</value>
+  </data>
+  <data name="contextMenuStrip1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>146, 158</value>
+  </data>
+  <data name="contextMenuStrip1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label19.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label18.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label17.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label16.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label15.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label14.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label13.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label12.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label11.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label10.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label9.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label8.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label7.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label6.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label5.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label4.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label3.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label2.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label0.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="pPBar.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="panel1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="panel2.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="imageList1.ImageStream" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj0yLjAuMC4w
+        LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
+        ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAAK
+        CQAAAk1TRnQBSQFMAgEBAgEAASABAgEgAQIBEAEAARABAAT/ASEBAAj/AUIBTQE2BwABNgMAASgDAAFA
+        AwABEAMAAQEBAAEgBgABEFIAA2cB8gPhAf8D4AH/A+AB/wPfAf8D3gH/A90B/wPdAf8D3AH/A9wB/wPb
+        Af8D3AH/AxIBGQMAAQGIAAMSARkBSgHEAeYB/wFLAcwB7QH/AUsBzAHsAf8BSQHJAeoB/wFIAcgB6AH/
+        AUcBxgHmAf8BRgHGAeQB/wFFAcMB4QH/AUIBwQHgAf8BRAHDAeIB/wE9AbkB1wH/AxoBJQMLAQ8IAANn
+        AfID6wH/A+oB/wPpAf8D6QH/A+gB/wPoAf8D5gH/A+YB/wPlAf8D5QH/A+QB/wMsAUQDFAEcAwMBBIQA
+        AxIBGAFKAcQB5gH/AYABzAHtAf8BgAHMAe0B/wFLAcsB6gH/AUoBygHqAf8BSgHKAeoB/wFHAcYB5QH/
+        AUYBxAHjAf8BRAHBAeAB/wFDAcAB3QH/AToBuAHWAv8BrQFGAf8DJQE3AwcBCQQAA2cB8gPtAf8D7AH/
+        A+wB/wPqAf8D6gH/A+kB/wPpAf8D6QH/A+cB/wPmAf8D5QH/AxwBKAMRARcDBwEKAwABAYAAAxIBGAFK
+        AcQB5gH/AYABzgHvAf8BggHOAe8B/wGAAc0B7gH/AYABzAHtAf8BgAHNAe4B/wFLAcwB7AH/AUkByQHp
+        Af8BSAHGAeUB/wFHAcUB5AH/AT4BvQHaAf8B9QH3AfgB/wMkATUDJAE2BAADZwHyA+0B/wPuAf8D7QH/
+        A+0B/wPrAf8D6wH/A+sB/wPpAf8D6QH/A+kB/wPoAf8EAAMBAQKIAAMSARgBSgHEAeYB/wGDAdAB8QH/
+        AYMB0AHwAf8BggHPAfAB/wGBAc8B7wH/AYIBzwHwAf8BgQHOAe8B/wGAAcwB7QH/AUsBygHqAf8BSAHI
+        AecB/wFAAb8B4AX/Ax0BKgMiATIDCAELA2cB8gPwAf8D7gH/A+0B/wPtAf8D7gH/A+wB/wPsAf8D6wH/
+        A+oB/wPqAf8D6gH/kAADEgEZAUsByAHpAf8BgwHQAfEB/wGDAdEB8gH/AYIB0AHxAf8BggHQAfEB/wGE
+        AdEB8gH/AYIB0AHxAf8BgQHQAfAB/wGBAc4B7gH/AUsBzQHtAf8BQgHGAeYF/wMIAQsDDgETAwoBDgNn
+        BPIB/wPxAf8D8AH/A+4B/wPtAf8D7gH/A+0B/wPsAf8D7AH/A+sB/wPqAf+QAAMSARkBhAHQAe8B/wGF
+        AdMB9AH/AYQB0wH0Af8BhAHSAfMB/wGDAdIB8wH/AYQB1AH1Af8BhAHSAfMB/wGDAdIB8wH/AYIB0AHx
+        Af8BggHQAfEB/wGCAc8B8AH/AYYB0wH0Af8MAANtAfcD8wH/A/MB/wPyAf8D8QH/A/AB/wPuAf8D7QH/
+        A+4B/wPuAf8D7AH/A+wB/5AAAxIBGQGKAdoB9wH/AYcB2AH5Af8BhgHYAfkB/wGGAdcB+AH/AYYB1QH3
+        Af8BhwHXAfkB/wGGAdUB9gH/AYUB1QH2Af8BhQHUAfUB/wGDAdIB8wH/AU0BXAFoAfoQAANfAfsD9QH/
+        A/UB/wPzAf8D8wH/A/MB/wPxAf8D8AH/A+8B/wPuAf8D7gH/A+4B/5AAAxwBJwGOAeIB/QH/AYkB2wH8
+        Af8BiwHdAf4B/wGIAdsB/AH/AYcB2gH7Af8BigHaAfwB/wGHAdgB+QH/AYkB2QH7Af8BhwHYAfkB/wGG
+        AdYB9wH/A2oB+RAAA18B+wP2Af8D9gH/A/UB/wP0Af8D8wH/A/MB/wPyAf8D8QH/A/AB/wPvAf8D7gH/
+        kAADFgEeAZAB5gL/AYwB4AL/AY0B4QL/AYwB3wL/AYwB3wL/AYwB3wH+Af8BigHcAf0B/wGKAd0B/QH/
+        AYoB3AH+Af8BiQHcAf0B/wNqAfkQAANfAfsD9wH/A/gB/wP2Af8D9gH/A/YB/wP0Af8D9AH/A/MB/wPy
+        Af8D8gH/A/IB/5AAAxMBGgGQAeYC/wGPAeMC/wGPAeMC/wGOAeIC/wGPAeMC/wGOAeIC/wGOAeEC/wGN
+        Ad8C/wGMAeAC/wGLAd4C/wNqAfkQAANeAfoD9wH/A/gB/wP4Af8D+AH/A/YB/wP2Af8D9QH/A/UB/wP1
+        Af8D9gH/A/YB/5AAAxMBGgGQAeYC/wGRAecC/wGPAeMC/wGQAeUC/wGRAecC/wGRAeUC/wGQAeUC/wGP
+        AeMC/wGQAeUC/wGPAeIC/wNqAfkQAANfAfsD9AH/A/cB/wP4Af8D9wH/A/gB/wP3Af8D9wH/A/gB/wP4
+        Af8D+gH/A/EB/5AAAxMBGgGQAeYC/wGTAecC/wGPAeQC/wGRAeYC/wGUAekC/wGQAeYC/wGRAecC/wGQ
+        AeUC/wGTAekC/wGRAeUC/wNqAfkQAANcAfgD9gH/A/YB/wP3Af8D+QH/A/gB/wP6Af8D+gH/A/sB/wPd
+        Af8D5wH/A8gB/5AAAxIBGAGQAeYC/wGUAekC/wGUAekC/wGTAekC/wGXAesC/wGTAegC/wGTAegC/wGU
+        AeoC/wGVAewC/wGTAekC/wNqAfkQAANcAfgD9wH/A/gB/wP5Af8D+gH/A/oB/wP6Af8D+wH/A/sB/wO2
+        Af8D4gH/lAADCgENAUQBvgHXAf8BggHIAeMB/wGJAdEB7AH/AYoB0gHuAf8BigHSAe4B/wGKAdIB7gH/
+        AYoB0gHuAf8BigHSAe4B/wGKAdIB7gH/AYoB0gHuAf8BRwFqAXAB/BAAA1wB+AP5Af8D+gH/A/oB/wP6
+        Af8D+wH/A/sB/wP8Af8D9AH/A7kB/9gAA18B4ANdAe0DXQHtA10B7QNdAe0DXQHtA10B7QNdAe0DYQHm
+        nAABQgFNAT4HAAE+AwABKAMAAUADAAEQAwABAQEAAQEFAAGAFwAD/wEAAv8BAAEDBQABAwEAAQEFAAEB
+        BwABAQEAAQsHAAEPBwABDwUAAQcBAAEPBQABDwEAAQ8FAAEPAQABDwUAAQ8BAAEPBQABDwEAAQ8FAAEP
+        AQABDwUAAQ8BAAEPBQABDwEAAR8FAAEPAQABPwQAAv8BAAF/BAAL
+</value>
+  </data>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>124, 25</value>
+  </data>
+  <data name="$this.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+</root>

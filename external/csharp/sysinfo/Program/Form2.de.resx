@@ -1,0 +1,855 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="cbNetAdap4.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbNetAdap3.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbNetAdap2.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbNetAdap1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox11.Text" xml:space="preserve">
+    <value>Adapter deaktivieren</value>
+  </data>
+  <data name="groupBox11.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbNetGW.Text" xml:space="preserve">
+    <value>Gateway</value>
+  </data>
+  <data name="cbNetGW.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="timespanNet.ToolTip" xml:space="preserve">
+    <value>Zeitspanne die im Graph sichtbar ist</value>
+  </data>
+  <data name="cbNetMask.Text" xml:space="preserve">
+    <value>Subnetzmaske</value>
+  </data>
+  <data name="cbNetMask.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbNetTP.Text" xml:space="preserve">
+    <value>Durchsatz</value>
+  </data>
+  <data name="cbNetTP.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbNetMAC.Text" xml:space="preserve">
+    <value>MAC-Adresse</value>
+  </data>
+  <data name="cbNetMAC.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label18.Text" xml:space="preserve">
+    <value>Zeitspanne (s)</value>
+  </data>
+  <data name="label18.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="timerNet.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbNetIP.Text" xml:space="preserve">
+    <value>IP-Adresse</value>
+  </data>
+  <data name="cbNetIP.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label16.Text" xml:space="preserve">
+    <value>Aktualisierungs-
+intervall (ms)</value>
+  </data>
+  <data name="label16.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox7.Text" xml:space="preserve">
+    <value>Netzwerk</value>
+  </data>
+  <data name="groupBox7.ToolTip" xml:space="preserve">
+    <value>nur verfügbar wenn IP-Adressen angezeigt werden</value>
+  </data>
+  <data name="timespanCPU.ToolTip" xml:space="preserve">
+    <value>Zeitspanne die im Graph sichtbar ist</value>
+  </data>
+  <data name="timespanDiskUsage.ToolTip" xml:space="preserve">
+    <value>Zeitspanne die im Graph sichtbar ist</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="bUp.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+</value>
+  </data>
+  <data name="bUp.ToolTip" xml:space="preserve">
+    <value>Reihenfolge in der die Elemente angezeigt werden</value>
+  </data>
+  <data name="bDown.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+        MESoMwAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="bDown.ToolTip" xml:space="preserve">
+    <value>Reihenfolge in der die Elemente angezeigt werden</value>
+  </data>
+  <data name="button5.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+        YII=
+</value>
+  </data>
+  <data name="button5.ToolTip" xml:space="preserve">
+    <value>Titel der Funktion zuweisen</value>
+  </data>
+  <data name="bAeroTransp.ToolTip" xml:space="preserve">
+    <value>Win8: Hintergrund transparent (bessere Quali.) 
+Win7 - Aero Standardfarbe</value>
+  </data>
+  <data name="lbHDDSys.ToolTip" xml:space="preserve">
+    <value>Laufwerk doppelklicken um es zur Liste der ausgeblendeten Laufwerke hinzuzufügen</value>
+  </data>
+  <data name="lbHDDHidden.ToolTip" xml:space="preserve">
+    <value>Laufwerk doppelklicken um es aus der Liste zu entfernen</value>
+  </data>
+  <data name="cbCPUTotal.Location" type="System.Drawing.Point, System.Drawing">
+    <value>225, 10</value>
+  </data>
+  <data name="cbCPUTotal.Size" type="System.Drawing.Size, System.Drawing">
+    <value>114, 17</value>
+  </data>
+  <data name="cbCPUTotal.Text" xml:space="preserve">
+    <value>Total (Text/Graph)</value>
+  </data>
+  <data name="label32.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="colorAero.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox12.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label8.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 13</value>
+  </data>
+  <data name="label8.Text" xml:space="preserve">
+    <value>Reihenfolge ändern</value>
+  </data>
+  <data name="label8.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="lbAvailable.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="lbTitle.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="lbActive.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>115, 13</value>
+  </data>
+  <data name="label1.Text" xml:space="preserve">
+    <value>Verfügbare Funktionen</value>
+  </data>
+  <data name="label1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>27, 13</value>
+  </data>
+  <data name="label7.Text" xml:space="preserve">
+    <value>Titel</value>
+  </data>
+  <data name="label7.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>93, 13</value>
+  </data>
+  <data name="label3.Text" xml:space="preserve">
+    <value>Aktive Funktionen</value>
+  </data>
+  <data name="label3.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox5.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="checkLBr.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="textBox1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>127, 13</value>
+  </data>
+  <data name="label5.Text" xml:space="preserve">
+    <value>Zeilenumbruch nach Titel</value>
+  </data>
+  <data name="label5.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox3.Text" xml:space="preserve">
+    <value>Titel</value>
+  </data>
+  <data name="groupBox3.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bTextCol.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+        YII=
+</value>
+  </data>
+  <data name="bTextCol.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label9.Size" type="System.Drawing.Size, System.Drawing">
+    <value>37, 13</value>
+  </data>
+  <data name="label9.Text" xml:space="preserve">
+    <value>Global</value>
+  </data>
+  <data name="label9.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbColorGlobal.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="button4.Text" xml:space="preserve">
+    <value>Schriftart</value>
+  </data>
+  <data name="button4.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label4.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="colorbox.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="button3.Text" xml:space="preserve">
+    <value>Textfarbe</value>
+  </data>
+  <data name="button3.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox2.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="timerIntervall.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>81, 26</value>
+  </data>
+  <data name="label6.Text" xml:space="preserve">
+    <value>Aktualisierungs-
+intervall (s)</value>
+  </data>
+  <data name="label6.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="numericUpDownAngel.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label11.Size" type="System.Drawing.Size, System.Drawing">
+    <value>40, 13</value>
+  </data>
+  <data name="label11.Text" xml:space="preserve">
+    <value>Winkel</value>
+  </data>
+  <data name="label11.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="colorB2.Text" xml:space="preserve">
+    <value>Farbe 2</value>
+  </data>
+  <data name="colorB2.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="colorB1.Text" xml:space="preserve">
+    <value>Farbe 1</value>
+  </data>
+  <data name="colorB1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox4.Text" xml:space="preserve">
+    <value>Hintergrund Farbverlauf</value>
+  </data>
+  <data name="groupBox4.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tabPage1.Text" xml:space="preserve">
+    <value>Allgemein</value>
+  </data>
+  <data name="tabPage1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label31.Size" type="System.Drawing.Size, System.Drawing">
+    <value>71, 13</value>
+  </data>
+  <data name="label31.Text" xml:space="preserve">
+    <value>ausgeblendet</value>
+  </data>
+  <data name="label31.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label25.Size" type="System.Drawing.Size, System.Drawing">
+    <value>52, 13</value>
+  </data>
+  <data name="label25.Text" xml:space="preserve">
+    <value>verfügbar</value>
+  </data>
+  <data name="label25.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox13.Text" xml:space="preserve">
+    <value>Laufwerk ausblenden</value>
+  </data>
+  <data name="groupBox13.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label10.Text" xml:space="preserve">
+    <value>Zeitspanne (s)</value>
+  </data>
+  <data name="label10.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="timerDiskUsage.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label19.Text" xml:space="preserve">
+    <value>Aktualisierungs-
+ intervall (ms)</value>
+  </data>
+  <data name="label19.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox10.Text" xml:space="preserve">
+    <value>Festplatten Auslastung</value>
+  </data>
+  <data name="groupBox10.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbCPUText.Location" type="System.Drawing.Point, System.Drawing">
+    <value>112, 10</value>
+  </data>
+  <data name="cbCPUText.Size" type="System.Drawing.Size, System.Drawing">
+    <value>47, 17</value>
+  </data>
+  <data name="cbCPUText.Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="cbCPUText.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="timerCPU.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label14.Text" xml:space="preserve">
+    <value>Zeitspanne (s)</value>
+  </data>
+  <data name="label14.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbCPUGraph.Location" type="System.Drawing.Point, System.Drawing">
+    <value>169, 10</value>
+  </data>
+  <data name="cbCPUGraph.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 17</value>
+  </data>
+  <data name="cbCPUGraph.Text" xml:space="preserve">
+    <value>Graph</value>
+  </data>
+  <data name="cbCPUGraph.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label15.Text" xml:space="preserve">
+    <value>Aktualisierungs-
+intervall (ms)</value>
+  </data>
+  <data name="label15.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox8.Text" xml:space="preserve">
+    <value>CPU Auslastung</value>
+  </data>
+  <data name="groupBox8.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cBoxHddBar100.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bHddBar100.Text" xml:space="preserve">
+    <value>Balkenfarbe75-100%</value>
+  </data>
+  <data name="bHddBar100.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cBoxHddBar75.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bHddBar75.Text" xml:space="preserve">
+    <value>Balkenfarbe 50-75%</value>
+  </data>
+  <data name="bHddBar75.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cBoxHddBar50.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bHddBar50.Text" xml:space="preserve">
+    <value>Balkenfarbe 0-50%</value>
+  </data>
+  <data name="bHddBar50.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="button1.Text" xml:space="preserve">
+    <value>Hintergrundfarbe</value>
+  </data>
+  <data name="button1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cBoxHDDBack.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label17.Size" type="System.Drawing.Size, System.Drawing">
+    <value>50, 13</value>
+  </data>
+  <data name="label17.Text" xml:space="preserve">
+    <value>anzeigen</value>
+  </data>
+  <data name="label17.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cBoxHDDText.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbHDDBar.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="button2.Text" xml:space="preserve">
+    <value>Textfarbe</value>
+  </data>
+  <data name="button2.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox6.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tabPage2.Text" xml:space="preserve">
+    <value>Erweitert</value>
+  </data>
+  <data name="tabPage2.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label30.Size" type="System.Drawing.Size, System.Drawing">
+    <value>83, 13</value>
+  </data>
+  <data name="label30.Text" xml:space="preserve">
+    <value>RGB-Skalierung</value>
+  </data>
+  <data name="label30.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tBarI.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tBarScale.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label27.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cbBGIFill.Size" type="System.Drawing.Size, System.Drawing">
+    <value>51, 17</value>
+  </data>
+  <data name="cbBGIFill.Text" xml:space="preserve">
+    <value>füllen</value>
+  </data>
+  <data name="cbBGIFill.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label21.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bBPicDef.Text" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="bBPicDef.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bBGPicOpen.Text" xml:space="preserve">
+    <value>Ändern</value>
+  </data>
+  <data name="bBGPicOpen.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bBPicValDef.Text" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="bBPicValDef.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="lBlueScale.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label23.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tBarBScale.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="lGreenScale.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label26.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tBarGScale.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="lRedScale.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label28.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tBarRScale.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="lBlue.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label24.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tBarB.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="lGreen.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label22.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tBarG.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label29.Size" type="System.Drawing.Size, System.Drawing">
+    <value>76, 13</value>
+  </data>
+  <data name="label29.Text" xml:space="preserve">
+    <value>RGB-Intensität</value>
+  </data>
+  <data name="label29.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="lRed.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label20.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tBarR.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="pBox.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tabPage3.Text" xml:space="preserve">
+    <value>Hintergrund</value>
+  </data>
+  <data name="tabPage3.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="tabControl1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bTest.Text" xml:space="preserve">
+    <value>Testen</value>
+  </data>
+  <data name="bTest.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bApply.Text" xml:space="preserve">
+    <value>Anwenden</value>
+  </data>
+  <data name="bApply.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bReset.Text" xml:space="preserve">
+    <value>Zurücksetzen</value>
+  </data>
+  <data name="bReset.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="bCancel.Text" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="bCancel.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="groupBox9.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label12.Text" xml:space="preserve">
+    <value>Zeitspanne (s)</value>
+  </data>
+  <data name="label12.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label13.Text" xml:space="preserve">
+    <value>Aktualisierungs-
+intervall (ms)</value>
+  </data>
+  <data name="label13.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label2.Text" xml:space="preserve">
+    <value>Anzeigen</value>
+  </data>
+  <data name="label2.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="button7.Text" xml:space="preserve">
+    <value>Hintergrundfarbe</value>
+  </data>
+  <data name="button7.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="cButtonHDDText.Text" xml:space="preserve">
+    <value>Textfarbe</value>
+  </data>
+  <data name="cButtonHDDText.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="$this.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+</root>
