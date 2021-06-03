@@ -1,4 +1,4 @@
-#Copyright (c) 2020 Serguei Kouzmine
+#Copyright (c) 2020,2021 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -60,36 +60,49 @@ function PromptPassword {
   $f.MaximizeBox = $false
   $f.MinimizeBox = $false
   $f.Text = $title
-  $f.size = new-object System.Drawing.Size(390,272)
+  $f.size = new-object System.Drawing.Size(344,182)
+  $f.SuspendLayout()
 
-  $l1 = new-object System.Windows.Forms.Label
-  $l1.Location = new-object System.Drawing.Size (10,20)
-  $l1.Size = new-object System.Drawing.Size (100,20)
-  $l1.Text = 'Username'
-  $f.Controls.Add($l1)
-  
   $f.Font = new-object System.Drawing.Font ('Microsoft Sans Serif',10,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,0)
-  # alternatively just
-  $l1.Font = 'Microsoft Sans Serif,10'
-  $t1 = new-object System.Windows.Forms.TextBox
-  $t1.Location = new-object System.Drawing.Point (120,20)
-  $t1.Size = new-object System.Drawing.Size (190,20)
-  $t1.Text = $user
-  $t1.Name = 'txtUser'
+  # alternatively just set font property of the label
+
+  # VB-style constructor
+  # see also
+  # https://www.cyberforum.ru/powershell/thread2842717.html
+
+  $f.Controls.Add(
+    [System.Windows.Forms.Label] @{
+      Location = new-object System.Drawing.Size (10,20)
+      Size = new-object System.Drawing.Size (100,20)
+      Text = 'Username'
+      Font = 'Microsoft Sans Serif,10'
+    }
+  )
+
+  $t1 = [System.Windows.Forms.TextBox]@{
+    Text = $user
+    Name = 'txtUser'
+    Location = new-object System.Drawing.Point (120,20)
+    Size = new-object System.Drawing.Size (190,20)
+  }
+
   $f.Controls.Add($t1)
+  # NOTE: cannot use "new-object" with this argument constructor expression
+  $f.Controls.Add(
+    [System.Windows.Forms.Label] @{
+      Location = new-object System.Drawing.Size (10,50)
+      Size = new-object System.Drawing.Size (100,20)
+      Text = 'Password'
+    }
+  )
 
-  $l2 = new-object System.Windows.Forms.Label
-  $l2.Location = new-object System.Drawing.Size (10,50)
-  $l2.Size = new-object System.Drawing.Size (100,20)
-  $l2.Text = 'Password'
-  $f.Controls.Add($l2)
-
-  $t2 = new-object System.Windows.Forms.TextBox
-  $t2.Location = new-object System.Drawing.Point (120,50)
-  $t2.Size = new-object System.Drawing.Size (190,20)
-  $t2.Text = ''
-  $t2.Name = 'txtPassword'
-  $t2.PasswordChar = '*'
+  $t2 = [System.Windows.Forms.TextBox]@{
+    Location = new-object System.Drawing.Point (120,50)
+    Size = new-object System.Drawing.Size (190,20)
+    Text = ''
+    Name = 'txtPassword'
+    PasswordChar = '*'
+  }
   $f.Controls.Add($t2)
 
   $bOK = new-object System.Windows.Forms.Button
@@ -114,12 +127,8 @@ function PromptPassword {
   write-host ('measure_width: {0}' -f $w)
   $bCancel.Location = new-object System.Drawing.Point(($t2.Location.x + $t2.Size.Width - $w - $right_margin ), $bOK.Location.y)
   $f.Controls.Add($bCancel)
-<#
-  $f.SuspendLayout()
-  $f.Controls.AddRange(@( $l1, $t1, $l2, $t2, $bOK, $bCancel))
   $f.ResumeLayout($true)
   $f.PerformLayout()
-#>
 
   $bCancel.add_click({
     $caller.txtPassword = $null
@@ -133,7 +142,6 @@ function PromptPassword {
     $f.Close()
   })
 
-  $f.Controls.Add($l)
   $f.Topmost = $true
 
   $f.Add_Shown({
@@ -238,5 +246,5 @@ if ($debug){
 if ($caller.Data -ne $RESULT_CANCEL) {
   if ($debug){
     Write-Debug ('Original username/password was: {0} / {1}' -f $caller.txtUser, $caller.txtPassword)
-  }    
+  }
 }
