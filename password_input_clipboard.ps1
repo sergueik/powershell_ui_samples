@@ -1,4 +1,4 @@
-#Copyright (c) 2020 Serguei Kouzmine
+#Copyright (c) 2020,2021 Serguei Kouzmine
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +26,8 @@ param (
 )
 
 function measure_width{
-  # NOTE no type declarations
   param(
-    $control,
+    [System.Windows.Forms.Control]$control,
     [System.Drawing.Font]$font,
     # both options are not precise
     [switch]$allow_automatic
@@ -77,7 +76,7 @@ function PromptPassword {
   $f.MaximizeBox = $false
   $f.MinimizeBox = $false
   $f.Text = $title
-  $f.size = new-object System.Drawing.Size(390,272)
+  $f.size = new-object System.Drawing.Size(344,182)
 
   $l1 = new-object System.Windows.Forms.Label
   $l1.Location = new-object System.Drawing.Size (10,20)
@@ -306,7 +305,7 @@ Copyright (C) 2015 Microsoft Corporation. All rights reserved.
 [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
 0
 #>
-$o = new-object Helper
+
 if (-not $clipboard_flag) {
   write-output '1'
   $window_handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle

@@ -128,7 +128,7 @@ function PromptPassword {
 if ($debug){
   $DebugPreference = 'Continue'
 }
-$inputs =  @()
+$inputs = @()
 $title = 'Enter credentials'
 $inputs = PromptPassword -Title $title -user $user
 $username = $inputs[0]

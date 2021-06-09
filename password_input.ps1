@@ -24,19 +24,18 @@ param (
 )
 
 function measure_width{
-  # NOTE no type declarations
   param(
-    $control,
+    [System.Windows.Forms.Control]$control,
     [System.Drawing.Font]$font
   )
- $text_width = ($control.CreateGraphics().MeasureString($control.Text, $font).Width)
- if ($text_width -lt $control.Size.Width) {
-  # write-host ('Width: automatic {0}' -f $control.Size.Width)
-  $result = $text_width
-} else {
-  $result = $text_width
-  write-host ('Width: calculated {0}' -f $result)
-}
+  $text_width = ($control.CreateGraphics().MeasureString($control.Text, $font).Width)
+  if ($text_width -lt $control.Size.Width) {
+    # write-host ('Width: automatic {0}' -f $control.Size.Width)
+    $result = $text_width
+  } else {
+    $result = $text_width
+    write-host ('Width: calculated {0}' -f $result)
+  }
   return $result
 }
 
