@@ -1,0 +1,12 @@
+﻿<Window x:Class="Win32HooksDemo.HoverControl"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="HoverControl" Height="10" Width="150" 
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" >
+    <Grid>
+        <Rectangle ToolTip="Click To Close" MouseDown="rectangle1_MouseDown"  Name="rectangle1"
+                   Stroke="#FFC7FF00" Fill="Red" RadiusY="10" RadiusX="10" StrokeThickness="2"/>
+        <TextBlock FontSize="9" FontWeight="Bold" HorizontalAlignment="Center" 
+                   Text="This is my Hover Control" />
+    </Grid>
+</Window>

@@ -1,0 +1,17 @@
+﻿<Window x:Class="Win32HooksDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:Win32HooksDemo"
+        Title="MainWindow" Height="290" Width="462">
+    <Grid Loaded="Grid_Loaded">
+        <Button Content="Find Window Handle" Height="23" HorizontalAlignment="Right" Margin="0,66,12,0" Name="btn_find" VerticalAlignment="Top" Width="127" Click="btn_find_Click" />
+        <ListBox l:SelectorExtenders.IsAutoscroll="true" IsSynchronizedWithCurrentItem="True" Height="151" Margin="12,26,145,0" Name="ProcessList" VerticalAlignment="Top" />
+        <ListBox l:SelectorExtenders.IsAutoscroll="true" IsSynchronizedWithCurrentItem="True" Margin="12,183,12,12" Name="LogList" />
+        <Button ToolTip="Clear" Content="C" Height="16" Margin="0,44,126,0" Name="btn_pro_clear" VerticalAlignment="Top" FontSize="8" Click="btn_pro_clear_Click" HorizontalAlignment="Right" Width="17" />
+        <Button ToolTip="Refresh" Content="R" HorizontalAlignment="Right" Margin="0,26,126,0" Name="btn_pro_refresh" Width="17" FontSize="8" Click="btn_pro_refresh_Click" Height="16" VerticalAlignment="Top" />
+        <Label Content="Process List:" Height="28" HorizontalAlignment="Left" Margin="12,0,0,0" Name="label1" VerticalAlignment="Top" />
+        <Button Content="Get Window Position" Height="23" HorizontalAlignment="Right" Margin="0,95,12,0" Name="btn_get_pos" VerticalAlignment="Top" Width="127" IsEnabled="True" Click="btn_get_pos_Click" />
+        <Button Content="Set Event" Height="23" HorizontalAlignment="Right" Margin="0,154,12,0" Name="btn_set_event" VerticalAlignment="Top" Width="127" IsEnabled="True" Click="btn_set_event_Click" />
+        <Button Content="Add Control" Height="23" HorizontalAlignment="Right" Margin="0,124,12,0" Name="btn_add" VerticalAlignment="Top" Width="127" IsEnabled="True" Click="btn_add_Click" />
+    </Grid>
+</Window>
