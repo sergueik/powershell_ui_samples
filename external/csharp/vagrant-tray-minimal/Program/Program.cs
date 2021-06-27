@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace HudsonClient {
+namespace SeleniumClient {
     public static class Program
     {
         [STAThread]
