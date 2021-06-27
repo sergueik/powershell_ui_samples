@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Data;
 using System.Drawing;
 using System.Resources;
 using System.Reflection;
@@ -13,27 +14,31 @@ namespace SeleniumClient
 {
 	public class ProcessIcon : IDisposable
 	{
-		NotifyIcon ni;
+		NotifyIcon notifyIcon;
 		public ProcessIcon()
 		{
-			ni = new NotifyIcon();
+			notifyIcon = new NotifyIcon();
 		}
 
 		public void Display()
 		{
-			ni.MouseClick += new MouseEventHandler(ni_MouseClick);
-			ni.Icon = Icon.FromHandle(Properties.Resources.vagrant_logo_on.GetHicon());
-			ni.Text = "System Tray Utility Application Demonstration Program";
-			ni.Visible = true;
-			ni.ContextMenuStrip = new ContextMenus().Create();
+			// notifyIcon.MouseClick += new MouseEventHandler(notifyIcon_MouseClick);
+			notifyIcon.Icon = Icon.FromHandle(Properties.Resources.vagrant_logo_on.GetHicon());
+			notifyIcon.Text = "System Tray Utility Application Demonstration Program";
+			notifyIcon.Visible = true;
+			notifyIcon.ContextMenuStrip = new ContextMenus().Create();
 		}
 
 		public void Dispose()
 		{
-			ni.Dispose();
+			notifyIcon.Dispose();
 		}
 
-		void ni_MouseClick(object sender, MouseEventArgs e)
+		// TODO: the icon does not disappear instantly on exit, ony after mouse hover
+		// method protection level prevents from calling
+		// notifyIcon.Dispose( disposing )
+
+		void notifyIcon_MouseClick(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Left) {
 				Process.Start("explorer", null);
@@ -43,8 +48,9 @@ namespace SeleniumClient
 
 	class ContextMenus
 	{
-		bool isAboutLoaded = false;
-
+		// controls to show one dialog at a time
+		bool isFormDisplayed = false;
+	
 		public ContextMenuStrip Create()
 		{
 			// Add the default menu options.
@@ -52,14 +58,14 @@ namespace SeleniumClient
 			ToolStripMenuItem item;
 			ToolStripSeparator sep;
 
-			// Windows Explorer.
+			// status check
 			item = new ToolStripMenuItem();
-			item.Text = "Explorer";
-			item.Click += new EventHandler(Explorer_Click);
+			item.Text = "status";
+			item.Click += new EventHandler(Process_Click);
 			menu.Items.Add(item);
 
 			item = new ToolStripMenuItem();
-			item.Text = "About";
+			item.Text = "about";
 			item.Click += new EventHandler(About_Click);
 			item.Image = Resources.about;
 			menu.Items.Add(item);
@@ -68,41 +74,91 @@ namespace SeleniumClient
 			menu.Items.Add(sep);
 
 			item = new ToolStripMenuItem();
-			item.Text = "Exit";
-			item.Click += new System.EventHandler(Exit_Click);
+			item.Text = "exit";
+			item.Click += (object sender, EventArgs e) => Application.Exit(); 
 			item.Image = Resources.exit;
 			menu.Items.Add(item);
 
 			return menu;
 		}
 
-		void Explorer_Click(object sender, EventArgs e)
+		void Process_Click(object sender, EventArgs e)
 		{
-			//    Process.Start("explorer", null);
-			new Parser().Start();
+			if (!isFormDisplayed) {
+				isFormDisplayed = true;
+				new Parser().ShowDialog();
+				isFormDisplayed = false;
+			}
 		}
 
 		void About_Click(object sender, EventArgs e)
 		{
-			if (!isAboutLoaded) {
-				isAboutLoaded = true;
+			if (!isFormDisplayed) {
+				isFormDisplayed = true;
 				new AboutBox().ShowDialog();
-				isAboutLoaded = false;
+				isFormDisplayed = false;
 			}
 		}
 
 		void Exit_Click(object sender, EventArgs e)
 		{
-			// Quit without further ado.
 			Application.Exit();
 		}
 	}
 
  
-	public class Parser
+	public class Parser : Form
 	{
 		WebBrowser request = new WebBrowser();
- 
+		private DataGrid myDataGrid;
+		private DataSet myDataSet;
+		private System.ComponentModel.IContainer components = null;
+
+		public Parser()
+		{
+			InitializeComponent();
+			SetUp();
+			Start();
+		}
+		
+		private void SetUp()
+		{
+			MakeDataSet();
+			myDataGrid.SetDataBinding(myDataSet, "Customers");
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null)) {
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
+
+		private void InitializeComponent()
+		{
+			this.Size = new Size(400, 200);
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Parser));
+			this.Text = String.Format("Grid status");
+			this.SuspendLayout();
+			this.myDataGrid = new DataGrid();
+			myDataGrid.Location = new  Point(8, 8);
+			myDataGrid.Size = new Size(384, 184);
+			
+			this.Controls.Add(myDataGrid);
+			DataGridTableStyle ts1 = new DataGridTableStyle();
+			ts1.MappingName = "Customers";
+			ts1.AlternatingBackColor = Color.LightGray;
+			DataGridColumnStyle TextCol = new DataGridTextBoxColumn();
+			TextCol.MappingName = "custName";
+			TextCol.HeaderText = "Customer Name";
+			TextCol.Width = 250;
+			ts1.GridColumnStyles.Add(TextCol);
+			myDataGrid.TableStyles.Add(ts1);
+			this.ResumeLayout(false);
+
+		}
+
 		public void Start()
 		{
 			request.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
@@ -112,15 +168,14 @@ namespace SeleniumClient
 		void docCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
 		{
 			HtmlDocument doc = request.Document;
-			List<String> nodes = new List<String>();
-			List<String> ids = new List<String>();
+			var nodes = new List<String>();
+			var ids = new List<String>();
 			ids.Add("rightColumn");
 			ids.Add("leftColumn");
 		
 			
-		foreach (String id in ids) {
+			foreach (String id in ids) {
 				HtmlElement tag = doc.GetElementById(id);
-				// in the following call the document is the reveiver, not the tag
 				HtmlElementCollection tagCollection = tag.GetElementsByTagName("p");
 				for (int cnt = 0; cnt != tagCollection.Count; cnt++) {
 					tag = tagCollection[cnt];
@@ -131,9 +186,43 @@ namespace SeleniumClient
 				}
 			}
 			foreach (String text in nodes) {
-				Console.Error.WriteLine(text);				
+				Console.Error.WriteLine(text);
+				int rowNum = 0;
+				string columnName = "CustName";  // database table column name
+				
+				myDataSet.Tables["Customers"].Rows[rowNum][columnName] = text;
 			}
 			//Debug.Log(tagCollection);
+		}
+		
+		private void MakeDataSet()
+		{
+			myDataSet = new DataSet("myDataSet");
+      
+			DataTable tCust = new DataTable("Customers");
+
+			// Create two columns, and add them to the first table.
+			DataColumn cCustID = new DataColumn("CustID", typeof(int));
+			DataColumn cCustName = new DataColumn("CustName");
+			// DataColumn cCurrent = new DataColumn("Current", typeof(bool));
+			tCust.Columns.Add(cCustID);
+			tCust.Columns.Add(cCustName);
+			// tCust.Columns.Add(cCurrent);
+
+			// Add the tables to the DataSet.
+			myDataSet.Tables.Add(tCust);
+
+			DataRow newRow1;
+
+			for (int i = 1; i < 4; i++) {
+				newRow1 = tCust.NewRow();
+				newRow1["custID"] = i;
+				// Add the row to the Customers table.
+				tCust.Rows.Add(newRow1);
+			}
+			tCust.Rows[0]["custName"] = "Customer1";
+			tCust.Rows[1]["custName"] = "Customer2";
+			tCust.Rows[2]["custName"] = "Customer3";
 		}
 	}
  
