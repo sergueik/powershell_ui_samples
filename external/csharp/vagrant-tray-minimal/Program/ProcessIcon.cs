@@ -139,6 +139,10 @@ namespace SeleniumClient {
 		}
 
 		public void Start() {
+			// Gets the version of Internet Explorer installed.
+			var dummy = request.Version; 
+			// 11.0.9600.17728, still does not work
+			request.AllowNavigation = true;
 			request.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
 			request.Navigate("http://localhost:4444/grid/console/");
 		}
