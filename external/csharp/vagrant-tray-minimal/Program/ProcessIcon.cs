@@ -10,27 +10,23 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-namespace SeleniumClient
-{
-	public class ProcessIcon : IDisposable
-	{
+namespace SeleniumClient {
+	public class ProcessIcon : IDisposable {
 		NotifyIcon notifyIcon;
-		public ProcessIcon()
-		{
+		public ProcessIcon() {
 			notifyIcon = new NotifyIcon();
 		}
 
-		public void Display()
-		{
+		public void Display() {
+			
 			// notifyIcon.MouseClick += new MouseEventHandler(notifyIcon_MouseClick);
-			notifyIcon.Icon = Icon.FromHandle(Properties.Resources.vagrant_logo_on.GetHicon());
-			notifyIcon.Text = "System Tray Utility Application Demonstration Program";
+			notifyIcon.Icon = Icon.FromHandle(Properties.Resources.selenium.GetHicon());
+			notifyIcon.Text = "System Tray Selenium Grid Status Checker";
 			notifyIcon.Visible = true;
 			notifyIcon.ContextMenuStrip = new ContextMenus().Create();
 		}
 
-		public void Dispose()
-		{
+		public void Dispose() {
 			notifyIcon.Dispose();
 		}
 
@@ -38,27 +34,22 @@ namespace SeleniumClient
 		// method protection level prevents from calling
 		// notifyIcon.Dispose( disposing )
 
-		void notifyIcon_MouseClick(object sender, MouseEventArgs e)
-		{
+		void notifyIcon_MouseClick(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
 				Process.Start("explorer", null);
 			}
 		}
 	}
 
-	class ContextMenus
-	{
-		// controls to show one dialog at a time
+	class ContextMenus {
+		// show one dialog at a time
 		bool isFormDisplayed = false;
 	
-		public ContextMenuStrip Create()
-		{
-			// Add the default menu options.
+		public ContextMenuStrip Create() {
 			ContextMenuStrip menu = new ContextMenuStrip();
 			ToolStripMenuItem item;
 			ToolStripSeparator sep;
 
-			// status check
 			item = new ToolStripMenuItem();
 			item.Text = "status";
 			item.Click += new EventHandler(Process_Click);
@@ -82,8 +73,7 @@ namespace SeleniumClient
 			return menu;
 		}
 
-		void Process_Click(object sender, EventArgs e)
-		{
+		void Process_Click(object sender, EventArgs e) {
 			if (!isFormDisplayed) {
 				isFormDisplayed = true;
 				new Parser().ShowDialog();
@@ -91,54 +81,43 @@ namespace SeleniumClient
 			}
 		}
 
-		void About_Click(object sender, EventArgs e)
-		{
+		void About_Click(object sender, EventArgs e) {
 			if (!isFormDisplayed) {
 				isFormDisplayed = true;
 				new AboutBox().ShowDialog();
 				isFormDisplayed = false;
 			}
 		}
-
-		void Exit_Click(object sender, EventArgs e)
-		{
-			Application.Exit();
-		}
 	}
 
  
-	public class Parser : Form
-	{
+	public class Parser : Form {
 		WebBrowser request = new WebBrowser();
 		private DataGrid myDataGrid;
 		private DataSet myDataSet;
 		private System.ComponentModel.IContainer components = null;
 
-		public Parser()
-		{
+		public Parser() {
 			InitializeComponent();
 			SetUp();
 			Start();
 		}
 		
-		private void SetUp()
-		{
+		private void SetUp() {
 			MakeDataSet();
 			myDataGrid.SetDataBinding(myDataSet, "Customers");
 		}
 
-		protected override void Dispose(bool disposing)
-		{
+		protected override void Dispose(bool disposing) {
 			if (disposing && (components != null)) {
 				components.Dispose();
 			}
 			base.Dispose(disposing);
 		}
 
-		private void InitializeComponent()
-		{
+		private void InitializeComponent() {
 			this.Size = new Size(400, 200);
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Parser));
+			var resources = new System.ComponentModel.ComponentResourceManager(typeof(Parser));
 			this.Text = String.Format("Grid status");
 			this.SuspendLayout();
 			this.myDataGrid = new DataGrid();
@@ -146,53 +125,68 @@ namespace SeleniumClient
 			myDataGrid.Size = new Size(384, 184);
 			
 			this.Controls.Add(myDataGrid);
-			DataGridTableStyle ts1 = new DataGridTableStyle();
+			var ts1 = new DataGridTableStyle();
 			ts1.MappingName = "Customers";
 			ts1.AlternatingBackColor = Color.LightGray;
 			DataGridColumnStyle TextCol = new DataGridTextBoxColumn();
 			TextCol.MappingName = "custName";
 			TextCol.HeaderText = "Customer Name";
-			TextCol.Width = 250;
+			TextCol.Width = 300;
 			ts1.GridColumnStyles.Add(TextCol);
 			myDataGrid.TableStyles.Add(ts1);
 			this.ResumeLayout(false);
 
 		}
 
-		public void Start()
-		{
+		public void Start() {
 			request.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
 			request.Navigate("http://localhost:4444/grid/console/");
 		}
  
-		void docCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-		{
+		void docCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+			var document_html= request.Document.Body.InnerHtml;
 			HtmlDocument doc = request.Document;
+			HtmlElement element = null;
+			HtmlElement element2 = null;
+			HtmlElementCollection elements = null;
 			var nodes = new List<String>();
 			var ids = new List<String>();
+							int rowNum = 0;
+
 			ids.Add("rightColumn");
 			ids.Add("leftColumn");
 		
-			
+			// TODO: System.Windows.Forms.WebBrowser does not find "#rightColumn" and only 
+			// sees one $("#leftColumn p"), the innerHTML of $("#leftColumn") appears truncated
 			foreach (String id in ids) {
-				HtmlElement tag = doc.GetElementById(id);
-				HtmlElementCollection tagCollection = tag.GetElementsByTagName("p");
-				for (int cnt = 0; cnt != tagCollection.Count; cnt++) {
-					tag = tagCollection[cnt];
-					if (tag.GetAttribute("classname").Contains("proxyid")) {
-						String text = tag.InnerText;
+				element = doc.GetElementById(id);
+				var html = element.InnerHtml;
+
+				elements = element.GetElementsByTagName("p");
+				for (int cnt = 0; cnt != elements.Count; cnt++) {
+					element2 = elements[cnt];
+					if (element2.GetAttribute("classname").Contains("proxyid")) {
+						String text = element2.InnerText;
 						nodes.Add(text);
 					}
 				}
 			}
+			
+			elements = doc.GetElementsByTagName("p");
+			for (int cnt = 0; cnt != elements.Count; cnt++) {
+				element = elements[cnt];
+				if (element.GetAttribute("classname").Contains("proxyid")) {
+					String text = element.InnerText;
+					nodes.Add(text);
+				}
+			}
 			foreach (String text in nodes) {
 				Console.Error.WriteLine(text);
-				int rowNum = 0;
 				string columnName = "CustName";  // database table column name
-				
+						
 				myDataSet.Tables["Customers"].Rows[rowNum][columnName] = text;
+				rowNum ++;;
 			}
-			//Debug.Log(tagCollection);
 		}
 		
 		private void MakeDataSet()

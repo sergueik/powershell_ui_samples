@@ -48,7 +48,10 @@ namespace SeleniumClient.Properties {
 		
 		/// <summary>
 		///   Overrides the current thread's CurrentUICulture property for all
-		///   resource lookups using this strongly typed resource class.
+		///   resource ]
+		/// [';.lookups using this strongly typed resource class.[pL'
+		///
+		///
 		/// </summary>
 		[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
 		internal static global::System.Globalization.CultureInfo Culture {
@@ -63,7 +66,7 @@ namespace SeleniumClient.Properties {
 		/// <summary>
 		///   Looks up a localized resource of type System.Drawing.Bitmap.
 		/// </summary>
-		internal static System.Drawing.Bitmap about {
+		internal static	System.Drawing.Bitmap about {
 			get {
 				object obj = ResourceManager.GetObject("about", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
@@ -83,9 +86,9 @@ namespace SeleniumClient.Properties {
 		/// <summary>
 		///   Looks up a localized resource of type System.Drawing.Bitmap.
 		/// </summary>
-		internal static System.Drawing.Bitmap vagrant_logo_on {
+		internal static System.Drawing.Bitmap selenium {
 			get {
-				object obj = ResourceManager.GetObject("vagrant_logo_on", resourceCulture);
+				object obj = ResourceManager.GetObject("selenium", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}

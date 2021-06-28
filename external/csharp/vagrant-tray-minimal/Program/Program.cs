@@ -12,10 +12,8 @@ namespace SeleniumClient {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            using (ProcessIcon pi = new ProcessIcon())
-            {
-                pi.Display();
-
+            using (var processIcon = new ProcessIcon()) {
+                processIcon.Display();
                 Application.Run();
             }
         }
