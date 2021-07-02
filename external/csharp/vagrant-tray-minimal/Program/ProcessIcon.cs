@@ -3,10 +3,10 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Data;
 using System.Drawing;
-using System.Resources;
+using System.IO;
 using System.Reflection;
 using SeleniumClient.Properties;
-using System.Collections;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
@@ -117,7 +117,6 @@ namespace SeleniumClient {
 
 		private void InitializeComponent() {
 			this.Size = new Size(400, 200);
-			var resources = new System.ComponentModel.ComponentResourceManager(typeof(Parser));
 			this.Text = String.Format("Grid status");
 			this.SuspendLayout();
 			this.myDataGrid = new DataGrid();
@@ -139,62 +138,238 @@ namespace SeleniumClient {
 		}
 
 		public void Start() {
-			// Gets the version of Internet Explorer installed.
-			var dummy = request.Version; 
-			// 11.0.9600.17728, still does not work
-			request.AllowNavigation = true;
 			request.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
-			request.Navigate("http://localhost:4444/grid/console/");
+			request.AllowNavigation = true;
+			// try {
+			var webRequest = WebRequest.Create(@"http://localhost:4444/grid/console/");
+			// } catch (WebException e) { }
+			using (var response = webRequest.GetResponse())
+			using (var content = response.GetResponseStream())
+			using (var reader = new StreamReader(content)) {
+				var strContent = reader.ReadToEnd();
+				
+				// https://social.msdn.microsoft.com/Forums/vstudio/en-US/3875b32a-0a08-4c35-acee-233f14c5057b/parsing-a-html-file-in-a-console-app?forum=vbgeneral
+				// https://csharp.hotexamples.com/examples/mshtml/IHTMLDocument2/-/php-ihtmldocument2-class-examples.html
+				// https://newbedev.com/html-how-to-load-html-code-in-web-browser-in-c-vs-code-example
+			
+				request.Navigate("about:blank");
+/*
+				while (request.ReadyState != WebBrowserReadyState.Complete) {
+					Application.DoEvents();
+					System.Threading.Thread.Sleep(5);
+				}
+*/
+				dynamic Doc = request.Document.DomDocument;
+				Doc.open();
+				
+				// when the user presses the entier button
+				String text = "<!DOCTYPE html>" + @"<html>
+                    <head>
+                    <meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"" />
+                    </head>
+                      </head>
+  <body>
+    <div id=""main_content"">
+      <div id=""header"">
+        <h1>
+          <a href=""/grid/console"">
+Selenium</a>
+        </h1>
+        <h2>
+Grid Console v.2.53.0</h2>
+        <div>
+          <a id=""helplink"" target=""_blank"" href=""https://github.com/SeleniumHQ/selenium/wiki/Grid2"">
+Help</a>
+        </div>
+      </div>
+      <div id=""leftColumn"">
+        <div class=""proxy"">
+          <p class=""proxyname"">
+DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
+id : http://SERGUEIK53:5555, OS : WIN8_1</p>
+<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
+Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
+Configuration</a></li></ul></div>
+</p>
+        </div>
+        <div class=""proxy"">
+          <p class=""proxyname"">
+DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
+id : http://SERGUEIK53:5556, OS : WIN8_1</p>
+<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
+Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
+Configuration</a></li></ul></div>
+</p>
+        </div>
+      </div>
+      <div id=""rightColumn"">
+        <div class=""proxy"">
+          <p class=""proxyname"">
+DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
+id : http://SERGUEIK53:5557, OS : WIN8_1</p>
+<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
+Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
+Configuration</a></li></ul></div>
+</p>
+        </div>
+        <div class=""proxy"">
+          <p class=""proxyname"">
+DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
+id : http://SERGUEIK53:5558, OS : WIN8_1</p>
+<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
+Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
+Configuration</a></li></ul></div>
+</p>
+        </div>
+      </div>
+    </div>
+    <div class=""clearfix"">
+</div>
+    <div>
+      <ul>
+</ul>
+    </div>
+    <a href=""?config=true"">view config</a>
+  </body>
+</html>";
+
+				String text2 = "<!DOCTYPE html>" + @"<html>
+  <head>
+    <script src=""//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"">
+</script>
+    <script src=""/grid/resources/org/openqa/grid/images/console-beta.js"">
+</script>
+    <link href=""/grid/resources/org/openqa/grid/images/console-beta.css"" rel=""stylesheet"" type=""text/css""/>
+    <link href=""/grid/resources/org/openqa/grid/images/favicon.ico"" rel=""icon"" type=""image/x-icon""/>
+    <title>
+Grid Console</title>
+    <style>
+.busy { opacity : 0.4;filter: alpha(opacity=40);}</style>
+  </head>
+  <body>
+    <div id=""main_content"">
+      <div id=""header"">
+        <h1>
+          <a href=""/grid/console"">
+Selenium</a>
+        </h1>
+        <h2>
+Grid Console v.2.53.0</h2>
+        <div>
+          <a id=""helplink"" target=""_blank"" href=""https://github.com/SeleniumHQ/selenium/wiki/Grid2"">
+Help</a>
+        </div>
+      </div>
+      <div id=""leftColumn"">
+        <div class=""proxy"">
+          <p class=""proxyname"">
+DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
+id : http://SERGUEIK53:5555, OS : WIN8_1</p>
+<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
+Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
+Configuration</a></li></ul></div>
+</p>
+        </div>
+        <div class=""proxy"">
+          <p class=""proxyname"">
+DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
+id : http://SERGUEIK53:5556, OS : WIN8_1</p>
+<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
+Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
+Configuration</a></li></ul></div>
+</p>
+        </div>
+      </div>
+      <div id=""rightColumn"">
+        <div class=""proxy"">
+          <p class=""proxyname"">
+DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
+id : http://SERGUEIK53:5557, OS : WIN8_1</p>
+<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
+Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
+Configuration</a></li></ul></div>
+</p>
+        </div>
+        <div class=""proxy"">
+          <p class=""proxyname"">
+DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
+id : http://SERGUEIK53:5558, OS : WIN8_1</p>
+<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
+Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
+Configuration</a></li></ul></div>
+</p>
+        </div>
+      </div>
+    </div>
+    <div class=""clearfix"">
+</div>
+    <div>
+      <ul>
+</ul>
+    </div>
+    <a href=""?config=true"">view config</a>
+  </body>
+</html>";	
+				String text3 = "<!DOCTYPE html>" + strContent;
+				int x3 = text3.Length;
+				int x2 = text2.Length;
+				// TODO: NPE - document seems to not be fully loaded
+				// Doc.write(text2); // TODO: configure to ignore errors
+				Doc.write(text2)	;
+				// removed Javascript, added "<!DOCTYPE html>" to the hub page
+				Doc.close();
+				//  can  only run directly ?
+				processDocument();
+			}
+				
 		}
- 
-		void docCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
-			var document_html= request.Document.Body.InnerHtml;
+
+		void processDocument() {
+			var document_html = request.Document.Body.InnerHtml;
 			HtmlDocument doc = request.Document;
 			HtmlElement element = null;
 			HtmlElement element2 = null;
 			HtmlElementCollection elements = null;
 			var nodes = new List<String>();
 			var ids = new List<String>();
-							int rowNum = 0;
+			int rowNum = 0;
 
 			ids.Add("rightColumn");
 			ids.Add("leftColumn");
 		
-			// TODO: System.Windows.Forms.WebBrowser does not find "#rightColumn" and only 
-			// sees one $("#leftColumn p"), the innerHTML of $("#leftColumn") appears truncated
 			foreach (String id in ids) {
 				element = doc.GetElementById(id);
+				if (element == null) { 
+					continue;
+				}
 				var html = element.InnerHtml;
 
 				elements = element.GetElementsByTagName("p");
 				for (int cnt = 0; cnt != elements.Count; cnt++) {
 					element2 = elements[cnt];
-					if (element2.GetAttribute("classname").Contains("proxyid")) {
+					
+					if (element2.GetAttribute("classname") != null && element2.GetAttribute("classname").Contains("proxyid")) {
 						String text = element2.InnerText;
 						nodes.Add(text);
 					}
 				}
 			}
 			
-			elements = doc.GetElementsByTagName("p");
-			for (int cnt = 0; cnt != elements.Count; cnt++) {
-				element = elements[cnt];
-				if (element.GetAttribute("classname").Contains("proxyid")) {
-					String text = element.InnerText;
-					nodes.Add(text);
-				}
-			}
 			foreach (String text in nodes) {
 				Console.Error.WriteLine(text);
 				string columnName = "CustName";  // database table column name
 						
 				myDataSet.Tables["Customers"].Rows[rowNum][columnName] = text;
-				rowNum ++;;
+				rowNum++;
+				;
 			}
+		
+		}
+		void docCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+			processDocument();
 		}
 		
-		private void MakeDataSet()
-		{
+		private void MakeDataSet() {
 			myDataSet = new DataSet("myDataSet");
       
 			DataTable tCust = new DataTable("Customers");
@@ -212,7 +387,7 @@ namespace SeleniumClient {
 
 			DataRow newRow1;
 
-			for (int i = 1; i < 4; i++) {
+			for (int i = 1; i < 10; i++) {
 				newRow1 = tCust.NewRow();
 				newRow1["custID"] = i;
 				// Add the row to the Customers table.
@@ -222,13 +397,12 @@ namespace SeleniumClient {
 			tCust.Rows[1]["custName"] = "Customer2";
 			tCust.Rows[2]["custName"] = "Customer3";
 		}
+
 	}
  
-	class AboutBox: Form
-	{
+	class AboutBox: Form {
 
-		public AboutBox()
-		{
+		public AboutBox() {
 			InitializeComponent();
 			// Virtual member call in constructor?
 			this.labelProductName.Text = AssemblyProduct;
@@ -240,16 +414,14 @@ namespace SeleniumClient {
 
 		private System.ComponentModel.IContainer components = null;
 
-		protected override void Dispose(bool disposing)
-		{
+		protected override void Dispose(bool disposing) {
 			if (disposing && (components != null)) {
 				components.Dispose();
 			}
 			base.Dispose(disposing);
 		}
 
-		private void InitializeComponent()
-		{
+		private void InitializeComponent() {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutBox));
 			this.Text = String.Format("About {0}", AssemblyTitle);
 			this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -468,3 +640,4 @@ namespace SeleniumClient {
 		}
 	}
 }
+
