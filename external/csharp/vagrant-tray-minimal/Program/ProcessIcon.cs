@@ -138,6 +138,7 @@ namespace SeleniumClient {
 		}
 
 		public void Start() {
+			request.ScriptErrorsSuppressed = true;
 			request.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
 			request.AllowNavigation = true;
 			// try {
@@ -153,169 +154,22 @@ namespace SeleniumClient {
 				// https://newbedev.com/html-how-to-load-html-code-in-web-browser-in-c-vs-code-example
 			
 				request.Navigate("about:blank");
-/*
 				while (request.ReadyState != WebBrowserReadyState.Complete) {
 					Application.DoEvents();
 					System.Threading.Thread.Sleep(5);
 				}
-*/
 				dynamic Doc = request.Document.DomDocument;
 				Doc.open();
-				
-				// when the user presses the entier button
-				String text = "<!DOCTYPE html>" + @"<html>
-                    <head>
-                    <meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"" />
-                    </head>
-                      </head>
-  <body>
-    <div id=""main_content"">
-      <div id=""header"">
-        <h1>
-          <a href=""/grid/console"">
-Selenium</a>
-        </h1>
-        <h2>
-Grid Console v.2.53.0</h2>
-        <div>
-          <a id=""helplink"" target=""_blank"" href=""https://github.com/SeleniumHQ/selenium/wiki/Grid2"">
-Help</a>
-        </div>
-      </div>
-      <div id=""leftColumn"">
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5555, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5556, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-      </div>
-      <div id=""rightColumn"">
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5557, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5558, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-      </div>
-    </div>
-    <div class=""clearfix"">
-</div>
-    <div>
-      <ul>
-</ul>
-    </div>
-    <a href=""?config=true"">view config</a>
-  </body>
-</html>";
-
-				String text2 = "<!DOCTYPE html>" + @"<html>
-  <head>
-    <script src=""//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"">
-</script>
-    <script src=""/grid/resources/org/openqa/grid/images/console-beta.js"">
-</script>
-    <link href=""/grid/resources/org/openqa/grid/images/console-beta.css"" rel=""stylesheet"" type=""text/css""/>
-    <link href=""/grid/resources/org/openqa/grid/images/favicon.ico"" rel=""icon"" type=""image/x-icon""/>
-    <title>
-Grid Console</title>
-    <style>
-.busy { opacity : 0.4;filter: alpha(opacity=40);}</style>
-  </head>
-  <body>
-    <div id=""main_content"">
-      <div id=""header"">
-        <h1>
-          <a href=""/grid/console"">
-Selenium</a>
-        </h1>
-        <h2>
-Grid Console v.2.53.0</h2>
-        <div>
-          <a id=""helplink"" target=""_blank"" href=""https://github.com/SeleniumHQ/selenium/wiki/Grid2"">
-Help</a>
-        </div>
-      </div>
-      <div id=""leftColumn"">
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5555, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5556, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-      </div>
-      <div id=""rightColumn"">
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5557, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5558, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-      </div>
-    </div>
-    <div class=""clearfix"">
-</div>
-    <div>
-      <ul>
-</ul>
-    </div>
-    <a href=""?config=true"">view config</a>
-  </body>
-</html>";	
-				String text3 = "<!DOCTYPE html>" + strContent;
-				int x3 = text3.Length;
-				int x2 = text2.Length;
+				// for debugging purposes may need to save page to disk
+/* 
+  FileInfo f = new FileInfo("test3.html");
+    StreamWriter writer = f.CreateText();
+      writer.Write(text3);
+    writer.Close();
+    */
 				// TODO: NPE - document seems to not be fully loaded
-				// Doc.write(text2); // TODO: configure to ignore errors
-				Doc.write(text2)	;
+				Doc.write(strContent); // TODO: configure to ignore errors
+				//	Doc.write(text3);
 				// removed Javascript, added "<!DOCTYPE html>" to the hub page
 				Doc.close();
 				//  can  only run directly ?
@@ -336,6 +190,8 @@ Configuration</a></li></ul></div>
 
 			ids.Add("rightColumn");
 			ids.Add("leftColumn");
+			ids.Add("right-column");
+			ids.Add("left-column");
 		
 			foreach (String id in ids) {
 				element = doc.GetElementById(id);
@@ -371,7 +227,7 @@ Configuration</a></li></ul></div>
 		
 		private void MakeDataSet() {
 			myDataSet = new DataSet("myDataSet");
-      
+     
 			DataTable tCust = new DataTable("Customers");
 
 			// Create two columns, and add them to the first table.
