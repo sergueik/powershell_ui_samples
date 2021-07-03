@@ -4,9 +4,11 @@ using System.Windows.Forms;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Resources;
 using System.Reflection;
 using SeleniumClient.Properties;
 using System.Net;
+using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
@@ -53,6 +55,7 @@ namespace SeleniumClient {
 			item = new ToolStripMenuItem();
 			item.Text = "status";
 			item.Click += new EventHandler(Process_Click);
+			item.Image = Resources.search;
 			menu.Items.Add(item);
 
 			item = new ToolStripMenuItem();
@@ -92,9 +95,9 @@ namespace SeleniumClient {
 
  
 	public class Parser : Form {
-		WebBrowser request = new WebBrowser();
+		WebBrowser browser = new WebBrowser();
 		private DataGrid myDataGrid;
-		private DataSet myDataSet;
+		private DataSet dataSet;
 		private System.ComponentModel.IContainer components = null;
 
 		public Parser() {
@@ -105,7 +108,7 @@ namespace SeleniumClient {
 		
 		private void SetUp() {
 			MakeDataSet();
-			myDataGrid.SetDataBinding(myDataSet, "Customers");
+			myDataGrid.SetDataBinding(dataSet, "Hosts");
 		}
 
 		protected override void Dispose(bool disposing) {
@@ -125,10 +128,10 @@ namespace SeleniumClient {
 			
 			this.Controls.Add(myDataGrid);
 			var ts1 = new DataGridTableStyle();
-			ts1.MappingName = "Customers";
+			ts1.MappingName = "Hosts";
 			ts1.AlternatingBackColor = Color.LightGray;
 			DataGridColumnStyle TextCol = new DataGridTextBoxColumn();
-			TextCol.MappingName = "custName";
+			TextCol.MappingName = "hostname";
 			TextCol.HeaderText = "Customer Name";
 			TextCol.Width = 300;
 			ts1.GridColumnStyles.Add(TextCol);
@@ -138,195 +141,39 @@ namespace SeleniumClient {
 		}
 
 		public void Start() {
-			request.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
-			request.AllowNavigation = true;
-			// try {
-			var webRequest = WebRequest.Create(@"http://localhost:4444/grid/console/");
-			// } catch (WebException e) { }
-			using (var response = webRequest.GetResponse())
-			using (var content = response.GetResponseStream())
-			using (var reader = new StreamReader(content)) {
-				var strContent = reader.ReadToEnd();
+			browser.ScriptErrorsSuppressed = true;
+			// browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
+			browser.AllowNavigation = true;
+			//  can  only run directly
+			// browser.Navigate("http://localhost:4444/grid/console/");
+			try {
+				var request = WebRequest.Create(@"http://localhost:4444/grid/console/");
+				using (var response = request.GetResponse()) {
+					using (var content = response.GetResponseStream()) {
+						using (var reader = new StreamReader(content)) {
+							var strContent = reader.ReadToEnd();
 				
-				// https://social.msdn.microsoft.com/Forums/vstudio/en-US/3875b32a-0a08-4c35-acee-233f14c5057b/parsing-a-html-file-in-a-console-app?forum=vbgeneral
-				// https://csharp.hotexamples.com/examples/mshtml/IHTMLDocument2/-/php-ihtmldocument2-class-examples.html
-				// https://newbedev.com/html-how-to-load-html-code-in-web-browser-in-c-vs-code-example
-			
-				request.Navigate("about:blank");
-/*
-				while (request.ReadyState != WebBrowserReadyState.Complete) {
-					Application.DoEvents();
-					System.Threading.Thread.Sleep(5);
+							browser.Navigate("about:blank");
+							while (browser.ReadyState != WebBrowserReadyState.Complete) {
+								Application.DoEvents();
+								System.Threading.Thread.Sleep(5);
+							}
+							dynamic Doc = browser.Document.DomDocument;
+							Doc.open();
+							Doc.write(strContent);
+							Doc.close();
+							processDocument();
+						}
+					}
 				}
-*/
-				dynamic Doc = request.Document.DomDocument;
-				Doc.open();
-				
-				// when the user presses the entier button
-				String text = "<!DOCTYPE html>" + @"<html>
-                    <head>
-                    <meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"" />
-                    </head>
-                      </head>
-  <body>
-    <div id=""main_content"">
-      <div id=""header"">
-        <h1>
-          <a href=""/grid/console"">
-Selenium</a>
-        </h1>
-        <h2>
-Grid Console v.2.53.0</h2>
-        <div>
-          <a id=""helplink"" target=""_blank"" href=""https://github.com/SeleniumHQ/selenium/wiki/Grid2"">
-Help</a>
-        </div>
-      </div>
-      <div id=""leftColumn"">
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5555, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5556, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-      </div>
-      <div id=""rightColumn"">
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5557, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5558, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-      </div>
-    </div>
-    <div class=""clearfix"">
-</div>
-    <div>
-      <ul>
-</ul>
-    </div>
-    <a href=""?config=true"">view config</a>
-  </body>
-</html>";
-
-				String text2 = "<!DOCTYPE html>" + @"<html>
-  <head>
-    <script src=""//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"">
-</script>
-    <script src=""/grid/resources/org/openqa/grid/images/console-beta.js"">
-</script>
-    <link href=""/grid/resources/org/openqa/grid/images/console-beta.css"" rel=""stylesheet"" type=""text/css""/>
-    <link href=""/grid/resources/org/openqa/grid/images/favicon.ico"" rel=""icon"" type=""image/x-icon""/>
-    <title>
-Grid Console</title>
-    <style>
-.busy { opacity : 0.4;filter: alpha(opacity=40);}</style>
-  </head>
-  <body>
-    <div id=""main_content"">
-      <div id=""header"">
-        <h1>
-          <a href=""/grid/console"">
-Selenium</a>
-        </h1>
-        <h2>
-Grid Console v.2.53.0</h2>
-        <div>
-          <a id=""helplink"" target=""_blank"" href=""https://github.com/SeleniumHQ/selenium/wiki/Grid2"">
-Help</a>
-        </div>
-      </div>
-      <div id=""leftColumn"">
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5555, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5556, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-      </div>
-      <div id=""rightColumn"">
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5557, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-        <div class=""proxy"">
-          <p class=""proxyname"">
-DefaultRemoteProxy (version : 2.53.0)<p class=""proxyid"">
-id : http://SERGUEIK53:5558, OS : WIN8_1</p>
-<div class=""tabs""><ul><li class=""tab"" type=""browsers""><a title=""test slots"" href=""#"">
-Browsers</a></li><li class=""tab"" type=""config""><a title=""node configuration"" href=""#"">
-Configuration</a></li></ul></div>
-</p>
-        </div>
-      </div>
-    </div>
-    <div class=""clearfix"">
-</div>
-    <div>
-      <ul>
-</ul>
-    </div>
-    <a href=""?config=true"">view config</a>
-  </body>
-</html>";	
-				String text3 = "<!DOCTYPE html>" + strContent;
-				int x3 = text3.Length;
-				int x2 = text2.Length;
-				// TODO: NPE - document seems to not be fully loaded
-				// Doc.write(text2); // TODO: configure to ignore errors
-				Doc.write(text2)	;
-				// removed Javascript, added "<!DOCTYPE html>" to the hub page
-				Doc.close();
-				//  can  only run directly ?
-				processDocument();
+			} catch (WebException e) {
 			}
 				
 		}
 
 		void processDocument() {
-			var document_html = request.Document.Body.InnerHtml;
-			HtmlDocument doc = request.Document;
+			var document_html = browser.Document.Body.InnerHtml;
+			HtmlDocument doc = browser.Document;
 			HtmlElement element = null;
 			HtmlElement element2 = null;
 			HtmlElementCollection elements = null;
@@ -336,6 +183,8 @@ Configuration</a></li></ul></div>
 
 			ids.Add("rightColumn");
 			ids.Add("leftColumn");
+			ids.Add("right-column");
+			ids.Add("left-column");
 		
 			foreach (String id in ids) {
 				element = doc.GetElementById(id);
@@ -357,53 +206,53 @@ Configuration</a></li></ul></div>
 			
 			foreach (String text in nodes) {
 				Console.Error.WriteLine(text);
-				string columnName = "CustName";  // database table column name
+				string columnName = "hostname";  // database table column name
 						
-				myDataSet.Tables["Customers"].Rows[rowNum][columnName] = text;
+				dataSet.Tables["Hosts"].Rows[rowNum][columnName] = text;
 				rowNum++;
 				;
 			}
 		
 		}
+		/*
 		void docCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
 			processDocument();
 		}
-		
+		*/
 		private void MakeDataSet() {
-			myDataSet = new DataSet("myDataSet");
-      
-			DataTable tCust = new DataTable("Customers");
+			dataSet = new DataSet("DataSet");
+     
+			var dataTable = new DataTable("Hosts");
 
 			// Create two columns, and add them to the first table.
-			DataColumn cCustID = new DataColumn("CustID", typeof(int));
-			DataColumn cCustName = new DataColumn("CustName");
-			// DataColumn cCurrent = new DataColumn("Current", typeof(bool));
-			tCust.Columns.Add(cCustID);
-			tCust.Columns.Add(cCustName);
-			// tCust.Columns.Add(cCurrent);
+			var cHostId = new DataColumn("HostId", typeof(int));
+			var chostname = new DataColumn("hostname");
+			dataTable.Columns.Add(cHostId);
+			dataTable.Columns.Add(chostname);
 
 			// Add the tables to the DataSet.
-			myDataSet.Tables.Add(tCust);
+			dataSet.Tables.Add(dataTable);
 
 			DataRow newRow1;
 
 			for (int i = 1; i < 10; i++) {
-				newRow1 = tCust.NewRow();
-				newRow1["custID"] = i;
-				// Add the row to the Customers table.
-				tCust.Rows.Add(newRow1);
+				newRow1 = dataTable.NewRow();
+				newRow1["HostId"] = i;
+				// Add the row to the Hosts table.
+				dataTable.Rows.Add(newRow1);
 			}
-			tCust.Rows[0]["custName"] = "Customer1";
-			tCust.Rows[1]["custName"] = "Customer2";
-			tCust.Rows[2]["custName"] = "Customer3";
+			dataTable.Rows[0]["hostname"] = "host1";
 		}
 
 	}
  
 	class AboutBox: Form {
 
+		private static object[] attributes;
 		public AboutBox() {
 			InitializeComponent();
+			attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+
 			// Virtual member call in constructor?
 			this.labelProductName.Text = AssemblyProduct;
 			this.labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
@@ -602,42 +451,35 @@ Configuration</a></li></ul></div>
 		public string AssemblyDescription {
 			get {
 				object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
-				if (attributes.Length == 0) {
-					return "";
-				}
-				return ((AssemblyDescriptionAttribute)attributes[0]).Description;
+				return (attributes.Length == 0) ? "" : ((AssemblyDescriptionAttribute)attributes[0]).Description;
 			}
 		}
 
 		public string AssemblyProduct {
 			get {
 				object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyProductAttribute), false);
-				if (attributes.Length == 0) {
-					return "";
-				}
-				return ((AssemblyProductAttribute)attributes[0]).Product;
+				return  (attributes.Length == 0) ?
+					"" : ((AssemblyProductAttribute)attributes[0]).Product;
+				
+				
 			}
 		}
 
 		public string AssemblyCopyright {
 			get {
 				object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
-				if (attributes.Length == 0) {
-					return "";
-				}
-				return ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
+				return(attributes.Length == 0) ? "" : ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
 			}
 		}
 
 		public string AssemblyCompany {
 			get {
 				object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
-				if (attributes.Length == 0) {
-					return "";
-				}
-				return ((AssemblyCompanyAttribute)attributes[0]).Company;
+				return  (attributes.Length == 0) ? 
+					"" : ((AssemblyCompanyAttribute)attributes[0]).Company;
 			}
 		}
 	}
 }
+
 

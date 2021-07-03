@@ -48,10 +48,7 @@ namespace SeleniumClient.Properties {
 		
 		/// <summary>
 		///   Overrides the current thread's CurrentUICulture property for all
-		///   resource ]
-		/// [';.lookups using this strongly typed resource class.[pL'
-		///
-		///
+		///   resource lookups using this strongly typed resource class.
 		/// </summary>
 		[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
 		internal static global::System.Globalization.CultureInfo Culture {
@@ -66,7 +63,7 @@ namespace SeleniumClient.Properties {
 		/// <summary>
 		///   Looks up a localized resource of type System.Drawing.Bitmap.
 		/// </summary>
-		internal static	System.Drawing.Bitmap about {
+		internal static System.Drawing.Bitmap about {
 			get {
 				object obj = ResourceManager.GetObject("about", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
@@ -79,6 +76,16 @@ namespace SeleniumClient.Properties {
 		internal static System.Drawing.Bitmap exit {
 			get {
 				object obj = ResourceManager.GetObject("exit", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+		
+		/// <summary>
+		///   Looks up a localized resource of type System.Drawing.Bitmap.
+		/// </summary>
+		internal static System.Drawing.Bitmap search {
+			get {
+				object obj = ResourceManager.GetObject("search", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}

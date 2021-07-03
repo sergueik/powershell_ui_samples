@@ -13,3 +13,9 @@ tweaking the `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Internet Explorer\Main\Featur
 
   * https://www.benefitagent.com/doc/Rendering%20Issues%20using%20WebBrowser%20Control%20in%20Windows.html
   * https://stackoverflow.com/questions/12216301/object-doesnt-support-property-or-method-webbrowser-control
+  * https://github.com/TomRom27/LectioDivina
+  * https://csharp.hotexamples.com/examples/mshtml/IHTMLDocument2/-/php-ihtmldocument2-class-examples.html
+  * https://newbedev.com/html-how-to-load-html-code-in-web-browser-in-c-vs-code-example 
+  * https://social.msdn.microsoft.com/Forums/vstudio/en-US/3875b32a-0a08-4c35-acee-233f14c5057b/parsing-a-html-file-in-a-console-app?forum=vbgeneral
+  * https://csharp.hotexamples.com/examples/mshtml/IHTMLDocument2/-/php-ihtmldocument2-class-examples.html
+  * https://newbedev.com/html-how-to-load-html-code-in-web-browser-in-c-vs-code-example
