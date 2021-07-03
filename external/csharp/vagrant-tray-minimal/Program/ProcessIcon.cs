@@ -12,14 +12,18 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-namespace SeleniumClient {
-	public class ProcessIcon : IDisposable {
+namespace SeleniumClient
+{
+	public class ProcessIcon : IDisposable
+	{
 		NotifyIcon notifyIcon;
-		public ProcessIcon() {
+		public ProcessIcon()
+		{
 			notifyIcon = new NotifyIcon();
 		}
 
-		public void Display() {
+		public void Display()
+		{
 			
 			// notifyIcon.MouseClick += new MouseEventHandler(notifyIcon_MouseClick);
 			notifyIcon.Icon = Icon.FromHandle(Properties.Resources.selenium.GetHicon());
@@ -28,7 +32,8 @@ namespace SeleniumClient {
 			notifyIcon.ContextMenuStrip = new ContextMenus().Create();
 		}
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			notifyIcon.Dispose();
 		}
 
@@ -36,18 +41,21 @@ namespace SeleniumClient {
 		// method protection level prevents from calling
 		// notifyIcon.Dispose( disposing )
 
-		void notifyIcon_MouseClick(object sender, MouseEventArgs e) {
+		void notifyIcon_MouseClick(object sender, MouseEventArgs e)
+		{
 			if (e.Button == MouseButtons.Left) {
 				Process.Start("explorer", null);
 			}
 		}
 	}
 
-	class ContextMenus {
+	class ContextMenus
+	{
 		// show one dialog at a time
 		bool isFormDisplayed = false;
 	
-		public ContextMenuStrip Create() {
+		public ContextMenuStrip Create()
+		{
 			ContextMenuStrip menu = new ContextMenuStrip();
 			ToolStripMenuItem item;
 			ToolStripSeparator sep;
@@ -76,7 +84,8 @@ namespace SeleniumClient {
 			return menu;
 		}
 
-		void Process_Click(object sender, EventArgs e) {
+		void Process_Click(object sender, EventArgs e)
+		{
 			if (!isFormDisplayed) {
 				isFormDisplayed = true;
 				new Parser().ShowDialog();
@@ -84,7 +93,8 @@ namespace SeleniumClient {
 			}
 		}
 
-		void About_Click(object sender, EventArgs e) {
+		void About_Click(object sender, EventArgs e)
+		{
 			if (!isFormDisplayed) {
 				isFormDisplayed = true;
 				new AboutBox().ShowDialog();
@@ -94,53 +104,60 @@ namespace SeleniumClient {
 	}
 
  
-	public class Parser : Form {
+	public class Parser : Form
+	{
 		WebBrowser browser = new WebBrowser();
-		private DataGrid myDataGrid;
+		private DataGrid dataGrid;
 		private DataSet dataSet;
+		private Boolean DEBUG = true;
 		private System.ComponentModel.IContainer components = null;
 
-		public Parser() {
+		public Parser()
+		{
 			InitializeComponent();
 			SetUp();
 			Start();
 		}
 		
-		private void SetUp() {
+		private void SetUp()
+		{
 			MakeDataSet();
-			myDataGrid.SetDataBinding(dataSet, "Hosts");
+			dataGrid.SetDataBinding(dataSet, "Hosts");
 		}
 
-		protected override void Dispose(bool disposing) {
+		protected override void Dispose(bool disposing)
+		{
 			if (disposing && (components != null)) {
 				components.Dispose();
 			}
 			base.Dispose(disposing);
 		}
 
-		private void InitializeComponent() {
+		private void InitializeComponent()
+		{
 			this.Size = new Size(400, 200);
 			this.Text = String.Format("Grid status");
 			this.SuspendLayout();
-			this.myDataGrid = new DataGrid();
-			myDataGrid.Location = new  Point(8, 8);
-			myDataGrid.Size = new Size(384, 184);
+			dataGrid = new DataGrid();
+			dataGrid.Location = new  Point(8, 8);
+			dataGrid.Size = new Size(384, 184);
 			
-			this.Controls.Add(myDataGrid);
-			var ts1 = new DataGridTableStyle();
-			ts1.MappingName = "Hosts";
-			ts1.AlternatingBackColor = Color.LightGray;
+			this.Controls.Add(dataGrid);
+			var dataGridTableStyle = new DataGridTableStyle();
+			dataGridTableStyle.MappingName = "Hosts";
+			dataGridTableStyle.AlternatingBackColor = Color.LightGray;
 			DataGridColumnStyle TextCol = new DataGridTextBoxColumn();
 			TextCol.MappingName = "hostname";
 			TextCol.HeaderText = "Customer Name";
 			TextCol.Width = 300;
-			ts1.GridColumnStyles.Add(TextCol);
-			myDataGrid.TableStyles.Add(ts1);
+			dataGridTableStyle.GridColumnStyles.Add(TextCol);
+			dataGrid.TableStyles.Add(dataGridTableStyle);
 			this.ResumeLayout(false);
 
 		}
 
-		public void Start() {
+		public void Start()
+		{
 			browser.ScriptErrorsSuppressed = true;
 			// browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
 			browser.AllowNavigation = true;
@@ -167,11 +184,14 @@ namespace SeleniumClient {
 					}
 				}
 			} catch (WebException e) {
+				Trace.Assert(e != null);
+
 			}
 				
 		}
 
-		void processDocument() {
+		void processDocument()
+		{
 			var document_html = browser.Document.Body.InnerHtml;
 			HtmlDocument doc = browser.Document;
 			HtmlElement element = null;
@@ -210,16 +230,21 @@ namespace SeleniumClient {
 						
 				dataSet.Tables["Hosts"].Rows[rowNum][columnName] = text;
 				rowNum++;
-				;
 			}
-		
+
+			if (DEBUG) {
+				var Dumper = new DataDumper();
+				Dumper.Dump(nodes);
+			}
+			
 		}
 		/*
 		void docCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
 			processDocument();
 		}
 		*/
-		private void MakeDataSet() {
+		private void MakeDataSet()
+		{
 			dataSet = new DataSet("DataSet");
      
 			var dataTable = new DataTable("Hosts");
@@ -246,10 +271,12 @@ namespace SeleniumClient {
 
 	}
  
-	class AboutBox: Form {
+	class AboutBox: Form
+	{
 
 		private static object[] attributes;
-		public AboutBox() {
+		public AboutBox()
+		{
 			InitializeComponent();
 			attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
 
@@ -263,14 +290,16 @@ namespace SeleniumClient {
 
 		private System.ComponentModel.IContainer components = null;
 
-		protected override void Dispose(bool disposing) {
+		protected override void Dispose(bool disposing)
+		{
 			if (disposing && (components != null)) {
 				components.Dispose();
 			}
 			base.Dispose(disposing);
 		}
 
-		private void InitializeComponent() {
+		private void InitializeComponent()
+		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutBox));
 			this.Text = String.Format("About {0}", AssemblyTitle);
 			this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
