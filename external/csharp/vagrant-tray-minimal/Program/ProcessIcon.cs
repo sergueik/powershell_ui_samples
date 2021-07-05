@@ -11,6 +11,7 @@ using System.Net;
 using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using Utils;
 
 namespace SeleniumClient
 {
@@ -32,8 +33,7 @@ namespace SeleniumClient
 			notifyIcon.ContextMenuStrip = new ContextMenus().Create();
 		}
 
-		public void Dispose()
-		{
+		public void Dispose() {
 			notifyIcon.Dispose();
 		}
 
@@ -60,11 +60,20 @@ namespace SeleniumClient
 			ToolStripMenuItem item;
 			ToolStripSeparator sep;
 
+			var iniFile = IniFile.FromFile("config.ini");
+			var sectionNames = iniFile.GetSectionNames();
+			for (int cnt = 0; cnt != sectionNames.Length; cnt++) {
+				String environment = sectionNames[cnt];
+				String hostname = iniFile[environment]["hub"];
+
+			
 			item = new ToolStripMenuItem();
-			item.Text = "status";
+			item.Text = String.Format("{0} status", environment);
+			item.Tag = hostname;
 			item.Click += new EventHandler(Process_Click);
 			item.Image = Resources.search;
 			menu.Items.Add(item);
+			}
 
 			item = new ToolStripMenuItem();
 			item.Text = "about";
@@ -86,9 +95,14 @@ namespace SeleniumClient
 
 		void Process_Click(object sender, EventArgs e)
 		{
+			var item = (ToolStripMenuItem )sender ;
+			String hub = (String) item.Tag;
 			if (!isFormDisplayed) {
 				isFormDisplayed = true;
-				new Parser().ShowDialog();
+				var parser =new Parser();
+				parser.Hub = hub;
+				parser.Start();
+				parser.ShowDialog();
 				isFormDisplayed = false;
 			}
 		}
@@ -104,29 +118,31 @@ namespace SeleniumClient
 	}
 
  
-	public class Parser : Form
-	{
+	public class Parser : Form {
 		WebBrowser browser = new WebBrowser();
 		private DataGrid dataGrid;
 		private DataSet dataSet;
 		private Boolean DEBUG = true;
+		private String hub;
 		private System.ComponentModel.IContainer components = null;
 
-		public Parser()
-		{
+		public string Hub {
+			get { return hub; }
+			set { this.hub = value; 
+			}
+		}
+
+		public Parser() {
 			InitializeComponent();
 			SetUp();
-			Start();
 		}
 		
-		private void SetUp()
-		{
+		private void SetUp() {
 			MakeDataSet();
 			dataGrid.SetDataBinding(dataSet, "Hosts");
 		}
 
-		protected override void Dispose(bool disposing)
-		{
+		protected override void Dispose(bool disposing) {
 			if (disposing && (components != null)) {
 				components.Dispose();
 			}
@@ -156,15 +172,15 @@ namespace SeleniumClient
 
 		}
 
-		public void Start()
-		{
+	public void Start() {
 			browser.ScriptErrorsSuppressed = true;
 			// browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
 			browser.AllowNavigation = true;
 			//  can  only run directly
-			// browser.Navigate("http://localhost:4444/grid/console/");
+			// browser.Navigate(String.Format("http://{0}:4444/grid/console/",hub));
 			try {
-				var request = WebRequest.Create(@"http://localhost:4444/grid/console/");
+				var url =  String.Format(@"http://{0}:4444/grid/console/",hub);
+				var request = WebRequest.Create(url);
 				using (var response = request.GetResponse()) {
 					using (var content = response.GetResponseStream()) {
 						using (var reader = new StreamReader(content)) {

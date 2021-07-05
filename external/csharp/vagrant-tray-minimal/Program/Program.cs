@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-
+using Utils;
 namespace SeleniumClient
 {
 	public static class Program
 	{
-		[STAThread]
+		[STAThread] 
 		public static void Main()
 		{
 			Boolean DEBUG = (Environment.GetEnvironmentVariable("DEBUG") == null) ? false : true;
-
 			var parseArgs = new ParseArgs(System.Environment.CommandLine);
-
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
