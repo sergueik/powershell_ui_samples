@@ -57,8 +57,22 @@ namespace SeleniumClient
 		{
 			ContextMenuStrip menu = new ContextMenuStrip();
 			ToolStripMenuItem item;
-			ToolStripSeparator sep;
-
+			
+			var iniFileNative =  new IniFileNative(AppDomain.CurrentDomain.BaseDirectory+ @"\config.ini");
+			var environments = iniFileNative.ReadValue("Environments","values");
+			if (environments != null) { 
+				foreach (String environment in environments.Split(new char[] {','})) {
+					String hostname = iniFileNative.ReadValue(environment, "hub");
+					item = new ToolStripMenuItem();
+					item.Text = String.Format("{0} status", environment);
+					item.Tag = hostname;
+					item.Click += new EventHandler(Process_Click);
+					item.Image = Resources.search;
+					menu.Items.Add(item);
+				}
+				
+			}
+		/*
 			var iniFile = IniFile.FromFile("config.ini");
 			var sectionNames = iniFile.GetSectionNames();
 			for (int cnt = 0; cnt != sectionNames.Length; cnt++) {
@@ -73,15 +87,14 @@ namespace SeleniumClient
 			item.Image = Resources.search;
 			menu.Items.Add(item);
 			}
-
+*/
 			item = new ToolStripMenuItem();
 			item.Text = "about";
 			item.Click += new EventHandler(About_Click);
 			item.Image = Resources.about;
 			menu.Items.Add(item);
 
-			sep = new ToolStripSeparator();
-			menu.Items.Add(sep);
+			menu.Items.Add(new ToolStripSeparator());
 
 			item = new ToolStripMenuItem();
 			item.Text = "exit";
