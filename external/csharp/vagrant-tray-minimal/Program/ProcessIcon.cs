@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Resources;
 using System.Reflection;
 using SeleniumClient.Properties;
 using System.Net;

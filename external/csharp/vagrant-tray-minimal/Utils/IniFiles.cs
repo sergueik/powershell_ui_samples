@@ -30,10 +30,8 @@ namespace Utils {
 				elem = new IniFileValue(line);
 			return elem ?? new IniFileElement(line);
 		}
-		/// <summary>Parses given text.</summary>
-		/// <param name="text">Text to parse.</param>
-		public static List<IniFileElement> ParseText(string text)
-		{
+
+		public static List<IniFileElement> ParseText(string text) {
 			if (text == null)
 				return null;
 			List<IniFileElement> ret = new List<IniFileElement>();
@@ -58,25 +56,18 @@ namespace Utils {
 			}
 			return ret;
 		}
-		/// <summary>Reads and parses next line from the config file.</summary>
-		/// <returns>Created ConfigFileElement.</returns>
-		public IniFileElement ReadElement()
-		{
+
+		public IniFileElement ReadElement() {
 			current = ParseLine(base.ReadLine());
 			return current;
 		}
-		/// <summary>Reads all files</summary>
-		/// <returns>All new elements which was added.</returns>
-		public List<IniFileElement> ReadElementsToEnd()
-		{
+
+		public List<IniFileElement> ReadElementsToEnd() {
 			List<IniFileElement> ret = ParseText(base.ReadToEnd());
 			return ret;
 		}
-		/// <summary>Seeks to the section of specified name. If such section is not found,
-		/// the function returns NULL and leaves the stream at the end of file.</summary>
-		/// <param name="sectionName">Name of section to find.</param>
-		public IniFileSectionStart GotoSection(string sectionName)
-		{
+
+		public IniFileSectionStart GotoSection(string sectionName) {
 			IniFileSectionStart sect = null;
 			string str;
 			while (true) {
@@ -94,14 +85,11 @@ namespace Utils {
 				}
 			}
 		}
-		/// <summary>Returns a list of IniFileElement object in the currect section. The first element of
-		/// returned collection will be a IniFileSectionStart.</summary>
-		/// <exception cref="System.InvalidOperationException">A stream is not currently at the IniFileSectionStart.</exception>
-		public List<IniFileElement> ReadSection()
-		{
+
+		public List<IniFileElement> ReadSection() {
 			if (current == null || !(current is IniFileSectionStart))
 				throw new InvalidOperationException("The current position of the reader must be at IniFileSectionStart. Use GotoSection method");
-			List<IniFileElement> ret = new List<IniFileElement>();
+			var ret = new List<IniFileElement>();
 			IniFileElement theCurrent = current;
 			ret.Add(theCurrent);
 			string text = "", temp;
@@ -117,14 +105,12 @@ namespace Utils {
 			ret.AddRange(ParseText(text));
 			return ret;
 		}
-		/// <summary>Gets a recently parsed IniFileElement.</summary>
+
 		public IniFileElement Current {
 			get { return current; }
 		}
-		/// <summary>Gets values of the current section.</summary>
-		/// <exception cref="System.InvalidOperationException">A stream is not currently at the IniFileSectionStart.</exception>
-		public List<IniFileValue> ReadSectionValues()
-		{
+
+		public List<IniFileValue> ReadSectionValues() {
 			List<IniFileElement> elements = ReadSection();
 			List<IniFileValue> ret = new List<IniFileValue>();
 			for (int i = 0; i < elements.Count; i++)
@@ -132,13 +118,11 @@ namespace Utils {
 					ret.Add((IniFileValue)elements[i]);
 			return ret;
 		}
-		/// <summary>Searches the current section for a value of specified key. If such key is not found,
-		/// the function returns NULL and leaves the stream at next section.</summary>
-		/// <param name="key">Key to find.</param>
-		public IniFileValue GotoValue(string key)
-		{
+
+		public IniFileValue GotoValue(string key) {
 			return GotoValue(key, false);
 		}
+
 		public IniFileValue GotoValue(string key, bool searchWholeFile) {
 			IniFileValue val;
 			string str;
@@ -166,17 +150,16 @@ namespace Utils {
 		public void WriteElement(IniFileElement element) {
 			if (!IniFileSettings.PreserveFormatting)
 				element.FormatDefault();
-			// do not write if: 
+			// do not write if:
 			if (!( // 1) element is a blank line AND blank lines are not allowed
 			        (element is IniFileBlankLine && !IniFileSettings.AllowBlankLines)
 				 // 2) element is an empty value AND empty values are not allowed
 			        || (!IniFileSettings.AllowEmptyValues && element is IniFileValue && ((IniFileValue)element).Value == "")))
 				base.WriteLine(element.Line);
 		}
-		/// <summary>Writes collection of INI file elements to the file.</summary>
-		/// <param name="elements">Elements collection to write.</param>
-		public void WriteElements(IEnumerable<IniFileElement> elements)
-		{
+
+
+		public void WriteElements(IEnumerable<IniFileElement> elements) {
 			lock (elements)
 				foreach (IniFileElement el in elements)
 					WriteElement(el);
@@ -226,15 +209,13 @@ namespace Utils {
 		}
 		
 		public string[] GetSectionNames() {
-			string[] ret = new string[sections.Count];
+			var ret = new string[sections.Count];
 			for (int i = 0; i < sections.Count; i++)
 				ret[i] = sections[i].Name;
 			return ret;
 		}
 
-		/// <summary>Reads a INI file from a file or creates one.</summary>
-		public static IniFile FromFile(string path)
-		{
+		public static IniFile FromFile(string path) {
 			if (!System.IO.File.Exists(path)) {
 				System.IO.File.Create(path).Close();
 				return new IniFile();
@@ -244,10 +225,8 @@ namespace Utils {
 			reader.Close();
 			return ret;
 		}
-		/// <summary>Creates a new IniFile from elements collection (Advanced member).</summary>
-		/// <param name="elemes">Elements collection.</param>
-		public static IniFile FromElements(IEnumerable<IniFileElement> elemes)
-		{
+
+		public static IniFile FromElements(IEnumerable<IniFileElement> elemes) {
 			IniFile ret = new IniFile();
 			ret.elements.AddRange(elemes);
 			if (ret.elements.Count > 0) {
@@ -276,27 +255,21 @@ namespace Utils {
 			}
 			return ret;
 		}
-		/// <summary>Reads a INI file from a stream.</summary>
-		public static IniFile FromStream(IniFileReader reader)
-		{
+		
+		public static IniFile FromStream(IniFileReader reader) {
 			return FromElements(reader.ReadElementsToEnd());
 		}
-		/// <summary>Writes a INI file to a disc, using options in IniFileSettings class</summary>
-		public void Save(string path)
-		{
-			IniFileWriter writer = new IniFileWriter(path);
+		public void Save(string path) {
+			var writer = new IniFileWriter(path);
 			Save(writer);
 			writer.Close();
 		}
-		/// <summary>Writes a INI file to a stream, using options in IniFileSettings class</summary>
-		public void Save(IniFileWriter writer)
-		{
+
+		public void Save(IniFileWriter writer) {
 			writer.WriteIniFile(this);
 		}
-		/// <summary>Deletes a section and all it's values and comments. No exception is thrown if there is no section of requested name.</summary>
-		/// <param name="name">Name of section to delete.</param>
-		public void DeleteSection(string name)
-		{
+
+		public void DeleteSection(string name) {
 			IniFileSection section = getSection(name);
 			if (section == null)
 				return;
@@ -308,10 +281,8 @@ namespace Utils {
 				elements.RemoveAt(i);
 			}
 		}
-		/// <summary>Formats whole INI file.</summary>
-		/// <param name="preserveIntendation">If true, old intendation will be standarized but not removed.</param>
-		public void Format(bool preserveIntendation)
-		{
+
+		public void Format(bool preserveIntendation) {
 			string lastSectIntend = "";
 			string lastValIntend = "";
 			IniFileElement el;
@@ -334,10 +305,9 @@ namespace Utils {
 				}
 			}
 		}
-		/// <summary>Joins sections which are definied more than one time.</summary>
-		public void UnifySections()
-		{
-			Dictionary<string, int> dict = new Dictionary<string, int>();
+
+		public void UnifySections() {
+			var dict = new Dictionary<string, int>();
 			IniFileSection sect;
 			IniFileElement el;
 			IniFileValue val;
@@ -365,8 +335,7 @@ namespace Utils {
 					dict.Add(sect.Name, elements.IndexOf(sect.sectionStart));
 			}
 		}
-		/// <summary>Gets or sets a header commentary of an INI file. Header comment must if separate from
-		/// comment of a first section except when IniFileSetting.SeparateHeader is set to false.</summary>
+
 		public string Header {
 			get {
 				if (elements.Count > 0)
@@ -391,7 +360,7 @@ namespace Utils {
 				}
 			}
 		}
-		/// <summary>Gets or sets a commentary at the end of an INI file.</summary>
+
 		public string Foot {
 			get {
 				if (elements.Count > 0) {
@@ -425,25 +394,22 @@ namespace Utils {
 			}
 		}
 	}
-	/// <summary>Object model for a section in an INI file, which stores a all values in memory.</summary>
-	public class IniFileSection
-	{
+
+	public class IniFileSection {
 		internal List<IniFileElement> elements = new List<IniFileElement>();
 		internal IniFileSectionStart sectionStart;
 		internal IniFile parent;
 
-		internal IniFileSection(IniFile _parent, IniFileSectionStart sect)
-		{
+		internal IniFileSection(IniFile _parent, IniFileSectionStart sect) {
 			sectionStart = sect;
 			parent = _parent;
 		}
-		/// <summary>Gets or sets the name of the section</summary>
+
 		public string Name {
 			get { return sectionStart.SectionName; }
 			set { sectionStart.SectionName = value; }
 		}
-		/// <summary>Gets or sets comment associated with this section. In the file a comment must appear exactly
-		/// above section's declaration. Returns "" if no comment is provided.</summary>
+
 		public string Comment {
 			get {
 				return Name == "" ? "" : getComment(sectionStart);
@@ -453,6 +419,7 @@ namespace Utils {
 					setComment(sectionStart, value);
 			}
 		}
+
 		void setComment(IniFileElement el, string comment)
 		{
 			int index = parent.elements.IndexOf(el);
@@ -493,67 +460,56 @@ namespace Utils {
 				}
 			return null;
 		}
-		/// <summary>Sets the comment for given key.</summary>
-		public void SetComment(string key, string comment)
-		{
+
+		public void SetComment(string key, string comment) {
 			IniFileValue val = getValue(key);
 			if (val == null)
 				return;
 			setComment(val, comment);
 		}
-		/// <summary>Sets the inline comment for given key.</summary>
-		public void SetInlineComment(string key, string comment)
-		{
+
+		public void SetInlineComment(string key, string comment) {
 			IniFileValue val = getValue(key);
 			if (val == null)
 				return;
 			val.InlineComment = comment;
 		}
-		/// <summary>Gets the inline comment for given key.</summary>
-		public string GetInlineComment(string key)
-		{
+
+		public string GetInlineComment(string key) {
 			IniFileValue val = getValue(key);
-			if (val == null)
-				return null;
-			return val.InlineComment;
+			return (val == null) ?
+				null: val.InlineComment;
 		}
-		/// <summary>Gets or sets the inline for this section.</summary>
+
 		public string InlineComment {
 			get { return sectionStart.InlineComment; }
 			set { sectionStart.InlineComment = value; }
 		}
-		/// <summary>Gets the comment associated to given key. If there is no comment, empty string is returned.
-		/// If the key does not exist, NULL is returned.</summary>
-		public string GetComment(string key)
-		{
+
+		public string GetComment(string key) {
 			IniFileValue val = getValue(key);
-			if (val == null)
-				return null;
-			return getComment(val);
+			return  (val == null) ?  null: getComment(val);
 		}
-		/// <summary>Renames a key.</summary>
-		public void RenameKey(string key, string newName)
-		{
+
+		public void RenameKey(string key, string newName) {
 			IniFileValue v = getValue(key);
 			if (key == null)
 				return;
 			v.Key = newName;
 		}
-		/// <summary>Deletes a key.</summary>
-		public void DeleteKey(string key)
-		{
+
+		public void DeleteKey(string key) {
 			IniFileValue v = getValue(key);
 			if (key == null)
 				return;
 			parent.elements.Remove(v);
 			elements.Remove(v);
 		}
-		/// <summary>Gets or sets value of the key</summary>
-		/// <param name="key">Name of key.</param>
+		
 		public string this[string key] {
 			get {
 				IniFileValue v = getValue(key);
-				return v == null ? null : v.Value;
+				return (v == null )? null : v.Value;
 			}
 			set {
 				IniFileValue v;
@@ -572,20 +528,16 @@ namespace Utils {
 				setValue(key, value);
 			}
 		}
-		/// <summary>Gets or sets value of a key.</summary>
-		/// <param name="key">Name of the key.</param>
-		/// <param name="defaultValue">A value to return if the requested key was not found.</param>
+
 		public string this[string key, string defaultValue] {
 			get {
 				string val = this[key];
-				if (val == "" || val == null)
-					return defaultValue;
-				return val;
+				return (val == "" || val == null) ?  defaultValue: val;
 			}
 			set { this[key] = value; }
 		}
-		private void setValue(string key, string value)
-		{
+		
+		private void setValue(string key, string value) {
 			IniFileValue ret = null;
 			IniFileValue prev = lastValue();
 			
@@ -618,41 +570,38 @@ namespace Utils {
 				parent.elements.Insert(parent.elements.IndexOf(prev) + 1, ret);
 			}
 		}
-		internal IniFileValue lastValue()
-		{
+		internal IniFileValue lastValue() {
 			for (int i = elements.Count - 1; i >= 0; i--) {
 				if (elements[i] is IniFileValue)
 					return (IniFileValue)elements[i];
 			}
 			return null;
 		}
-		internal IniFileValue firstValue()
-		{
+		
+		internal IniFileValue firstValue() {
 			for (int i = 0; i < elements.Count; i++) {
 				if (elements[i] is IniFileValue)
 					return (IniFileValue)elements[i];
 			}
 			return null;
 		}
-		/// <summary>Gets an array of names of values in this section.</summary>
-		public System.Collections.ObjectModel.ReadOnlyCollection<string> GetKeys()
-		{
+
+		public System.Collections.ObjectModel.ReadOnlyCollection<string> GetKeys() {
 			List<string> list = new List<string>(elements.Count);
-			for (int i = 0; i < elements.Count; i++)
-				if (elements[i] is IniFileValue)
+			for (int i = 0; i < elements.Count; i++) {
+				if (elements[i] is IniFileValue) {
 					list.Add(((IniFileValue)elements[i]).Key);
+				}
+			}
 			return new System.Collections.ObjectModel.ReadOnlyCollection<string>(list);
-			;
+			
 		}
-		/// <summary>Gets a string representation of this IniFileSectionReader object.</summary>
-		public override string ToString()
-		{
+
+		public override string ToString() {
 			return sectionStart.ToString() + " (" + elements.Count.ToString() + " elements)";
 		}
-		/// <summary>Formats whole section.</summary>
-		/// <param name="preserveIntendation">Determines whether intendation should be preserved.</param>
-		public void Format(bool preserveIntendation)
-		{
+		
+		public void Format(bool preserveIntendation) {
 			IniFileElement el;
 			string lastIntend;
 			for (int i = 0; i < elements.Count; i++) {
@@ -664,9 +613,8 @@ namespace Utils {
 			}
 		}
 	}
-	/// <summary>Static class containing format settings for INI files.</summary>
-	public static class IniFileSettings
-	{
+
+	public static class IniFileSettings {
 		private static iniFlags flags = (iniFlags)255;
 		private static string[] commentChars = { ";", "#" };
 		private static char? quoteChar = null;
@@ -677,8 +625,7 @@ namespace Utils {
 		private static string tabReplacement = "    ";
 		private static string sectionOpenBracket = "[";
 
-		private enum iniFlags
-		{
+		private enum iniFlags {
 			PreserveFormatting = 1,
 			AllowEmptyValues = 2,
 			AllowTextOnTheRight = 4,
@@ -687,13 +634,12 @@ namespace Utils {
 			SeparateHeader = 32,
 			AllowBlankLines = 64,
 			AllowInlineComments = 128
-
 		}
+
 		//private static string DefaultCommentaryFormatting = ";$";
 
 		#region Public properties
 
-		/// <summary>Inficates whether parser should preserve formatting. Default TRUE.</summary>
 		public static bool PreserveFormatting {
 			get { return (flags & iniFlags.PreserveFormatting) == iniFlags.PreserveFormatting; }
 			set {
@@ -703,7 +649,7 @@ namespace Utils {
 					flags = flags & ~iniFlags.PreserveFormatting;
 			}
 		}
-		/// <summary>If true empty keys will not be removed. Default TRUE.</summary>
+
 		public static bool AllowEmptyValues {
 			get { return (flags & iniFlags.AllowEmptyValues) == iniFlags.AllowEmptyValues; }
 			set {
@@ -713,8 +659,7 @@ namespace Utils {
 					flags = flags & ~iniFlags.AllowEmptyValues;
 			}
 		}
-		/// <summary>If Quotes are on, then it in such situation: |KEY = "VALUE" blabla|, 'blabla' is 
-		/// a "text on the right". If this field is set to False, then such string will be ignored.</summary>
+
 		public static bool AllowTextOnTheRight {
 			get { return (flags & iniFlags.AllowTextOnTheRight) == iniFlags.AllowTextOnTheRight; }
 			set {
@@ -724,9 +669,7 @@ namespace Utils {
 					flags = flags & ~iniFlags.AllowTextOnTheRight;
 			}
 		}
-		/// <summary>Indicates whether comments and blank lines should be grouped
-		/// (if true then multiple line comment will be parsed to the one single IniFileComment object).
-		/// Otherwise, one IniFileElement will be always representing one single line in the file. Default TRUE.</summary>
+
 		public static bool GroupElements {
 			get { return (flags & iniFlags.GroupElements) == iniFlags.GroupElements; }
 			set {
@@ -736,7 +679,6 @@ namespace Utils {
 					flags = flags & ~iniFlags.GroupElements;
 			}
 		}
-		/// <summary>Determines whether all searching/testing operation are case-sensitive. Default TRUE.</summary>
 		public static bool CaseSensitive {
 			get { return (flags & iniFlags.CaseSensitive) == iniFlags.CaseSensitive; }
 			set {
@@ -746,8 +688,6 @@ namespace Utils {
 					flags = flags & ~iniFlags.CaseSensitive;
 			}
 		}
-		/// <summary>Determines whether a header comment of an INI file is separate from a comment of first section.
-		/// If false, comment at the beginning of file may be considered both as header and commentary of the first section. Default TRUE.</summary>
 		public static bool SeparateHeader {
 			get { return (flags & iniFlags.SeparateHeader) == iniFlags.SeparateHeader; }
 			set {
@@ -757,7 +697,6 @@ namespace Utils {
 					flags = flags & ~iniFlags.SeparateHeader;
 			}
 		}
-		/// <summary>If true, blank lines will be written to a file. Otherwise, they will ignored.</summary>
 		public static bool AllowBlankLines {
 			get { return (flags & iniFlags.AllowBlankLines) == iniFlags.AllowBlankLines; }
 			set {
@@ -767,7 +706,6 @@ namespace Utils {
 					flags = flags & ~iniFlags.AllowBlankLines;
 			}
 		}
-		/// <summary>If true, blank lines will be written to a file. Otherwise, they will ignored.</summary>
 		public static bool AllowInlineComments {
 			get { return (flags & iniFlags.AllowInlineComments) != 0; }
 			set {
@@ -777,8 +715,6 @@ namespace Utils {
 					flags &= ~iniFlags.AllowInlineComments;
 			}
 		}
-		/// <summary>A string which represents close bracket for a section. If empty or null, sections will
-		/// disabled. Default "]"</summary>
 		public static string SectionCloseBracket {
 			get { return IniFileSettings.sectionCloseBracket; }
 			set {
@@ -787,9 +723,6 @@ namespace Utils {
 				IniFileSettings.sectionCloseBracket = value;
 			}
 		}
-		/// <summary>Gets or sets array of strings which start a comment line.
-		/// Default is {"#" (hash), ";" (semicolon)}. If empty or null, commentaries
-		/// will not be allowed.</summary>
 		public static string[] CommentChars {
 			get { return IniFileSettings.commentChars; }
 			set {
@@ -798,13 +731,11 @@ namespace Utils {
 				IniFileSettings.commentChars = value;
 			}
 		}
-		/// <summary>Gets or sets a character which is used as quote. Default null (not using quotation marks).</summary>
 		public static char? QuoteChar {
 			get { return IniFileSettings.quoteChar; }
 			set { IniFileSettings.quoteChar = value; }
 		}
-		/// <summary>A string which determines default formatting of section headers used in Format() method.
-		/// '$' (dollar) means a section's name; '[' and ']' mean brackets; optionally, ';' is an inline comment. Default is "[$]  ;" (e.g. "[Section]  ;comment")</summary>
+
 		public static string DefaultSectionFormatting {
 			get { return IniFileSettings.defaultSectionFormatting; }
 			set {
@@ -819,9 +750,6 @@ namespace Utils {
 				IniFileSettings.defaultSectionFormatting = value;
 			}
 		}
-		/// <summary>A string which determines default formatting of values used in Format() method. '?' (question mark) means a key,
-		/// '$' (dollar) means a value and '=' (equality sign) means EqualsString; optionally, ';' is an inline comment.
-		/// If QouteChar is not null, '$' will be automatically surrounded with qouetes. Default "?=$  ;" (e.g. "Key=Value  ;comment".</summary>
 		public static string DefaultValueFormatting {
 			get { return IniFileSettings.defaultValueFormatting; }
 			set {
@@ -838,8 +766,6 @@ namespace Utils {
 			}
 		}
 
-		/// <summary>A string which represents open bracket for a section. If empty or null, sections will
-		/// disabled. Default "[".</summary>
 		public static string SectionOpenBracket {
 			get { return IniFileSettings.sectionOpenBracket; }
 			set {
@@ -857,7 +783,6 @@ namespace Utils {
 				IniFileSettings.equalsString = value;
 			}
 		}
-		/// <summary>The string which all tabs in intendentation will be replaced with. If null, tabs will not be replaced. Default "    " (four spaces).</summary>
 		public static string TabReplacement {
 			get { return IniFileSettings.tabReplacement; }
 			set { IniFileSettings.tabReplacement = value; }
@@ -867,36 +792,31 @@ namespace Utils {
 		internal static string trimLeft(ref string str)
 		{
 			int i = 0;
-			StringBuilder ret = new StringBuilder();
+			var ret = new StringBuilder();
 			while (i < str.Length && char.IsWhiteSpace(str, i)) {
 				ret.Append(str[i]);
 				i++;
 			}
-			if (str.Length > i)
-				str = str.Substring(i);
-			else
-				str = "";
+			str = (str.Length > i) ? str.Substring(i) : "";
 			return ret.ToString();
 		}
-		internal static string trimRight(ref string str)
-		{
+		
+		internal static string trimRight(ref string str) {
 			int i = str.Length - 1;
-			StringBuilder build = new StringBuilder();
+			var build = new StringBuilder();
 			while (i >= 0 && char.IsWhiteSpace(str, i)) {
 				build.Append(str[i]);
 				i--;
 			}
-			StringBuilder reversed = new StringBuilder();
+			var reversed = new StringBuilder();
 			for (int j = build.Length - 1; j >= 0; j--)
 				reversed.Append(build[j]);
-			if (str.Length - i > 0)
-				str = str.Substring(0, i + 1);
-			else
-				str = "";
+			str =   (str.Length - i > 0) ?
+				str = str.Substring(0, i + 1): "";
 			return reversed.ToString();
 		}
-		internal static string startsWith(string line, string[] array)
-		{
+		
+		internal static string startsWith(string line, string[] array) {
 			if (array == null)
 				return null;
 			for (int i = 0; i < array.Length; i++)
@@ -904,8 +824,8 @@ namespace Utils {
 					return array[i];
 			return null;
 		}
-		internal struct indexOfAnyResult
-		{
+
+		internal struct indexOfAnyResult {
 			public int index;
 			public string any;
 			public indexOfAnyResult(int i, string _any)
@@ -914,68 +834,51 @@ namespace Utils {
 				index = i;
 			}
 		}
-		internal static indexOfAnyResult indexOfAny(string text, string[] array)
-		{
-			for (int i = 0; i < array.Length; i++)
-				if (text.Contains(array[i]))
+
+		internal static indexOfAnyResult indexOfAny(string text, string[] array) {
+			for (int i = 0; i < array.Length; i++){
+				if (text.Contains(array[i])){
 					return new indexOfAnyResult(text.IndexOf(array[i]), array[i]);
+				}
+			}
 			return new indexOfAnyResult(-1, null);
 		}
-		internal static string ofAny(int index, string text, string[] array)
-		{
-			for (int i = 0; i < array.Length; i++)
-				if (text.Length - index >= array[i].Length && text.Substring(index, array[i].Length) == array[i])
+		
+		internal static string ofAny(int index, string text, string[] array) {
+			for (int i = 0; i < array.Length; i++) {
+				if (text.Length - index >= array[i].Length && text.Substring(index, array[i].Length) == array[i]) {
 					return array[i];
+				}
+			}
 			return null;
 		}
-		//internal static string endsWith(string line, string[] array)
-		//{
-		//    if (array == null) return null;
-		//    for (int i = 0; i < array.Length; i++)
-		//        if (line.EndsWith(array[i]))
-		//            return array[i];
-		//    return null;
-		//}
 	}
-	public class IniFileElement
-	{
+
+	public class IniFileElement {
 		private string line;
-		/// <summary>Same as Formatting</summary>
 		protected string formatting="";
 
 
-		/// <summary>Initializes a new, empty instance IniFileElement</summary>
-		protected IniFileElement()
-		{
+		protected IniFileElement() {
 			line = "";
 		}
-		/// <summary>Initializes a new instance IniFileElement</summary>
-		/// <param name="_content">Actual content of a line in a INI file.</param>
-		public IniFileElement(string _content)
-		{
+		public IniFileElement(string _content) {
 			line = _content.TrimEnd();
 		}
-		/// <summary>Gets or sets a formatting string of this INI file element, spicific to it's type. 
-		/// See DefaultFormatting property in IniFileSettings for more info.</summary>
-		public string Formatting
-		{
+		public string Formatting {
 			get { return formatting; }
 			set { formatting = value; }
 		}
-		/// <summary>Gets or sets a string of white characters which precedes any meaningful content of a line.</summary>
-		public string Intendation
-		{
-			get
-			{
-				StringBuilder intend = new StringBuilder();
+		public string Intendation {
+			get {
+				var intend = new StringBuilder();
 				for (int i = 0; i < formatting.Length; i++) {
 					if (!char.IsWhiteSpace(formatting[i])) break;
 					intend.Append(formatting[i]);
 				}
 				return intend.ToString();
 			}
-			set
-			{
+			set {
 				if (value.TrimStart().Length > 0)
 					throw new ArgumentException("Intendation property cannot contain any characters which are not condsidered as white ones.");
 				if (IniFileSettings.TabReplacement != null)
@@ -984,21 +887,18 @@ namespace Utils {
 				line = value + line.TrimStart();
 			}
 		}
-		/// <summary>Gets full text representation of a config file element, excluding intendation.</summary>
-		public string Content
-		{
+		
+		public string Content {
 			get { return line.TrimStart(); }
 			protected set { line = value; }
 		}
-		/// <summary>Gets full text representation of a config file element, including intendation.</summary>
-		public string Line
-		{
-			get
-			{
+
+		public string Line {
+			get {
 				string intendation = Intendation;
 				if (line.Contains(Environment.NewLine)) {
 					string[] lines = line.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-					StringBuilder ret = new StringBuilder();
+					var ret = new StringBuilder();
 					ret.Append(lines[0]);
 					for (int i = 1; i < lines.Length; i++)
 						ret.Append(Environment.NewLine + intendation + lines[i]);
@@ -1008,32 +908,22 @@ namespace Utils {
 					return line;
 			}
 		}
-		/// <summary>Gets a string representation of this IniFileElement object.</summary>
-		public override string ToString()
-		{
+
+		public override string ToString() {
 			return "Line: \"" + line + "\"";
 		}
-		/// <summary>Formats this config element</summary>
-		public virtual void FormatDefault()
-		{
+
+		public virtual void FormatDefault() {
 			Intendation = "";
 		}
 	}
-	/// <summary>Represents section's start line, e.g. "[SectionName]".</summary>
-	public class IniFileSectionStart : IniFileElement
-	{
+	public class IniFileSectionStart : IniFileElement {
 		private string sectionName;
 		private string textOnTheRight; // e.g.  "[SectionName] some text"
 		private string inlineComment, inlineCommentChar;
 
-		private IniFileSectionStart() : base()
-		{
-		}
-		/// <summary>Initializes a new instance IniFileSectionStart</summary>
-		/// <param name="content">Actual content of a line in an INI file. Initializer assumes that it is valid.</param>
-		public IniFileSectionStart(string content)
-			: base(content)
-		{
+		private IniFileSectionStart() : base() { }
+		public IniFileSectionStart(string content): base(content) {
 			//content = Content;
 			formatting = ExtractFormat(content);
 			content = content.TrimStart();
@@ -1056,43 +946,30 @@ namespace Utils {
 			Content = content;
 			Format();
 		}
-		/// <summary>Gets or sets a secion's name.</summary>
-		public string SectionName
-		{
+		public string SectionName {
 			get { return sectionName; }
-			set
-			{
+			set {
 				sectionName = value;
 				Format();
 			}
 		}
-		/// <summary>Gets or sets an inline comment, which appear after the value.</summary>
-		public string InlineComment
-		{
+		public string InlineComment {
 			get { return inlineComment; }
-			set
-			{
+			set {
 				if (!IniFileSettings.AllowInlineComments || IniFileSettings.CommentChars.Length == 0)
 					throw new NotSupportedException("Inline comments are disabled.");
 				inlineComment = value; Format();
 			}
 		}
-		/// <summary>Determines whether specified string is a representation of particular IniFileElement object.</summary>
-		/// <param name="testString">Trimmed test string.</param>
-		public static bool IsLineValid(string testString)
-		{
+		
+		public static bool IsLineValid(string testString) {
 			return testString.StartsWith(IniFileSettings.SectionOpenBracket) && testString.EndsWith(IniFileSettings.SectionCloseBracket);
 		}
-		/// <summary>Gets a string representation of this IniFileSectionStart object.</summary>
-		public override string ToString()
-		{
+		public override string ToString() {
 			return "Section: \"" + sectionName + "\"";
 		}
-		/// <summary>Creates a new IniFileSectionStart object basing on a name of section and the formatting style of this section.</summary>
-		/// <param name="sectName">Name of the new section</param>
-		public IniFileSectionStart CreateNew(string sectName)
-		{
-			IniFileSectionStart ret = new IniFileSectionStart();
+		public IniFileSectionStart CreateNew(string sectName) {
+			var ret = new IniFileSectionStart();
 			ret.sectionName = sectName;
 			if (IniFileSettings.PreserveFormatting) {
 				ret.formatting = formatting;
@@ -1112,8 +989,8 @@ namespace Utils {
 			for (int i = 0; i < content.Length; i++) {
 				currC = content[i];
 				if (char.IsLetterOrDigit(currC) && beforeS) {
-					afterS = true; 
-					beforeS = false; 
+					afterS = true;
+					beforeS = false;
 					form.Append('$');
 				}
 				else if (afterS && char.IsLetterOrDigit(currC)) {
@@ -1139,21 +1016,16 @@ namespace Utils {
 				ret += "   ;";
 			return ret;
 		}
-		/// <summary>Formats the IniFileElement object using default format specified in IniFileSettings.</summary>
-		public override void FormatDefault()
-		{
+		public override void FormatDefault() {
 			Formatting = IniFileSettings.DefaultSectionFormatting;
 			Format();
 		}
-		/// <summary>Formats this element using a formatting string in Formatting property.</summary>
-		public void Format()
-		{
+		public void Format() {
 			Format(formatting);
 		}
-		public void Format(string formatting)
-		{
+		public void Format(string formatting) {
 			char currC;
-			StringBuilder build = new StringBuilder();
+			var build = new StringBuilder();
 			for (int i = 0; i < formatting.Length; i++) {
 				currC = formatting[i];
 				if (currC == '$')
@@ -1169,11 +1041,10 @@ namespace Utils {
 			}
 			Content = build.ToString().TrimEnd() + (IniFileSettings.AllowTextOnTheRight ? textOnTheRight : "");
 		}
-		/// <summary>Crates a IniFileSectionStart object from name of a section.</summary>
-		/// <param name="sectionName">Name of a section</param>
+
 		public static IniFileSectionStart FromName(string sectionName)
 		{
-			IniFileSectionStart ret = new IniFileSectionStart();
+			var ret = new IniFileSectionStart();
 			ret.SectionName = sectionName;
 			ret.FormatDefault();
 			return ret;
@@ -1189,7 +1060,7 @@ namespace Utils {
 			set {
 				if (value < 1)
 					throw new ArgumentOutOfRangeException("Cannot set Amount to less than 1.");
-				StringBuilder build = new StringBuilder();
+				var build = new StringBuilder();
 				for (int i = 1; i < value; i++)
 					build.Append(Environment.NewLine);
 				Content = build.ToString();
@@ -1226,7 +1097,7 @@ namespace Utils {
 			get { return commentChar; }
 			set {
 				if (commentChar != value) {
-					commentChar = value; 
+					commentChar = value;
 					rewrite();
 				}
 			}
@@ -1235,7 +1106,7 @@ namespace Utils {
 			get { return comment; }
 			set {
 				if (comment != value) {
-					comment = value; 
+					comment = value;
 					rewrite();
 				}
 			}
@@ -1263,31 +1134,22 @@ namespace Utils {
 			ret.CommentChar = IniFileSettings.CommentChars[0];
 			return ret;
 		}
-		/// <summary>Formats IniFileCommentary object to default appearance.</summary>
-		public override void FormatDefault()
-		{
+
+		public override void FormatDefault() {
 			base.FormatDefault();
 			CommentChar = IniFileSettings.CommentChars[0];
 			rewrite();
 		}
 	}
-	/// <summary>Represents one key-value pair.</summary>
-	public class IniFileValue : IniFileElement
-	{
+
+	public class IniFileValue : IniFileElement {
 		private string key;
 		private string value;
 		private string textOnTheRight; // only if qoutes are on, e.g. "Name = 'Jack' text-on-the-right"
 		private string inlineComment, inlineCommentChar;
 
-		private IniFileValue()
-			: base()
-		{
-		}
-		/// <summary>Initializes a new instance IniFileValue.</summary>
-		/// <param name="content">Actual content of a line in an INI file. Initializer assumes that it is valid.</param>
-		public IniFileValue(string content)
-			: base(content)
-		{
+		private IniFileValue(): base() { }
+		public IniFileValue(string content): base(content)  {
 			string[] split = Content.Split(new string[] { IniFileSettings.EqualsString }, StringSplitOptions.None);
 			formatting = ExtractFormat(content);
 			string split0 = split[0].Trim();
@@ -1316,7 +1178,7 @@ namespace Utils {
 						else
 							lastQuotePos = split1.Length - 1;
 						if (lastQuotePos > 0) {
-							split1 =  (split1.Length == 2) ? 
+							split1 =  (split1.Length == 2) ?
 								split1 = "": split1.Substring(1, lastQuotePos - 1);
 						}
 					}
@@ -1328,14 +1190,14 @@ namespace Utils {
 		}
 		public string Key {
 			get { return key; }
-			set { this.key = value; 
-				Format(); 
+			set { this.key = value;
+				Format();
 			}
 		}
 		public string Value {
 			get { return value; }
-			set { this.value = value; 
-				Format(); 
+			set { this.value = value;
+				Format();
 			}
 		}
 		public string InlineComment {
@@ -1349,20 +1211,19 @@ namespace Utils {
 				inlineComment = value; Format();
 			}
 		}
-		// stare of format extractor (ExtractFormat method)
-		enum feState { 
-			BeforeEvery, 
-			AfterKey, 
-			BeforeVal, 
+
+		// state of format extractor (ExtractFormat method)
+		enum feState {
+			BeforeEvery,
+			AfterKey,
+			BeforeVal,
 			AfterVal
 		}
 
 		public string ExtractFormat(string content) {
-			//bool afterKey = false; bool beforeVal = false; bool beforeEvery = true; bool afterVal = false;
-			//return IniFileSettings.DefaultValueFormatting;
 			feState pos = feState.BeforeEvery;
 			char currC; string comChar; string insideWhiteChars = ""; string theWhiteChar; ;
-			StringBuilder form = new StringBuilder();
+			var form = new StringBuilder();
 			for (int i = 0; i < content.Length; i++) {
 				currC = content[i];
 				if (char.IsLetterOrDigit(currC)) {
@@ -1380,7 +1241,7 @@ namespace Utils {
 				else if (pos == feState.AfterKey && content.Length - i >= IniFileSettings.EqualsString.Length && content.Substring(i, IniFileSettings.EqualsString.Length) == IniFileSettings.EqualsString) {
 					form.Append(insideWhiteChars);
 					pos = feState.BeforeVal;
-					//afterKey = false; beforeVal = true; 
+					//afterKey = false; beforeVal = true;
 					form.Append('=');
 				}
 				else if ((comChar = IniFileSettings.ofAny(i, content, IniFileSettings.CommentChars)) != null) {
@@ -1414,8 +1275,8 @@ namespace Utils {
 		public void Format() {
 			Format(formatting);
 		}
-		public void Format(string formatting)
-		{
+		
+		public void Format(string formatting) {
 			char currC;
 			var build = new StringBuilder();
 			for (int i = 0; i < formatting.Length; i++) {
@@ -1446,7 +1307,7 @@ namespace Utils {
 		}
 		public IniFileValue CreateNew(string key, string value) {
 			var ret = new IniFileValue();
-			ret.key = key; 
+			ret.key = key;
 			ret.value = value;
 			if (IniFileSettings.PreserveFormatting) {
 				ret.formatting = formatting;
@@ -1464,7 +1325,7 @@ namespace Utils {
 			return index > 0;
 		}
 		public void Set(string key, string value) {
-			this.key = key; 
+			this.key = key;
 			this.value = value;
 			Format();
 		}
@@ -1475,7 +1336,7 @@ namespace Utils {
 
 		public static IniFileValue FromData(string key, string value) {
 			var ret = new IniFileValue();
-			ret.key = key; 
+			ret.key = key;
 			ret.value = value;
 			ret.FormatDefault();
 			return ret;
