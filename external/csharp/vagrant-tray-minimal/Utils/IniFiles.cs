@@ -5,6 +5,10 @@ using System.IO;
 
 
 // origin:  https://www.codeproject.com/Articles/20120/INI-Files
+// see also: https://www.codeproject.com/Articles/318783/Simplified-INI-Handling
+// NOTE: p/invoke methods covered in 
+// https://www.codeproject.com/Articles/1966/An-INI-file-handling-class-using-C
+// lack the ability to read sections
 namespace Utils {
 	public class IniFileReader : StreamReader {
 		IniFileElement current = null;
