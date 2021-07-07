@@ -14,18 +14,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Utils;
 
-namespace SeleniumClient
-{
-	public class ProcessIcon : IDisposable
-	{
+namespace SeleniumClient {
+	public class ProcessIcon : IDisposable {
 		NotifyIcon notifyIcon;
-		public ProcessIcon()
-		{
+		public ProcessIcon() {
 			notifyIcon = new NotifyIcon();
 		}
 
-		public void Display()
-		{
+		public void Display() {
 
 			// notifyIcon.MouseClick += new MouseEventHandler(notifyIcon_MouseClick);
 			notifyIcon.Icon = Icon.FromHandle(Properties.Resources.selenium.GetHicon());
@@ -50,8 +46,7 @@ namespace SeleniumClient
 		}
 	}
 
-	class ContextMenus
-	{
+	class ContextMenus {
 		// show one dialog at a time
 		bool isFormDisplayed = false;
 
@@ -88,8 +83,7 @@ namespace SeleniumClient
 			return menu;
 		}
 
-		void Process_Click(object sender, EventArgs e)
-		{
+		void Process_Click(object sender, EventArgs e) {
 			var item = (ToolStripMenuItem )sender ;
 			var data = (Dictionary<String, String>)  item.Tag;
 			String hub = data["hub"];
@@ -117,6 +111,7 @@ namespace SeleniumClient
 		private DataGrid dataGrid;
 		private DataSet dataSet;
 		private Boolean DEBUG = true;
+		private const String columnName = "hostname";
 		private String hub;
 		private System.ComponentModel.IContainer components = null;
 		private String environment;
@@ -174,12 +169,12 @@ namespace SeleniumClient
 		}
 
 		private void InitializeComponent(){
-			this.Size = new Size(400, 200);
+			this.Size = new Size(400, 320);
 			this.Text = String.Format("{0} status" , environment);
 			this.SuspendLayout();
 			dataGrid = new DataGrid();
 			dataGrid.Location = new  Point(8, 8);
-			dataGrid.Size = new Size(384, 244);
+			dataGrid.Size = new Size(384, 304);
 			// TODO: determine dynamically
 
 			this.Controls.Add(dataGrid);
@@ -188,7 +183,7 @@ namespace SeleniumClient
 			dataGridTableStyle.AlternatingBackColor = Color.LightGray;
 			DataGridColumnStyle TextCol = new DataGridTextBoxColumn();
 			TextCol.MappingName = "hostname";
-			TextCol.HeaderText = "Customer Name";
+			TextCol.HeaderText = "hostname";
 			TextCol.Width = 300;
 			dataGridTableStyle.GridColumnStyles.Add(TextCol);
 			dataGrid.TableStyles.Add(dataGridTableStyle);
@@ -265,12 +260,17 @@ namespace SeleniumClient
 				}
 			}
 			nodes.Sort();
+			int datarows = 0;
 			foreach (String text in nodes) {
+				datarows ++;
 				Console.Error.WriteLine(text);
 				// database table column name
-				string columnName = "hostname";
-				dataSet.Tables["Hosts"].Rows[rowNum][columnName] = text;
-				rowNum++;
+				if (dataSet.Tables["Hosts"].Rows.Count < datarows) {
+					dataSet.Tables["Hosts"].Rows.Add(new Object[]{ rowNum, text });
+				} else {
+				  dataSet.Tables["Hosts"].Rows[rowNum][columnName] = text;
+				}
+				  rowNum++;
 			}
 
 			if (DEBUG) {
@@ -284,8 +284,7 @@ namespace SeleniumClient
 			processDocument();
 		}
 		*/
-		private void MakeDataSet()
-		{
+			private void MakeDataSet() {
 			dataSet = new DataSet("DataSet");
 
 			var dataTable = new DataTable("Hosts");
@@ -301,7 +300,7 @@ namespace SeleniumClient
 
 			DataRow newRow1;
 
-			for (int i = 1; i < 10; i++) {
+			for (int i = 1; i < 5; i++) {
 				newRow1 = dataTable.NewRow();
 				newRow1["HostId"] = i;
 				// Add the row to the Hosts table.

@@ -46,7 +46,6 @@
     <Compile Include="IniFiles.cs" />
     <Compile Include="ParseArgs.cs" />
     <Compile Include="DataDumper.cs" />
-    <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
