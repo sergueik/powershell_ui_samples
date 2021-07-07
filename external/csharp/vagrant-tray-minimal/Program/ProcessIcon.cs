@@ -26,7 +26,7 @@ namespace SeleniumClient
 
 		public void Display()
 		{
-			
+
 			// notifyIcon.MouseClick += new MouseEventHandler(notifyIcon_MouseClick);
 			notifyIcon.Icon = Icon.FromHandle(Properties.Resources.selenium.GetHicon());
 			notifyIcon.Text = "System Tray Selenium Grid Status Checker";
@@ -54,31 +54,34 @@ namespace SeleniumClient
 	{
 		// show one dialog at a time
 		bool isFormDisplayed = false;
-	
+
 		public ContextMenuStrip Create()
 		{
-			ContextMenuStrip menu = new ContextMenuStrip();
+			var menu = new ContextMenuStrip();
 			ToolStripMenuItem item;
-			
+
 			var iniFileNative =  new IniFileNative(AppDomain.CurrentDomain.BaseDirectory+ @"\config.ini");
 			var environments = iniFileNative.ReadValue("Environments","values");
-			if (environments != null) { 
+			if (environments != null) {
 				foreach (String environment in environments.Split(new char[] {','})) {
 					String hostname = iniFileNative.ReadValue(environment, "hub");
 					item = new ToolStripMenuItem();
 					item.Text = String.Format("{0} status", environment);
-					item.Tag = hostname;
+					var data =  new Dictionary<String, String>();
+					data.Add("hub", hostname);
+					data.Add("environment", environment);
+					item.Tag = data;
 					item.Click += new EventHandler(Process_Click);
 					item.Image = Resources.search;
 					menu.Items.Add(item);
 				}
-				
+
 			}
 			menu.Items.Add(new ToolStripSeparator());
 
 			item = new ToolStripMenuItem();
 			item.Text = "exit";
-			item.Click += (object sender, EventArgs e) => Application.Exit(); 
+			item.Click += (object sender, EventArgs e) => Application.Exit();
 			item.Image = Resources.exit;
 			menu.Items.Add(item);
 
@@ -88,11 +91,14 @@ namespace SeleniumClient
 		void Process_Click(object sender, EventArgs e)
 		{
 			var item = (ToolStripMenuItem )sender ;
-			String hub = (String) item.Tag;
+			var data = (Dictionary<String, String>)  item.Tag;
+			String hub = data["hub"];
+			String environment = data["environment"];
 			if (!isFormDisplayed) {
 				isFormDisplayed = true;
-				var parser =new Parser();
+				var parser = new Parser();
 				parser.Hub = hub;
+				parser.Environment = environment;
 				parser.Start();
 				parser.ShowDialog();
 				isFormDisplayed = false;
@@ -101,7 +107,7 @@ namespace SeleniumClient
 
 	}
 
- 
+
 	public class Parser : Form {
 
 		private static string result = null;
@@ -113,10 +119,23 @@ namespace SeleniumClient
 		private Boolean DEBUG = true;
 		private String hub;
 		private System.ComponentModel.IContainer components = null;
+		private String environment;
 
 		public string Hub {
 			get { return hub; }
-			set { this.hub = value; 
+			set { hub = value;
+			}
+		}
+		public string Environment {
+			get { return environment; }
+			set { environment = value;
+				if (this.Visible) {
+					this.SuspendLayout();
+				}
+				this.Text = String.Format("{0} status" , environment);
+				if (this.Visible) {
+					this.ResumeLayout();
+				}
 			}
 		}
 
@@ -124,7 +143,7 @@ namespace SeleniumClient
 			InitializeComponent();
 			SetUp();
 		}
-		
+
 		private void SetUp() {
 			MakeDataSet();
 			dataGrid.SetDataBinding(dataSet, "Hosts");
@@ -156,12 +175,13 @@ namespace SeleniumClient
 
 		private void InitializeComponent(){
 			this.Size = new Size(400, 200);
-			this.Text = String.Format("Grid status");
+			this.Text = String.Format("{0} status" , environment);
 			this.SuspendLayout();
 			dataGrid = new DataGrid();
 			dataGrid.Location = new  Point(8, 8);
-			dataGrid.Size = new Size(384, 184);
-			
+			dataGrid.Size = new Size(384, 244);
+			// TODO: determine dynamically
+
 			this.Controls.Add(dataGrid);
 			var dataGridTableStyle = new DataGridTableStyle();
 			dataGridTableStyle.MappingName = "Hosts";
@@ -189,7 +209,7 @@ namespace SeleniumClient
 					using (var content = response.GetResponseStream()) {
 						using (var reader = new StreamReader(content)) {
 							var strContent = reader.ReadToEnd();
-				
+
 							browser.Navigate("about:blank");
 							while (browser.ReadyState != WebBrowserReadyState.Complete) {
 								Application.DoEvents();
@@ -207,7 +227,7 @@ namespace SeleniumClient
 				Trace.Assert(e != null);
 
 			}
-				
+
 		}
 
 		void processDocument()
@@ -225,10 +245,10 @@ namespace SeleniumClient
 			ids.Add("leftColumn");
 			ids.Add("right-column");
 			ids.Add("left-column");
-		
+
 			foreach (String id in ids) {
 				element = doc.GetElementById(id);
-				if (element == null) { 
+				if (element == null) {
 					continue;
 				}
 				var html = element.InnerHtml;
@@ -236,7 +256,7 @@ namespace SeleniumClient
 				elements = element.GetElementsByTagName("p");
 				for (int cnt = 0; cnt != elements.Count; cnt++) {
 					element2 = elements[cnt];
-					
+
 					if (element2.GetAttribute("classname") != null && element2.GetAttribute("classname").Contains("proxyid")) {
 						String text = element2.InnerText;
 						var hostname = FindMatch(text, @"^\s*id\s*:\s*http://(?<hostname>[A-Z0-9-._]+):\d+,.*$" , "hostname");
@@ -257,7 +277,7 @@ namespace SeleniumClient
 				var Dumper = new DataDumper();
 				Dumper.Dump(nodes);
 			}
-			
+
 		}
 		/*
 		void docCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
@@ -267,7 +287,7 @@ namespace SeleniumClient
 		private void MakeDataSet()
 		{
 			dataSet = new DataSet("DataSet");
-     
+
 			var dataTable = new DataTable("Hosts");
 
 			// Create two columns, and add them to the first table.
