@@ -10,6 +10,8 @@ using System.Net;
 using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 using Utils;
 
 namespace SeleniumClient
@@ -101,6 +103,10 @@ namespace SeleniumClient
 
  
 	public class Parser : Form {
+
+		private static string result = null;
+		private static Regex regex;
+		private static MatchCollection matches;
 		WebBrowser browser = new WebBrowser();
 		private DataGrid dataGrid;
 		private DataSet dataSet;
@@ -131,8 +137,24 @@ namespace SeleniumClient
 			base.Dispose(disposing);
 		}
 
-		private void InitializeComponent()
-		{
+		// based on: https://github.com/sergueik/powershell_selenium/blob/master/csharp/protractor-net/Extensions/Extensions.cs
+		private static string FindMatch(string text, string matchPattern, string matchTag) {
+			result = null;
+			regex = new Regex(matchPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled	);
+			matches = regex.Matches(text);
+			foreach (Match match in matches) {
+				if (match.Length != 0) {
+					foreach (Capture capture in match.Groups[matchTag].Captures) {
+						if (result == null) {
+							result = capture.ToString();
+						}
+					}
+				}
+			}
+			return result;
+		}
+
+		private void InitializeComponent(){
 			this.Size = new Size(400, 200);
 			this.Text = String.Format("Grid status");
 			this.SuspendLayout();
@@ -217,15 +239,16 @@ namespace SeleniumClient
 					
 					if (element2.GetAttribute("classname") != null && element2.GetAttribute("classname").Contains("proxyid")) {
 						String text = element2.InnerText;
-						nodes.Add(text);
+						var hostname = FindMatch(text, @"^\s*id\s*:\s*http://(?<hostname>[A-Z0-9-._]+):\d+,.*$" , "hostname");
+						nodes.Add(hostname == null? text:hostname);
 					}
 				}
 			}
-			
+			nodes.Sort();
 			foreach (String text in nodes) {
 				Console.Error.WriteLine(text);
-				string columnName = "hostname";  // database table column name
-						
+				// database table column name
+				string columnName = "hostname";
 				dataSet.Tables["Hosts"].Rows[rowNum][columnName] = text;
 				rowNum++;
 			}
@@ -269,5 +292,3 @@ namespace SeleniumClient
 
 	}
  }
-
-
