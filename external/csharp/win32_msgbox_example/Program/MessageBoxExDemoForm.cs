@@ -4,13 +4,26 @@ using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 using MessageBoxExLib;
 
-namespace MessageBoxExDemo {
-	public class MessageBoxExDemoForm : System.Windows.Forms.Form {
+namespace MessageBoxExDemo
+{
+	public class MessageBoxExDemoForm : System.Windows.Forms.Form
+	{
 
+		[DllImport("user32.dll")]
+		static extern IntPtr FindWindow(IntPtr classname, string title);
+
+		[DllImport("user32.dll")]
+		static extern void MoveWindow(IntPtr hwnd, int X, int Y, 
+			int nWidth, int nHeight, bool rePaint);
+
+		[DllImport("user32.dll")]
+		static extern bool GetWindowRect(IntPtr hwnd, out Rectangle rect);
+	
 		private System.Windows.Forms.Button btnShowCustom;
 		private System.Windows.Forms.GroupBox grpBoxIcon;
 		private System.Windows.Forms.RadioButton radioButton4;
@@ -52,7 +65,8 @@ namespace MessageBoxExDemo {
         private System.Windows.Forms.ComboBox cmbTimeoutResult;
         private System.Windows.Forms.Button button1;
         private System.ComponentModel.IContainer components;
-
+        private System.Windows.Forms.CheckBox chbAllowReposition;
+        
         public MessageBoxExDemoForm() {
 			InitializeComponent();
 		}
@@ -66,465 +80,486 @@ namespace MessageBoxExDemo {
 			base.Dispose( disposing );
 		}
        	private void InitializeComponent() {
-            this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("Ok");
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Cancel");
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("Yes");
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("No");
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Abort");
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("Retry");
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem("Ignore");
-            this.btnShowCustom = new System.Windows.Forms.Button();
-            this.grpBoxIcon = new System.Windows.Forms.GroupBox();
-            this.radioButton5 = new System.Windows.Forms.RadioButton();
-            this.radioButton4 = new System.Windows.Forms.RadioButton();
-            this.radioButton3 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.listViewButtons = new System.Windows.Forms.ListView();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-            this.txtMessage = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.txtCaption = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.chbAllowSaveResponse = new System.Windows.Forms.CheckBox();
-            this.txtSaveResponse = new System.Windows.Forms.TextBox();
-            this.txtResult = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.listViewMessageBoxes = new System.Windows.Forms.ListView();
-            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-            this.btnAddMessageBox = new System.Windows.Forms.Button();
-            this.txtName = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.txtButtonHelp = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.chbIsCancel = new System.Windows.Forms.CheckBox();
-            this.txtButtonVal = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.txtButtonText = new System.Windows.Forms.TextBox();
-            this.ButtonText = new System.Windows.Forms.Label();
-            this.btnAddButton = new System.Windows.Forms.Button();
-            this.chbUseSavedResponse = new System.Windows.Forms.CheckBox();
-            this.chbPlayAlert = new System.Windows.Forms.CheckBox();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.txtTimeout = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.cmbTimeoutResult = new System.Windows.Forms.ComboBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.grpBoxIcon.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // btnShowCustom
-            // 
-            this.btnShowCustom.Location = new System.Drawing.Point(752, 328);
-            this.btnShowCustom.Name = "btnShowCustom";
-            this.btnShowCustom.Size = new System.Drawing.Size(160, 23);
-            this.btnShowCustom.TabIndex = 3;
-            this.btnShowCustom.Text = "Show Custom MessageBox";
-            this.toolTip1.SetToolTip(this.btnShowCustom, "Show the currently selected message box from the list");
-            this.btnShowCustom.Click += new System.EventHandler(this.btnShowCustom_Click);
-            // 
-            // grpBoxIcon
-            // 
-            this.grpBoxIcon.Controls.Add(this.radioButton5);
-            this.grpBoxIcon.Controls.Add(this.radioButton4);
-            this.grpBoxIcon.Controls.Add(this.radioButton3);
-            this.grpBoxIcon.Controls.Add(this.radioButton2);
-            this.grpBoxIcon.Controls.Add(this.radioButton1);
-            this.grpBoxIcon.Location = new System.Drawing.Point(448, 216);
-            this.grpBoxIcon.Name = "grpBoxIcon";
-            this.grpBoxIcon.Size = new System.Drawing.Size(136, 184);
-            this.grpBoxIcon.TabIndex = 15;
-            this.grpBoxIcon.TabStop = false;
-            this.grpBoxIcon.Text = "Icon";
-            // 
-            // radioButton5
-            // 
-            this.radioButton5.Location = new System.Drawing.Point(16, 152);
-            this.radioButton5.Name = "radioButton5";
-            this.radioButton5.TabIndex = 4;
-            this.radioButton5.Text = "None";
-            // 
-            // radioButton4
-            // 
-            this.radioButton4.Location = new System.Drawing.Point(16, 120);
-            this.radioButton4.Name = "radioButton4";
-            this.radioButton4.TabIndex = 2;
-            this.radioButton4.Text = "Question";
-            // 
-            // radioButton3
-            // 
-            this.radioButton3.Location = new System.Drawing.Point(16, 56);
-            this.radioButton3.Name = "radioButton3";
-            this.radioButton3.TabIndex = 1;
-            this.radioButton3.Text = "Exclamation";
-            // 
-            // radioButton2
-            // 
-            this.radioButton2.Location = new System.Drawing.Point(16, 88);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.TabIndex = 3;
-            this.radioButton2.Text = "Hand";
-            // 
-            // radioButton1
-            // 
-            this.radioButton1.Checked = true;
-            this.radioButton1.Location = new System.Drawing.Point(16, 24);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.TabIndex = 0;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Asterisk";
-            // 
-            // listViewButtons
-            // 
-            this.listViewButtons.CheckBoxes = true;
-            this.listViewButtons.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-                                                                                              this.columnHeader1});
-            listViewItem1.StateImageIndex = 0;
-            listViewItem2.StateImageIndex = 0;
-            listViewItem3.StateImageIndex = 0;
-            listViewItem4.StateImageIndex = 0;
-            listViewItem5.StateImageIndex = 0;
-            listViewItem6.StateImageIndex = 0;
-            listViewItem7.StateImageIndex = 0;
-            this.listViewButtons.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-                                                                                            listViewItem1,
-                                                                                            listViewItem2,
-                                                                                            listViewItem3,
-                                                                                            listViewItem4,
-                                                                                            listViewItem5,
-                                                                                            listViewItem6,
-                                                                                            listViewItem7});
-            this.listViewButtons.Location = new System.Drawing.Point(296, 216);
-            this.listViewButtons.Name = "listViewButtons";
-            this.listViewButtons.Size = new System.Drawing.Size(136, 184);
-            this.listViewButtons.TabIndex = 14;
-            this.listViewButtons.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "Buttons";
-            this.columnHeader1.Width = 130;
-            // 
-            // txtMessage
-            // 
-            this.txtMessage.Location = new System.Drawing.Point(72, 112);
-            this.txtMessage.Multiline = true;
-            this.txtMessage.Name = "txtMessage";
-            this.txtMessage.Size = new System.Drawing.Size(280, 80);
-            this.txtMessage.TabIndex = 5;
-            this.txtMessage.Text = "<Message>";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(16, 112);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(47, 17);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Message";
-            // 
-            // txtCaption
-            // 
-            this.txtCaption.Location = new System.Drawing.Point(72, 72);
-            this.txtCaption.Name = "txtCaption";
-            this.txtCaption.Size = new System.Drawing.Size(280, 21);
-            this.txtCaption.TabIndex = 3;
-            this.txtCaption.Text = "<Caption>";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(16, 72);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(42, 17);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Caption";
-            // 
-            // chbAllowSaveResponse
-            // 
-            this.chbAllowSaveResponse.Location = new System.Drawing.Point(80, 408);
-            this.chbAllowSaveResponse.Name = "chbAllowSaveResponse";
-            this.chbAllowSaveResponse.Size = new System.Drawing.Size(144, 24);
-            this.chbAllowSaveResponse.TabIndex = 16;
-            this.chbAllowSaveResponse.Text = "Allow Save Response";
-            // 
-            // txtSaveResponse
-            // 
-            this.txtSaveResponse.Location = new System.Drawing.Point(82, 432);
-            this.txtSaveResponse.Multiline = true;
-            this.txtSaveResponse.Name = "txtSaveResponse";
-            this.txtSaveResponse.Size = new System.Drawing.Size(272, 80);
-            this.txtSaveResponse.TabIndex = 17;
-            this.txtSaveResponse.Text = "<Save Response Text>";
-            // 
-            // txtResult
-            // 
-            this.txtResult.Location = new System.Drawing.Point(752, 512);
-            this.txtResult.Name = "txtResult";
-            this.txtResult.Size = new System.Drawing.Size(160, 21);
-            this.txtResult.TabIndex = 7;
-            this.txtResult.Text = "<Result>";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(712, 512);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(35, 17);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "Result";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // listViewMessageBoxes
-            // 
-            this.listViewMessageBoxes.Activation = System.Windows.Forms.ItemActivation.TwoClick;
-            this.listViewMessageBoxes.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-                                                                                                   this.columnHeader2});
-            this.listViewMessageBoxes.Location = new System.Drawing.Point(752, 96);
-            this.listViewMessageBoxes.MultiSelect = false;
-            this.listViewMessageBoxes.Name = "listViewMessageBoxes";
-            this.listViewMessageBoxes.Size = new System.Drawing.Size(192, 224);
-            this.listViewMessageBoxes.TabIndex = 2;
-            this.listViewMessageBoxes.View = System.Windows.Forms.View.Details;
-            this.listViewMessageBoxes.ItemActivate += new System.EventHandler(this.listViewMessageBoxes_ItemActivate);
-            // 
-            // columnHeader2
-            // 
-            this.columnHeader2.Text = "MessageBoxes";
-            this.columnHeader2.Width = 183;
-            // 
-            // btnAddMessageBox
-            // 
-            this.btnAddMessageBox.Location = new System.Drawing.Point(608, 192);
-            this.btnAddMessageBox.Name = "btnAddMessageBox";
-            this.btnAddMessageBox.Size = new System.Drawing.Size(128, 23);
-            this.btnAddMessageBox.TabIndex = 1;
-            this.btnAddMessageBox.Text = "Add MessageBox >>";
-            this.toolTip1.SetToolTip(this.btnAddMessageBox, "Create a message box with the specified information and add it to the list");
-            this.btnAddMessageBox.Click += new System.EventHandler(this.btnAddMessageBox_Click);
-            // 
-            // txtName
-            // 
-            this.txtName.Location = new System.Drawing.Point(72, 32);
-            this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(280, 21);
-            this.txtName.TabIndex = 1;
-            this.txtName.Text = "<Name>";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(24, 32);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(33, 17);
-            this.label4.TabIndex = 0;
-            this.label4.Text = "Name";
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.txtButtonHelp);
-            this.groupBox1.Controls.Add(this.label6);
-            this.groupBox1.Controls.Add(this.chbIsCancel);
-            this.groupBox1.Controls.Add(this.txtButtonVal);
-            this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.txtButtonText);
-            this.groupBox1.Controls.Add(this.ButtonText);
-            this.groupBox1.Controls.Add(this.grpBoxIcon);
-            this.groupBox1.Controls.Add(this.listViewButtons);
-            this.groupBox1.Controls.Add(this.txtMessage);
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.txtCaption);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.chbAllowSaveResponse);
-            this.groupBox1.Controls.Add(this.txtSaveResponse);
-            this.groupBox1.Controls.Add(this.btnAddButton);
-            this.groupBox1.Controls.Add(this.txtName);
-            this.groupBox1.Controls.Add(this.label4);
-            this.groupBox1.Location = new System.Drawing.Point(8, 8);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(592, 528);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "MessageBox";
-            // 
-            // txtButtonHelp
-            // 
-            this.txtButtonHelp.Location = new System.Drawing.Point(88, 280);
-            this.txtButtonHelp.Name = "txtButtonHelp";
-            this.txtButtonHelp.Size = new System.Drawing.Size(96, 21);
-            this.txtButtonHelp.TabIndex = 11;
-            this.txtButtonHelp.Text = "<Help Text>";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(16, 280);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(52, 17);
-            this.label6.TabIndex = 10;
-            this.label6.Text = "Help Text";
-            // 
-            // chbIsCancel
-            // 
-            this.chbIsCancel.Location = new System.Drawing.Point(88, 312);
-            this.chbIsCancel.Name = "chbIsCancel";
-            this.chbIsCancel.Size = new System.Drawing.Size(72, 24);
-            this.chbIsCancel.TabIndex = 12;
-            this.chbIsCancel.Text = "Is Cancel";
-            // 
-            // txtButtonVal
-            // 
-            this.txtButtonVal.Location = new System.Drawing.Point(88, 248);
-            this.txtButtonVal.Name = "txtButtonVal";
-            this.txtButtonVal.Size = new System.Drawing.Size(96, 21);
-            this.txtButtonVal.TabIndex = 9;
-            this.txtButtonVal.Text = "<Button Value>";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(16, 248);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(68, 17);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "Button Value";
-            // 
-            // txtButtonText
-            // 
-            this.txtButtonText.Location = new System.Drawing.Point(88, 216);
-            this.txtButtonText.Name = "txtButtonText";
-            this.txtButtonText.Size = new System.Drawing.Size(96, 21);
-            this.txtButtonText.TabIndex = 7;
-            this.txtButtonText.Text = "<Button Text>";
-            // 
-            // ButtonText
-            // 
-            this.ButtonText.AutoSize = true;
-            this.ButtonText.Location = new System.Drawing.Point(16, 216);
-            this.ButtonText.Name = "ButtonText";
-            this.ButtonText.Size = new System.Drawing.Size(59, 17);
-            this.ButtonText.TabIndex = 6;
-            this.ButtonText.Text = "ButtonText";
-            // 
-            // btnAddButton
-            // 
-            this.btnAddButton.Location = new System.Drawing.Point(192, 216);
-            this.btnAddButton.Name = "btnAddButton";
-            this.btnAddButton.Size = new System.Drawing.Size(88, 23);
-            this.btnAddButton.TabIndex = 13;
-            this.btnAddButton.Text = "Add Button >>";
-            this.toolTip1.SetToolTip(this.btnAddButton, "Create a button using the specified information and add it to the list");
-            this.btnAddButton.Click += new System.EventHandler(this.btnAddButton_Click);
-            // 
-            // chbUseSavedResponse
-            // 
-            this.chbUseSavedResponse.Checked = true;
-            this.chbUseSavedResponse.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chbUseSavedResponse.Location = new System.Drawing.Point(752, 352);
-            this.chbUseSavedResponse.Name = "chbUseSavedResponse";
-            this.chbUseSavedResponse.Size = new System.Drawing.Size(160, 24);
-            this.chbUseSavedResponse.TabIndex = 4;
-            this.chbUseSavedResponse.Text = "Use Saved Response";
-            // 
-            // chbPlayAlert
-            // 
-            this.chbPlayAlert.Checked = true;
-            this.chbPlayAlert.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chbPlayAlert.Location = new System.Drawing.Point(752, 384);
-            this.chbPlayAlert.Name = "chbPlayAlert";
-            this.chbPlayAlert.Size = new System.Drawing.Size(160, 24);
-            this.chbPlayAlert.TabIndex = 5;
-            this.chbPlayAlert.Text = "Play Alert Sound";
-            // 
-            // txtTimeout
-            // 
-            this.txtTimeout.Location = new System.Drawing.Point(752, 416);
-            this.txtTimeout.Name = "txtTimeout";
-            this.txtTimeout.Size = new System.Drawing.Size(160, 21);
-            this.txtTimeout.TabIndex = 9;
-            this.txtTimeout.Text = "0";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(704, 416);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(45, 17);
-            this.label7.TabIndex = 8;
-            this.label7.Text = "Timeout";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(912, 416);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(19, 17);
-            this.label8.TabIndex = 10;
-            this.label8.Text = "ms";
-            // 
-            // cmbTimeoutResult
-            // 
-            this.cmbTimeoutResult.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbTimeoutResult.Items.AddRange(new object[] {
-                                                                  "Default",
-                                                                  "Cancel",
-                                                                  "Timeout"});
-            this.cmbTimeoutResult.Location = new System.Drawing.Point(752, 448);
-            this.cmbTimeoutResult.Name = "cmbTimeoutResult";
-            this.cmbTimeoutResult.Size = new System.Drawing.Size(160, 21);
-            this.cmbTimeoutResult.TabIndex = 11;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(670, 448);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(79, 17);
-            this.label9.TabIndex = 12;
-            this.label9.Text = "Timeout Result";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(872, 8);
-            this.button1.Name = "button1";
-            this.button1.TabIndex = 13;
-            this.button1.Text = "Run Tests";
-            this.button1.Visible = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // MessageBoxExDemoForm
-            // 
-            this.AutoScaleBaseSize = new System.Drawing.Size(5, 14);
-            this.ClientSize = new System.Drawing.Size(960, 550);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.label9);
-            this.Controls.Add(this.label8);
-            this.Controls.Add(this.txtTimeout);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.chbPlayAlert);
-            this.Controls.Add(this.txtResult);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.chbUseSavedResponse);
-            this.Controls.Add(this.cmbTimeoutResult);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.btnAddMessageBox);
-            this.Controls.Add(this.listViewMessageBoxes);
-            this.Controls.Add(this.btnShowCustom);
-            this.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
-            this.Name = "MessageBoxExDemoForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "MessageBoxEx Demo";
-            this.Load += new System.EventHandler(this.MessageBoxExDemoForm_Load);
-            this.grpBoxIcon.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.ResumeLayout(false);
+       		this.components = new System.ComponentModel.Container();
+       		System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("Ok");
+       		System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Cancel");
+       		System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("Yes");
+       		System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("No");
+       		System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Abort");
+       		System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("Retry");
+       		System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem("Ignore");
+       		this.btnShowCustom = new System.Windows.Forms.Button();
+       		this.grpBoxIcon = new System.Windows.Forms.GroupBox();
+       		this.radioButton5 = new System.Windows.Forms.RadioButton();
+       		this.radioButton4 = new System.Windows.Forms.RadioButton();
+       		this.radioButton3 = new System.Windows.Forms.RadioButton();
+       		this.radioButton2 = new System.Windows.Forms.RadioButton();
+       		this.radioButton1 = new System.Windows.Forms.RadioButton();
+       		this.listViewButtons = new System.Windows.Forms.ListView();
+       		this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+       		this.txtMessage = new System.Windows.Forms.TextBox();
+       		this.label2 = new System.Windows.Forms.Label();
+       		this.txtCaption = new System.Windows.Forms.TextBox();
+       		this.label1 = new System.Windows.Forms.Label();
+       		this.chbAllowSaveResponse = new System.Windows.Forms.CheckBox();
+       		this.txtSaveResponse = new System.Windows.Forms.TextBox();
+       		this.txtResult = new System.Windows.Forms.TextBox();
+       		this.label3 = new System.Windows.Forms.Label();
+       		this.listViewMessageBoxes = new System.Windows.Forms.ListView();
+       		this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+       		this.btnAddMessageBox = new System.Windows.Forms.Button();
+       		this.txtName = new System.Windows.Forms.TextBox();
+       		this.label4 = new System.Windows.Forms.Label();
+       		this.groupBox1 = new System.Windows.Forms.GroupBox();
+       		this.chbAllowReposition = new System.Windows.Forms.CheckBox();
+       		this.txtButtonHelp = new System.Windows.Forms.TextBox();
+       		this.label6 = new System.Windows.Forms.Label();
+       		this.chbIsCancel = new System.Windows.Forms.CheckBox();
+       		this.txtButtonVal = new System.Windows.Forms.TextBox();
+       		this.label5 = new System.Windows.Forms.Label();
+       		this.txtButtonText = new System.Windows.Forms.TextBox();
+       		this.ButtonText = new System.Windows.Forms.Label();
+       		this.btnAddButton = new System.Windows.Forms.Button();
+       		this.chbUseSavedResponse = new System.Windows.Forms.CheckBox();
+       		this.chbPlayAlert = new System.Windows.Forms.CheckBox();
+       		this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+       		this.txtTimeout = new System.Windows.Forms.TextBox();
+       		this.label7 = new System.Windows.Forms.Label();
+       		this.label8 = new System.Windows.Forms.Label();
+       		this.cmbTimeoutResult = new System.Windows.Forms.ComboBox();
+       		this.label9 = new System.Windows.Forms.Label();
+       		this.button1 = new System.Windows.Forms.Button();
+       		this.grpBoxIcon.SuspendLayout();
+       		this.groupBox1.SuspendLayout();
+       		this.SuspendLayout();
+       		// 
+       		// btnShowCustom
+       		// 
+       		this.btnShowCustom.Location = new System.Drawing.Point(1053, 398);
+       		this.btnShowCustom.Name = "btnShowCustom";
+       		this.btnShowCustom.Size = new System.Drawing.Size(224, 28);
+       		this.btnShowCustom.TabIndex = 3;
+       		this.btnShowCustom.Text = "Show Custom MessageBox";
+       		this.toolTip1.SetToolTip(this.btnShowCustom, "Show the currently selected message box from the list");
+       		this.btnShowCustom.Click += new System.EventHandler(this.btnShowCustom_Click);
+       		// 
+       		// grpBoxIcon
+       		// 
+       		this.grpBoxIcon.Controls.Add(this.radioButton5);
+       		this.grpBoxIcon.Controls.Add(this.radioButton4);
+       		this.grpBoxIcon.Controls.Add(this.radioButton3);
+       		this.grpBoxIcon.Controls.Add(this.radioButton2);
+       		this.grpBoxIcon.Controls.Add(this.radioButton1);
+       		this.grpBoxIcon.Location = new System.Drawing.Point(627, 262);
+       		this.grpBoxIcon.Name = "grpBoxIcon";
+       		this.grpBoxIcon.Size = new System.Drawing.Size(191, 224);
+       		this.grpBoxIcon.TabIndex = 15;
+       		this.grpBoxIcon.TabStop = false;
+       		this.grpBoxIcon.Text = "Icon";
+       		// 
+       		// radioButton5
+       		// 
+       		this.radioButton5.Location = new System.Drawing.Point(22, 185);
+       		this.radioButton5.Name = "radioButton5";
+       		this.radioButton5.Size = new System.Drawing.Size(146, 29);
+       		this.radioButton5.TabIndex = 4;
+       		this.radioButton5.Text = "None";
+       		// 
+       		// radioButton4
+       		// 
+       		this.radioButton4.Location = new System.Drawing.Point(22, 146);
+       		this.radioButton4.Name = "radioButton4";
+       		this.radioButton4.Size = new System.Drawing.Size(146, 29);
+       		this.radioButton4.TabIndex = 2;
+       		this.radioButton4.Text = "Question";
+       		// 
+       		// radioButton3
+       		// 
+       		this.radioButton3.Location = new System.Drawing.Point(22, 68);
+       		this.radioButton3.Name = "radioButton3";
+       		this.radioButton3.Size = new System.Drawing.Size(146, 29);
+       		this.radioButton3.TabIndex = 1;
+       		this.radioButton3.Text = "Exclamation";
+       		// 
+       		// radioButton2
+       		// 
+       		this.radioButton2.Location = new System.Drawing.Point(22, 107);
+       		this.radioButton2.Name = "radioButton2";
+       		this.radioButton2.Size = new System.Drawing.Size(146, 29);
+       		this.radioButton2.TabIndex = 3;
+       		this.radioButton2.Text = "Hand";
+       		// 
+       		// radioButton1
+       		// 
+       		this.radioButton1.Checked = true;
+       		this.radioButton1.Location = new System.Drawing.Point(22, 29);
+       		this.radioButton1.Name = "radioButton1";
+       		this.radioButton1.Size = new System.Drawing.Size(146, 29);
+       		this.radioButton1.TabIndex = 0;
+       		this.radioButton1.TabStop = true;
+       		this.radioButton1.Text = "Asterisk";
+       		// 
+       		// listViewButtons
+       		// 
+       		this.listViewButtons.CheckBoxes = true;
+       		this.listViewButtons.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+			this.columnHeader1});
+       		listViewItem1.StateImageIndex = 0;
+       		listViewItem2.StateImageIndex = 0;
+       		listViewItem3.StateImageIndex = 0;
+       		listViewItem4.StateImageIndex = 0;
+       		listViewItem5.StateImageIndex = 0;
+       		listViewItem6.StateImageIndex = 0;
+       		listViewItem7.StateImageIndex = 0;
+       		this.listViewButtons.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+			listViewItem1,
+			listViewItem2,
+			listViewItem3,
+			listViewItem4,
+			listViewItem5,
+			listViewItem6,
+			listViewItem7});
+       		this.listViewButtons.Location = new System.Drawing.Point(414, 262);
+       		this.listViewButtons.Name = "listViewButtons";
+       		this.listViewButtons.Size = new System.Drawing.Size(191, 224);
+       		this.listViewButtons.TabIndex = 14;
+       		this.listViewButtons.UseCompatibleStateImageBehavior = false;
+       		this.listViewButtons.View = System.Windows.Forms.View.Details;
+       		// 
+       		// columnHeader1
+       		// 
+       		this.columnHeader1.Text = "Buttons";
+       		this.columnHeader1.Width = 130;
+       		// 
+       		// txtMessage
+       		// 
+       		this.txtMessage.Location = new System.Drawing.Point(101, 136);
+       		this.txtMessage.Multiline = true;
+       		this.txtMessage.Name = "txtMessage";
+       		this.txtMessage.Size = new System.Drawing.Size(392, 97);
+       		this.txtMessage.TabIndex = 5;
+       		this.txtMessage.Text = "<Message>";
+       		// 
+       		// label2
+       		// 
+       		this.label2.AutoSize = true;
+       		this.label2.Location = new System.Drawing.Point(22, 136);
+       		this.label2.Name = "label2";
+       		this.label2.Size = new System.Drawing.Size(59, 17);
+       		this.label2.TabIndex = 4;
+       		this.label2.Text = "Message";
+       		// 
+       		// txtCaption
+       		// 
+       		this.txtCaption.Location = new System.Drawing.Point(101, 87);
+       		this.txtCaption.Name = "txtCaption";
+       		this.txtCaption.Size = new System.Drawing.Size(392, 24);
+       		this.txtCaption.TabIndex = 3;
+       		this.txtCaption.Text = "<Caption>";
+       		// 
+       		// label1
+       		// 
+       		this.label1.AutoSize = true;
+       		this.label1.Location = new System.Drawing.Point(22, 87);
+       		this.label1.Name = "label1";
+       		this.label1.Size = new System.Drawing.Size(55, 17);
+       		this.label1.TabIndex = 2;
+       		this.label1.Text = "Caption";
+       		// 
+       		// chbAllowSaveResponse
+       		// 
+       		this.chbAllowSaveResponse.Location = new System.Drawing.Point(112, 495);
+       		this.chbAllowSaveResponse.Name = "chbAllowSaveResponse";
+       		this.chbAllowSaveResponse.Size = new System.Drawing.Size(202, 30);
+       		this.chbAllowSaveResponse.TabIndex = 16;
+       		this.chbAllowSaveResponse.Text = "Allow Save Response";
+       		// 
+       		// txtSaveResponse
+       		// 
+       		this.txtSaveResponse.Location = new System.Drawing.Point(115, 525);
+       		this.txtSaveResponse.Multiline = true;
+       		this.txtSaveResponse.Name = "txtSaveResponse";
+       		this.txtSaveResponse.Size = new System.Drawing.Size(381, 97);
+       		this.txtSaveResponse.TabIndex = 17;
+       		this.txtSaveResponse.Text = "<Save Response Text>";
+       		// 
+       		// txtResult
+       		// 
+       		this.txtResult.Location = new System.Drawing.Point(1053, 622);
+       		this.txtResult.Name = "txtResult";
+       		this.txtResult.Size = new System.Drawing.Size(224, 24);
+       		this.txtResult.TabIndex = 7;
+       		this.txtResult.Text = "<Result>";
+       		// 
+       		// label3
+       		// 
+       		this.label3.AutoSize = true;
+       		this.label3.Location = new System.Drawing.Point(997, 622);
+       		this.label3.Name = "label3";
+       		this.label3.Size = new System.Drawing.Size(45, 17);
+       		this.label3.TabIndex = 6;
+       		this.label3.Text = "Result";
+       		this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+       		// 
+       		// listViewMessageBoxes
+       		// 
+       		this.listViewMessageBoxes.Activation = System.Windows.Forms.ItemActivation.TwoClick;
+       		this.listViewMessageBoxes.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+			this.columnHeader2});
+       		this.listViewMessageBoxes.Location = new System.Drawing.Point(1053, 117);
+       		this.listViewMessageBoxes.MultiSelect = false;
+       		this.listViewMessageBoxes.Name = "listViewMessageBoxes";
+       		this.listViewMessageBoxes.Size = new System.Drawing.Size(269, 272);
+       		this.listViewMessageBoxes.TabIndex = 2;
+       		this.listViewMessageBoxes.UseCompatibleStateImageBehavior = false;
+       		this.listViewMessageBoxes.View = System.Windows.Forms.View.Details;
+       		this.listViewMessageBoxes.ItemActivate += new System.EventHandler(this.listViewMessageBoxes_ItemActivate);
+       		// 
+       		// columnHeader2
+       		// 
+       		this.columnHeader2.Text = "MessageBoxes";
+       		this.columnHeader2.Width = 183;
+       		// 
+       		// btnAddMessageBox
+       		// 
+       		this.btnAddMessageBox.Location = new System.Drawing.Point(851, 233);
+       		this.btnAddMessageBox.Name = "btnAddMessageBox";
+       		this.btnAddMessageBox.Size = new System.Drawing.Size(179, 28);
+       		this.btnAddMessageBox.TabIndex = 1;
+       		this.btnAddMessageBox.Text = "Add MessageBox >>";
+       		this.toolTip1.SetToolTip(this.btnAddMessageBox, "Create a message box with the specified information and add it to the list");
+       		this.btnAddMessageBox.Click += new System.EventHandler(this.btnAddMessageBox_Click);
+       		// 
+       		// txtName
+       		// 
+       		this.txtName.Location = new System.Drawing.Point(101, 39);
+       		this.txtName.Name = "txtName";
+       		this.txtName.Size = new System.Drawing.Size(392, 24);
+       		this.txtName.TabIndex = 1;
+       		this.txtName.Text = "<Name>";
+       		// 
+       		// label4
+       		// 
+       		this.label4.AutoSize = true;
+       		this.label4.Location = new System.Drawing.Point(34, 39);
+       		this.label4.Name = "label4";
+       		this.label4.Size = new System.Drawing.Size(43, 17);
+       		this.label4.TabIndex = 0;
+       		this.label4.Text = "Name";
+       		// 
+       		// groupBox1
+       		// 
+       		this.groupBox1.Controls.Add(this.chbAllowReposition);
+       		this.groupBox1.Controls.Add(this.txtButtonHelp);
+       		this.groupBox1.Controls.Add(this.label6);
+       		this.groupBox1.Controls.Add(this.chbIsCancel);
+       		this.groupBox1.Controls.Add(this.txtButtonVal);
+       		this.groupBox1.Controls.Add(this.label5);
+       		this.groupBox1.Controls.Add(this.txtButtonText);
+       		this.groupBox1.Controls.Add(this.ButtonText);
+       		this.groupBox1.Controls.Add(this.grpBoxIcon);
+       		this.groupBox1.Controls.Add(this.listViewButtons);
+       		this.groupBox1.Controls.Add(this.txtMessage);
+       		this.groupBox1.Controls.Add(this.label2);
+       		this.groupBox1.Controls.Add(this.txtCaption);
+       		this.groupBox1.Controls.Add(this.label1);
+       		this.groupBox1.Controls.Add(this.chbAllowSaveResponse);
+       		this.groupBox1.Controls.Add(this.txtSaveResponse);
+       		this.groupBox1.Controls.Add(this.btnAddButton);
+       		this.groupBox1.Controls.Add(this.txtName);
+       		this.groupBox1.Controls.Add(this.label4);
+       		this.groupBox1.Location = new System.Drawing.Point(11, 10);
+       		this.groupBox1.Name = "groupBox1";
+       		this.groupBox1.Size = new System.Drawing.Size(829, 641);
+       		this.groupBox1.TabIndex = 0;
+       		this.groupBox1.TabStop = false;
+       		this.groupBox1.Text = "MessageBox";
+       		// 
+       		// chbAllowReposition
+       		// 
+       		this.chbAllowReposition.Location = new System.Drawing.Point(112, 447);
+       		this.chbAllowReposition.Name = "chbAllowReposition";
+       		this.chbAllowReposition.Size = new System.Drawing.Size(202, 30);
+       		this.chbAllowReposition.TabIndex = 18;
+       		this.chbAllowReposition.Text = "Allow Reposition";
+       		this.chbAllowReposition.CheckedChanged += new System.EventHandler(this.CheckBox1CheckedChanged);
+       		// 
+       		// txtButtonHelp
+       		// 
+       		this.txtButtonHelp.Location = new System.Drawing.Point(123, 340);
+       		this.txtButtonHelp.Name = "txtButtonHelp";
+       		this.txtButtonHelp.Size = new System.Drawing.Size(135, 24);
+       		this.txtButtonHelp.TabIndex = 11;
+       		this.txtButtonHelp.Text = "<Help Text>";
+       		// 
+       		// label6
+       		// 
+       		this.label6.AutoSize = true;
+       		this.label6.Location = new System.Drawing.Point(22, 340);
+       		this.label6.Name = "label6";
+       		this.label6.Size = new System.Drawing.Size(66, 17);
+       		this.label6.TabIndex = 10;
+       		this.label6.Text = "Help Text";
+       		// 
+       		// chbIsCancel
+       		// 
+       		this.chbIsCancel.Location = new System.Drawing.Point(123, 379);
+       		this.chbIsCancel.Name = "chbIsCancel";
+       		this.chbIsCancel.Size = new System.Drawing.Size(101, 29);
+       		this.chbIsCancel.TabIndex = 12;
+       		this.chbIsCancel.Text = "Is Cancel";
+       		// 
+       		// txtButtonVal
+       		// 
+       		this.txtButtonVal.Location = new System.Drawing.Point(123, 301);
+       		this.txtButtonVal.Name = "txtButtonVal";
+       		this.txtButtonVal.Size = new System.Drawing.Size(135, 24);
+       		this.txtButtonVal.TabIndex = 9;
+       		this.txtButtonVal.Text = "<Button Value>";
+       		// 
+       		// label5
+       		// 
+       		this.label5.AutoSize = true;
+       		this.label5.Location = new System.Drawing.Point(22, 301);
+       		this.label5.Name = "label5";
+       		this.label5.Size = new System.Drawing.Size(86, 17);
+       		this.label5.TabIndex = 8;
+       		this.label5.Text = "Button Value";
+       		// 
+       		// txtButtonText
+       		// 
+       		this.txtButtonText.Location = new System.Drawing.Point(123, 262);
+       		this.txtButtonText.Name = "txtButtonText";
+       		this.txtButtonText.Size = new System.Drawing.Size(135, 24);
+       		this.txtButtonText.TabIndex = 7;
+       		this.txtButtonText.Text = "<Button Text>";
+       		// 
+       		// ButtonText
+       		// 
+       		this.ButtonText.AutoSize = true;
+       		this.ButtonText.Location = new System.Drawing.Point(22, 262);
+       		this.ButtonText.Name = "ButtonText";
+       		this.ButtonText.Size = new System.Drawing.Size(78, 17);
+       		this.ButtonText.TabIndex = 6;
+       		this.ButtonText.Text = "ButtonText";
+       		// 
+       		// btnAddButton
+       		// 
+       		this.btnAddButton.Location = new System.Drawing.Point(269, 262);
+       		this.btnAddButton.Name = "btnAddButton";
+       		this.btnAddButton.Size = new System.Drawing.Size(123, 28);
+       		this.btnAddButton.TabIndex = 13;
+       		this.btnAddButton.Text = "Add Button >>";
+       		this.toolTip1.SetToolTip(this.btnAddButton, "Create a button using the specified information and add it to the list");
+       		this.btnAddButton.Click += new System.EventHandler(this.btnAddButton_Click);
+       		// 
+       		// chbUseSavedResponse
+       		// 
+       		this.chbUseSavedResponse.Checked = true;
+       		this.chbUseSavedResponse.CheckState = System.Windows.Forms.CheckState.Checked;
+       		this.chbUseSavedResponse.Location = new System.Drawing.Point(1053, 427);
+       		this.chbUseSavedResponse.Name = "chbUseSavedResponse";
+       		this.chbUseSavedResponse.Size = new System.Drawing.Size(224, 30);
+       		this.chbUseSavedResponse.TabIndex = 4;
+       		this.chbUseSavedResponse.Text = "Use Saved Response";
+       		// 
+       		// chbPlayAlert
+       		// 
+       		this.chbPlayAlert.Checked = true;
+       		this.chbPlayAlert.CheckState = System.Windows.Forms.CheckState.Checked;
+       		this.chbPlayAlert.Location = new System.Drawing.Point(1053, 466);
+       		this.chbPlayAlert.Name = "chbPlayAlert";
+       		this.chbPlayAlert.Size = new System.Drawing.Size(224, 29);
+       		this.chbPlayAlert.TabIndex = 5;
+       		this.chbPlayAlert.Text = "Play Alert Sound";
+       		// 
+       		// txtTimeout
+       		// 
+       		this.txtTimeout.Location = new System.Drawing.Point(1053, 505);
+       		this.txtTimeout.Name = "txtTimeout";
+       		this.txtTimeout.Size = new System.Drawing.Size(224, 24);
+       		this.txtTimeout.TabIndex = 9;
+       		this.txtTimeout.Text = "0";
+       		// 
+       		// label7
+       		// 
+       		this.label7.AutoSize = true;
+       		this.label7.Location = new System.Drawing.Point(986, 505);
+       		this.label7.Name = "label7";
+       		this.label7.Size = new System.Drawing.Size(58, 17);
+       		this.label7.TabIndex = 8;
+       		this.label7.Text = "Timeout";
+       		// 
+       		// label8
+       		// 
+       		this.label8.AutoSize = true;
+       		this.label8.Location = new System.Drawing.Point(1277, 505);
+       		this.label8.Name = "label8";
+       		this.label8.Size = new System.Drawing.Size(26, 17);
+       		this.label8.TabIndex = 10;
+       		this.label8.Text = "ms";
+       		// 
+       		// cmbTimeoutResult
+       		// 
+       		this.cmbTimeoutResult.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+       		this.cmbTimeoutResult.Items.AddRange(new object[] {
+			"Default",
+			"Cancel",
+			"Timeout"});
+       		this.cmbTimeoutResult.Location = new System.Drawing.Point(1053, 544);
+       		this.cmbTimeoutResult.Name = "cmbTimeoutResult";
+       		this.cmbTimeoutResult.Size = new System.Drawing.Size(224, 25);
+       		this.cmbTimeoutResult.TabIndex = 11;
+       		// 
+       		// label9
+       		// 
+       		this.label9.AutoSize = true;
+       		this.label9.Location = new System.Drawing.Point(938, 544);
+       		this.label9.Name = "label9";
+       		this.label9.Size = new System.Drawing.Size(99, 17);
+       		this.label9.TabIndex = 12;
+       		this.label9.Text = "Timeout Result";
+       		// 
+       		// button1
+       		// 
+       		this.button1.Location = new System.Drawing.Point(1221, 10);
+       		this.button1.Name = "button1";
+       		this.button1.Size = new System.Drawing.Size(105, 28);
+       		this.button1.TabIndex = 13;
+       		this.button1.Text = "Run Tests";
+       		this.button1.Visible = false;
+       		this.button1.Click += new System.EventHandler(this.button1_Click);
+       		// 
+       		// MessageBoxExDemoForm
+       		// 
+       		this.AutoScaleBaseSize = new System.Drawing.Size(7, 17);
+       		this.ClientSize = new System.Drawing.Size(960, 550);
+       		this.Controls.Add(this.button1);
+       		this.Controls.Add(this.label9);
+       		this.Controls.Add(this.label8);
+       		this.Controls.Add(this.txtTimeout);
+       		this.Controls.Add(this.label7);
+       		this.Controls.Add(this.chbPlayAlert);
+       		this.Controls.Add(this.txtResult);
+       		this.Controls.Add(this.label3);
+       		this.Controls.Add(this.chbUseSavedResponse);
+       		this.Controls.Add(this.cmbTimeoutResult);
+       		this.Controls.Add(this.groupBox1);
+       		this.Controls.Add(this.btnAddMessageBox);
+       		this.Controls.Add(this.listViewMessageBoxes);
+       		this.Controls.Add(this.btnShowCustom);
+       		this.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+       		this.Name = "MessageBoxExDemoForm";
+       		this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+       		this.Text = "MessageBoxEx Demo";
+       		this.Load += new System.EventHandler(this.MessageBoxExDemoForm_Load);
+       		this.grpBoxIcon.ResumeLayout(false);
+       		this.groupBox1.ResumeLayout(false);
+       		this.groupBox1.PerformLayout();
+       		this.ResumeLayout(false);
+       		this.PerformLayout();
 
-        }
+       	}
 
 		[STAThread]
 		static void Main()  {
@@ -546,7 +581,29 @@ namespace MessageBoxExDemo {
 			msgBox.PlayAlsertSound = chbPlayAlert.Checked;
             msgBox.Timeout = Convert.ToInt32(txtTimeout.Text);
             msgBox.TimeoutResult = (TimeoutResult)Enum.Parse(typeof(TimeoutResult),cmbTimeoutResult.SelectedItem.ToString());
+
+            if (chbAllowReposition.Checked) {
+              FindAndMoveMsgBox(100, 100, true, msgBox.Caption);
+            }
             txtResult.Text = msgBox.Show(this);
+		}
+		
+		void FindAndMoveMsgBox(int x, int y, bool repaint, string title)
+		{
+			Thread thr = new Thread(() => { // create a new thread
+				IntPtr msgBox = IntPtr.Zero;
+				// while there's no MessageBox, FindWindow returns IntPtr.Zero
+				while ((msgBox = FindWindow(IntPtr.Zero, title)) == IntPtr.Zero)
+					;
+				// after the while loop, msgBox is the handle of your MessageBox
+				Rectangle r = new Rectangle();
+				GetWindowRect(msgBox, out r); // Gets the rectangle of the message box
+				MoveWindow(msgBox /* handle of the message box */, x, y, 
+					r.Width - r.X /* width of originally message box */, 
+					r.Height - r.Y /* height of originally message box */, 
+					repaint /* if true, the message box repaints */);
+			});
+			thr.Start(); // starts the thread
 		}
 
 		private void btnAddButton_Click(object sender, System.EventArgs e) {
@@ -633,6 +690,9 @@ namespace MessageBoxExDemo {
 			mbox.Caption = txtCaption.Text;
 			mbox.Text = txtMessage.Text;
 			mbox.AllowSaveResponse = chbAllowSaveResponse.Checked;
+			
+			// mbox.chbAllowReposition = chbAllowReposition.Checked;
+				
 			mbox.SaveResponseText = txtSaveResponse.Text;
 
 			foreach(MessageBoxExButton button in GetButtons()) {
@@ -779,6 +839,10 @@ namespace MessageBoxExDemo {
             Test5();
             Test6();
         }
+		void CheckBox1CheckedChanged(object sender, EventArgs e)
+		{
+	
+		}
 		#endregion
 	}
 }

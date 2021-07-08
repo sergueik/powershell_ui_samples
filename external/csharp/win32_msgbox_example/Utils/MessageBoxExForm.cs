@@ -65,10 +65,12 @@ namespace MessageBoxExLib {
         private Hashtable _buttonControlsTable = new Hashtable();
 
 		public string Message {
+			get { return Text; }
 			set{ rtbMessage.Text = value; }
 		}
 
 		public string Caption {
+			get { return Text; }
 			set{ this.Text = value; }
 		}
 

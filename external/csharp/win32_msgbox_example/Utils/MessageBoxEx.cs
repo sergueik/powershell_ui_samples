@@ -14,11 +14,13 @@ namespace MessageBoxExLib {
 		}
 
 		public string Caption {
-			set{_msgBox.Caption = value;}
+			get { return _msgBox.Caption; }
+			set{ _msgBox.Caption = value; }
 		}
 
 		public string Text {
-			set{_msgBox.Message = value;}
+			get { return _msgBox.Message; }
+			set{ _msgBox.Message = value; }
 		}
 
 		/// <summary>
