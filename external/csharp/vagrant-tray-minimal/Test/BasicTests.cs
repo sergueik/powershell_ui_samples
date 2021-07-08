@@ -15,22 +15,19 @@ namespace Test
 		private dynamic data;
 		
 		[SetUp]
-		public void SetUp()
-		{
+		public void SetUp() {
 			serializer = new JavaScriptSerializer();
 			serializer.RegisterConverters(new[] { new DynamicJsonConverter() });
 		}
 
 		[TearDown]
-		public void TearDown()
-		{
+		public void TearDown() {
 			Assert.AreEqual("", verificationErrors.ToString());
 		}
 
 		[Test] 
 		// expect successfully load JSON data via dynamic types
-		public void ShouldDeserialize()
-		{
+		public void ShouldDeserialize() {
 			// The contextual keyword 'var' may only appear within a local variable declaration
 			// Implicitly-typed local variables must be initialized
 
@@ -90,7 +87,33 @@ namespace Test
 			data.Items = items;
 
 			StringAssert.Contains("\"Name\":\"Drone\"", data.ToString());
+			// Console.WriteLine(data.ToString());
+		}
+	
+		[Test]
+		// and creating JSON formatted data from empty 
+		public void ShouldSerializeNothing() {
+	
+			data = new DynamicJsonObject();
+			// Assert.Equals should not be used for Assertions
+			// StringAssert.Equals("{}", data.ToString());
+			Assert.AreEqual("{}", data.ToString());
+			var items = new ArrayList();
+			data.Items = items;
+
 			Console.WriteLine(data.ToString());
+			Assert.AreEqual("{\"Items\":[]}", data.ToString());
+
+		}
+		
+		[Ignore]
+		[Test]
+		// Limitation: cannot create JSON Arrays
+		// Future?
+		public void ShouldSerializeArray() {
+			var items = new ArrayList();
+			// cannot compile
+			// data = new DynamicJsonObject(items);
 		}
 	}
 }
