@@ -11,7 +11,6 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 using Utils;
 
 namespace SeleniumClient {
@@ -22,7 +21,6 @@ namespace SeleniumClient {
 		}
 
 		public void Display() {
-
 			// notifyIcon.MouseClick += new MouseEventHandler(notifyIcon_MouseClick);
 			notifyIcon.Icon = Icon.FromHandle(Properties.Resources.selenium.GetHicon());
 			notifyIcon.Text = "System Tray Selenium Grid Status Checker";
@@ -84,18 +82,20 @@ namespace SeleniumClient {
 		}
 
 		void Process_Click(object sender, EventArgs e) {
-			var item = (ToolStripMenuItem )sender ;
-			var data = (Dictionary<String, String>)  item.Tag;
+			var item = (ToolStripMenuItem)sender;
+			var data = (Dictionary<String, String>)item.Tag;
 			String hub = data["hub"];
 			String environment = data["environment"];
 			if (!isFormDisplayed) {
-				isFormDisplayed = true;
 				var parser = new Parser();
 				parser.Hub = hub;
 				parser.Environment = environment;
 				parser.Start();
-				parser.ShowDialog();
-				isFormDisplayed = false;
+				if (parser.Status) { 
+					isFormDisplayed = true;
+					parser.ShowDialog();
+					isFormDisplayed = false;
+				}
 			}
 		}
 
@@ -115,6 +115,10 @@ namespace SeleniumClient {
 		private String hub;
 		private System.ComponentModel.IContainer components = null;
 		private String environment;
+		private Boolean status;
+		public Boolean Status {
+			get { return status; }
+		}
 
 		public string Hub {
 			get { return hub; }
@@ -135,6 +139,8 @@ namespace SeleniumClient {
 		}
 
 		public Parser() {
+								this.status = true;
+
 			InitializeComponent();
 			SetUp();
 		}
@@ -191,14 +197,14 @@ namespace SeleniumClient {
 
 		}
 
-	public void Start() {
+		public void Start() {
 			browser.ScriptErrorsSuppressed = true;
 			// browser.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(docCompleted);
 			browser.AllowNavigation = true;
 			//  can  only run directly
 			// browser.Navigate(String.Format("http://{0}:4444/grid/console/",hub));
 			try {
-				var url =  String.Format(@"http://{0}:4444/grid/console/",hub);
+				var url = String.Format(@"http://{0}:4444/grid/console/", hub);
 				var request = WebRequest.Create(url);
 				using (var response = request.GetResponse()) {
 					using (var content = response.GetResponseStream()) {
@@ -220,13 +226,25 @@ namespace SeleniumClient {
 				}
 			} catch (WebException e) {
 				Trace.Assert(e != null);
+				// show message box
+				String text = String.Format("The host {0} appears down", hub);
+				String caption = String.Format("{0} status", environment);
+				Mover.FindAndMoveMsgBox(100, 100, true, caption);
+				switch (MessageBox.Show(text, caption,
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Exclamation)) {
 
+					case DialogResult.OK:
+						this.Close();
+						this.status = false;
+						break;
+					default:
+						break;
+				}
 			}
-
 		}
 
-		void processDocument()
-		{
+		void processDocument() {
 			var document_html = browser.Document.Body.InnerHtml;
 			HtmlDocument doc = browser.Document;
 			HtmlElement element = null;
