@@ -12,7 +12,7 @@
     <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
     <PreBuildEvent />
     <PostBuildEvent />
-    <StartupObject>MessageBoxExDemo.MainClass</StartupObject>
+    <StartupObject>MessageBoxExDemo.MessageBoxExDemoForm</StartupObject>
     <NoConfig>false</NoConfig>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />

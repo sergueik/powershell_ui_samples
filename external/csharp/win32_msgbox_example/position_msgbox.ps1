@@ -54,7 +54,7 @@ public class Mover {
   static extern bool GetWindowRect(IntPtr hwnd, out Rectangle rect);
 
   public static void FindAndMoveMsgBox(int x, int y, bool repaint, string title) {
-    Thread thr = new Thread(() => {
+    Thread thread = new Thread(() => {
       IntPtr hwnd = IntPtr.Zero;
       // wait to discover MessageBox window handle through window title
       while ((hwnd = FindWindow(IntPtr.Zero, title)) == IntPtr.Zero) ;
@@ -62,7 +62,7 @@ public class Mover {
       GetWindowRect(hwnd, out rectangle);
       MoveWindow(hwnd, x, y, rectangle.Width - rectangle.X, rectangle.Height - rectangle.Y, repaint);
     });
-      thr.Start(); // starts the thread
+    thread.Start();
   }
 
 }
