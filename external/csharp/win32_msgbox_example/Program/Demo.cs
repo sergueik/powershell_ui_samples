@@ -9,7 +9,6 @@ using System.Threading;
 
 namespace Demo {
 	public class Example {
-		// http://www.java2s.com/Code/CSharp/GUI-Windows-Form/YesNoCancel.htm
 		public static void Main() {
 			String text = "Do you want to create a new file?";
 			String caption = "Caption";

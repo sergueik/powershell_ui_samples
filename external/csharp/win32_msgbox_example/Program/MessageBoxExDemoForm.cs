@@ -591,6 +591,10 @@ namespace MessageBoxExDemo {
 		[DllImport("user32.dll")]
 		static extern bool GetWindowRect(IntPtr hwnd, out Rectangle rect);
 
+		// based on: https://www.codeproject.com/Tips/472294/Position-a-Windows-Forms-MessageBox-in-Csharp
+		// see also: https://www.pinvoke.net/default.aspx/user32.movewindow
+		// interesting how width and height are calculated
+		// not using rectangle.Right - rectangle.Left, rectangle.Bottom - rectangle.Top
 		void FindAndMoveMsgBox(int x, int y, bool repaint, string title) {
 			var thread = new Thread(() => {
 				IntPtr hwnd = IntPtr.Zero;
@@ -599,9 +603,6 @@ namespace MessageBoxExDemo {
 					;
 				Rectangle rectangle = new Rectangle();
 				GetWindowRect(hwnd, out rectangle);
-				// https://www.pinvoke.net/default.aspx/user32.movewindow
-				// interesting how width and height are calculated
-				// not using rectangle.Right - rectangle.Left, rectangle.Bottom - rectangle.Top
 				MoveWindow(hwnd, x, y, rectangle.Width - rectangle.X, rectangle.Height - rectangle.Y, repaint);
 			});
 			thread.Start();
