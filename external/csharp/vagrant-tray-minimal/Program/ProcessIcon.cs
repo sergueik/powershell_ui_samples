@@ -11,7 +11,6 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
-using HtmlAgilityPack;
 using Utils;
 
 namespace SeleniumClient {
@@ -22,7 +21,6 @@ namespace SeleniumClient {
 		}
 
 		public void Display() {
-			// notifyIcon.MouseClick += new MouseEventHandler(notifyIcon_MouseClick);
 			notifyIcon.Icon = Icon.FromHandle(Properties.Resources.selenium.GetHicon());
 			notifyIcon.Text = "System Tray Selenium Grid Status Checker";
 			notifyIcon.Visible = true;
@@ -33,16 +31,10 @@ namespace SeleniumClient {
 			notifyIcon.Dispose();
 		}
 
-		// TODO: the icon does not disappear instantly on exit, ony after mouse hover
+		// TODO: the icon does not disappear instantly on exit, only after mouse hover
 		// method protection level prevents from calling
 		// notifyIcon.Dispose( disposing )
 
-		void notifyIcon_MouseClick(object sender, MouseEventArgs e)
-		{
-			if (e.Button == MouseButtons.Left) {
-				Process.Start("explorer", null);
-			}
-		}
 	}
 
 	class ContextMenus {
@@ -111,7 +103,6 @@ namespace SeleniumClient {
 		WebBrowser browser = new WebBrowser();
 		private DataGrid dataGrid;
 		private DataSet dataSet;
-		private Boolean DEBUG = true;
 		private const String columnName = "hostname";
 		private String hub;
 		private System.ComponentModel.IContainer components = null;
@@ -217,11 +208,6 @@ namespace SeleniumClient {
 								Application.DoEvents();
 								System.Threading.Thread.Sleep(5);
 							}
-							dynamic Doc = browser.Document.DomDocument;
-							Doc.open();
-							Doc.write(strContent);
-							Doc.close();
-							processDocument_2();
 							processDocument();
 						}
 					}
@@ -246,52 +232,6 @@ namespace SeleniumClient {
 			}
 		}
 
-		void processDocument_2()
-		{
-			
-			var document = new HtmlAgilityPack.HtmlDocument();
-			document.LoadHtml(browser.Document.Body.InnerHtml);
-			var nodes = new List<String>();
-			var ids = new List<String>();
-			int rowNum = 0;
-
-			// ids.Add("rightColumn");
-			// ids.Add("leftColumn");
-			ids.Add("right-column");
-			ids.Add("left-column");
-
-			var element = document.GetElementbyId("main_content");
-			var selector = "";
-			foreach (String id in ids) {
-				selector = String.Format("//*[@id = '{0}']//p[@class='proxyid']", id);
-				HtmlNodeCollection elements = document.DocumentNode.SelectNodes(selector);
-				if (elements != null) {				
-					foreach (var element2 in elements.Nodes()) {
-						String text = element2.InnerText;
-						var hostname = FindMatch(text, @"^\s*id\s*:\s*http://(?<hostname>[A-Z0-9-._]+):\d+,.*$", "hostname");
-						nodes.Add(hostname == null ? text : hostname);				
-					}
-				}
-			}
-			nodes.Sort();
-			int datarows = 0;
-			foreach (String text in nodes) {
-				datarows++;
-				Console.Error.WriteLine(text);
-				// database table column name
-				if (dataSet.Tables["Hosts"].Rows.Count < datarows) {
-					dataSet.Tables["Hosts"].Rows.Add(new Object[]{ rowNum, text });
-				} else {
-					dataSet.Tables["Hosts"].Rows[rowNum][columnName] = text;
-				}
-				rowNum++;
-			}
-			if (DEBUG) {
-				var Dumper = new DataDumper();
-				Dumper.Dump(nodes);
-			}
-		}
-		
 		void processDocument() {
 			var document_html = browser.Document.Body.InnerHtml;
 			System.Windows.Forms.HtmlDocument doc = browser.Document;
@@ -302,8 +242,8 @@ namespace SeleniumClient {
 			var ids = new List<String>();
 			int rowNum = 0;
 
-			ids.Add("rightColumn");
-			ids.Add("leftColumn");
+			// ids.Add("rightColumn"); // for older Selenium grid
+			// ids.Add("leftColumn");
 			ids.Add("right-column");
 			ids.Add("left-column");
 
@@ -338,12 +278,6 @@ namespace SeleniumClient {
 				}
 				  rowNum++;
 			}
-
-			if (DEBUG) {
-				var Dumper = new DataDumper();
-				Dumper.Dump(nodes);
-			}
-
 		}
 		/*
 		void docCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
