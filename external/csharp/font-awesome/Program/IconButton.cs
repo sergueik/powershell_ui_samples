@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Forms;
 using System.ComponentModel;
@@ -15,13 +16,11 @@ namespace FontAwesomeIcons {
         private ToolTip _tT = new ToolTip();
         private string IconChar { get; set; }
         private Font IconFont { get; set; }
-        private Brush IconBrush { get; set; } // brush currently in use
-        private Brush ActiveBrush { get; set; } // brush to use when hovered over
-        private Brush InActiveBrush { get; set; } // brush to use when not hovered over
+        private Brush IconBrush { get; set; } 
+        private Brush ActiveBrush { get; set; } 
+        private Brush InActiveBrush { get; set; }
 
-        public IconButton() : this(IconType.Star, 16, Color.DimGray, Color.Black, false, null) {
-
-        }
+        public IconButton() : this(IconType.Star, 16, Color.DimGray, Color.Black, false, null) { }
 
         public IconButton(IconType type, int size, Color normalColor, Color hoverColor, bool selectable, string toolTip) {
             IconFont = null;
@@ -132,10 +131,10 @@ namespace FontAwesomeIcons {
             var graphics = e.Graphics;
 
             // Set best quality
-            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
-            graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
 
             if (IconFont == null) {
                 SetFontSize(graphics);
