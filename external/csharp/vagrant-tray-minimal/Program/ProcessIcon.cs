@@ -11,6 +11,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
+using HtmlAgilityPack;
 using Utils;
 
 namespace SeleniumClient {
@@ -220,6 +221,7 @@ namespace SeleniumClient {
 							Doc.open();
 							Doc.write(strContent);
 							Doc.close();
+							processDocument_2();
 							processDocument();
 						}
 					}
@@ -244,9 +246,55 @@ namespace SeleniumClient {
 			}
 		}
 
+		void processDocument_2()
+		{
+			
+			var document = new HtmlAgilityPack.HtmlDocument();
+			document.LoadHtml(browser.Document.Body.InnerHtml);
+			var nodes = new List<String>();
+			var ids = new List<String>();
+			int rowNum = 0;
+
+			// ids.Add("rightColumn");
+			// ids.Add("leftColumn");
+			ids.Add("right-column");
+			ids.Add("left-column");
+
+			var element = document.GetElementbyId("main_content");
+			var selector = "";
+			foreach (String id in ids) {
+				selector = String.Format("//*[@id = '{0}']//p[@class='proxyid']", id);
+				HtmlNodeCollection elements = document.DocumentNode.SelectNodes(selector);
+				if (elements != null) {				
+					foreach (var element2 in elements.Nodes()) {
+						String text = element2.InnerText;
+						var hostname = FindMatch(text, @"^\s*id\s*:\s*http://(?<hostname>[A-Z0-9-._]+):\d+,.*$", "hostname");
+						nodes.Add(hostname == null ? text : hostname);				
+					}
+				}
+			}
+			nodes.Sort();
+			int datarows = 0;
+			foreach (String text in nodes) {
+				datarows++;
+				Console.Error.WriteLine(text);
+				// database table column name
+				if (dataSet.Tables["Hosts"].Rows.Count < datarows) {
+					dataSet.Tables["Hosts"].Rows.Add(new Object[]{ rowNum, text });
+				} else {
+					dataSet.Tables["Hosts"].Rows[rowNum][columnName] = text;
+				}
+				rowNum++;
+			}
+			if (DEBUG) {
+				var Dumper = new DataDumper();
+				Dumper.Dump(nodes);
+			}
+		}
+		
 		void processDocument() {
 			var document_html = browser.Document.Body.InnerHtml;
-			HtmlDocument doc = browser.Document;
+			System.Windows.Forms.HtmlDocument doc = browser.Document;
 			HtmlElement element = null;
 			HtmlElement element2 = null;
 			HtmlElementCollection elements = null;
