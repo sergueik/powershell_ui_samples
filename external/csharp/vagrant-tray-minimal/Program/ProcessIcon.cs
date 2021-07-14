@@ -75,26 +75,9 @@ namespace SeleniumClient {
 			return menu;
 		}
 
-		void parserClosing(object sender, EventArgs eventArgs) {
-			var parser = (Parser)sender;
-			String parserEnvironment = parser.Environment;
-			var items = menu.Items;
-			foreach (var item in items) {
-				if (!(item is ToolStripMenuItem)) {
-					continue;
-				}
-				var data = (Dictionary<String, String>)((ToolStripMenuItem)item).Tag;
-				// need to enable the "exit" item too
-				if (data != null &&
-				    parserEnvironment.Equals(data["environment"])) {
-					continue;
-				}
-				((ToolStripMenuItem)item).Enabled = true;
-			}
-		}
-
 		void Process_Click(object sender, EventArgs eventArgs) {
 			var item = (ToolStripMenuItem)sender;
+			var items = item.GetCurrentParent().Items;
 			var data = (Dictionary<String, String>)item.Tag;
 			String hub = data["hub"];
 			String environment = data["environment"];
@@ -103,31 +86,33 @@ namespace SeleniumClient {
 				parser.Hub = hub;
 				parser.Environment = environment;
 				parser.Start();
-				parser.FormClosing += new System.Windows.Forms.FormClosingEventHandler(parserClosing);
 				if (parser.Status) {
-					var items = menu.Items;
-					try {
-						// https://stackoverflow.com/questions/13405714/is-versus-try-cast-with-null-check
-						foreach (var item1 in items ) {
-							var item2 = item1 as ToolStripMenuItem;
-							if (item2 == null) {
-								// must be "separator"
-								continue;
-							}
-							if (item.Equals(item2)) {
-								continue;
-							}
-							item2.Enabled = false;
+					// https://stackoverflow.com/questions/13405714/is-versus-try-cast-with-null-check
+					foreach (var item1 in items) {
+						var item2 = item1 as ToolStripMenuItem;
+						if (item2 == null) {
+							// must be "separator"
+							continue;
 						}
-					} catch (InvalidCastException e) {
-						// System.InvalidCastException: 
-						// Unable to cast object of type 'System.Windows.Forms.ToolStripSeparator' to type 'System.Windows.Forms.ToolStripMenuItem'.
-						Console.Error.WriteLine(e.ToString());
-							Trace.Assert(e != null);
+						if (item.Equals(item2)) {
+							item.BackColor = Color.LightGray;
+						}
+						item2.Enabled = false;
 					}
 					isFormDisplayed = true;
 					parser.ShowDialog();
-					// handle closing in separate method
+					// handle closing
+					foreach (var item1 in items) {
+						var item2 = item1 as ToolStripMenuItem;
+						if (item2 == null) {
+							// must be "separator"
+							continue;
+						}
+						if (item.Equals(item2)) {
+							item.BackColor = Color.White;
+						}
+						item2.Enabled = true;
+					}
 					isFormDisplayed = false;
 				}
 			}
