@@ -234,6 +234,10 @@ namespace SeleniumClient {
 								Application.DoEvents();
 								System.Threading.Thread.Sleep(5);
 							}
+							dynamic Doc = browser.Document.DomDocument;
+							Doc.open();
+							Doc.write(content);
+							Doc.close();
 							processDocument();
 						}
 					}
