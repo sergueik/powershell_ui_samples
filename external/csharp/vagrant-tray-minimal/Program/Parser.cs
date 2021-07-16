@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Data;
@@ -13,23 +14,90 @@ using System.Collections.Generic;
 using System.Text;
 using Utils;
 
-namespace SeleniumClient
-{
-	public class Parser : Form
-	{
+namespace SeleniumClient {
+	// the form must be the first class in the file in order the form resources to be compiled corredctly,
+	// all other classes has to be moved below
+	public class Parser : Form {
+
+		public Parser() {
+			this.status = true;
+			InitializeComponent();
+			SetUp();
+		}
+		private void InitializeComponent() {
+			this.dataGrid = new System.Windows.Forms.DataGrid();
+			this.dataGridTableStyle = new System.Windows.Forms.DataGridTableStyle();
+			this.TextCol = new System.Windows.Forms.DataGridTextBoxColumn();
+			this.refreshButton = new System.Windows.Forms.Button();
+			((System.ComponentModel.ISupportInitialize)(this.dataGrid)).BeginInit();
+			this.SuspendLayout();
+			// 
+			// dataGrid
+			// 
+			this.dataGrid.DataMember = "";
+			this.dataGrid.HeaderForeColor = System.Drawing.SystemColors.ControlText;
+			this.dataGrid.Location = new System.Drawing.Point(8, 8);
+			this.dataGrid.Margin = new System.Windows.Forms.Padding(4);
+			this.dataGrid.Name = "dataGrid";
+			this.dataGrid.Size = new System.Drawing.Size(333, 382);
+			this.dataGrid.TabIndex = 1;
+			this.dataGrid.TableStyles.AddRange(new System.Windows.Forms.DataGridTableStyle[] {
+			this.dataGridTableStyle});
+			// 
+			// dataGridTableStyle
+			// 
+			this.dataGridTableStyle.AlternatingBackColor = System.Drawing.Color.LightGray;
+			this.dataGridTableStyle.DataGrid = this.dataGrid;
+			this.dataGridTableStyle.GridColumnStyles.AddRange(new System.Windows.Forms.DataGridColumnStyle[] {
+			this.TextCol});
+			this.dataGridTableStyle.HeaderForeColor = System.Drawing.SystemColors.ControlText;
+			this.dataGridTableStyle.MappingName = "Hosts";
+			// 
+			// TextCol
+			// 
+			this.TextCol.Format = "";
+			this.TextCol.FormatInfo = null;
+			this.TextCol.HeaderText = "hostname";
+			this.TextCol.MappingName = "hostname";
+			this.TextCol.Width = 300;
+			// 
+			// refreshButton
+			// 
+			this.refreshButton.Location = new System.Drawing.Point(8, 399);
+			this.refreshButton.Name = "refreshButton";
+			this.refreshButton.Size = new System.Drawing.Size(75, 23);
+			this.refreshButton.TabIndex = 0;
+			this.refreshButton.Text = "Refresh";
+			// 
+			// Parser
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(348, 429);
+			this.Controls.Add(this.dataGrid);
+			this.Controls.Add(this.refreshButton);
+			this.Name = "Parser";
+			((System.ComponentModel.ISupportInitialize)(this.dataGrid)).EndInit();
+			this.ResumeLayout(false);
+
+		}
+
+		private DataGrid dataGrid;
+		private Button refreshButton;
+		private DataSet dataSet;
 
 		private static string result = null;
 		private Boolean  browserReady = false;
 		private static Regex regex;
 		private static MatchCollection matches;
 		WebBrowser browser = new WebBrowser();
-		private DataGrid dataGrid;
-		private DataSet dataSet;
 		private const String columnName = "hostname";
 		private String hub;
 		private System.ComponentModel.IContainer components = null;
-		private String environment;
+		private String environment = null;
 		private Boolean status;
+		private System.Windows.Forms.DataGridTableStyle dataGridTableStyle;
+		private System.Windows.Forms.DataGridTextBoxColumn TextCol;
 		public Boolean Status {
 			get { return status; }
 		}
@@ -52,13 +120,6 @@ namespace SeleniumClient
 					this.ResumeLayout();
 				}
 			}
-		}
-
-		public Parser() {
-			this.status = true;
-
-			InitializeComponent();
-			SetUp();
 		}
 
 		private void SetUp() {
@@ -88,38 +149,6 @@ namespace SeleniumClient
 				}
 			}
 			return result;
-		}
-
-		private void InitializeComponent() {
-			this.Size = new Size(400, 350);
-			this.Text = String.Format("{0} status", environment);
-			this.SuspendLayout();
-			dataGrid = new DataGrid();
-			dataGrid.Location = new  Point(8, 8);
-			dataGrid.Size = new Size(384, 254);
-			// TODO: determine dynamically
-
-			this.Controls.Add(dataGrid);
-			var dataGridTableStyle = new DataGridTableStyle();
-			dataGridTableStyle.MappingName = "Hosts";
-			dataGridTableStyle.AlternatingBackColor = Color.LightGray;
-			DataGridColumnStyle TextCol = new DataGridTextBoxColumn();
-			TextCol.MappingName = "hostname";
-			TextCol.HeaderText = "hostname";
-			TextCol.Width = 300;
-			dataGridTableStyle.GridColumnStyles.Add(TextCol);
-			dataGrid.TableStyles.Add(dataGridTableStyle);
-			var button = new System.Windows.Forms.Button();
-			button.Text = "Refresh";
-			button.Name = "refresh_button";
-			button.Location = new System.Drawing.Point(8, 292);
-			button.Click += (object sender, EventArgs e) => {
-				dataSet.Tables["Hosts"].Rows.Clear();
-				Start() ;
-			};
-			this.Controls.Add(button);
-			this.ResumeLayout(false);
-
 		}
 
 		public void Start() {
