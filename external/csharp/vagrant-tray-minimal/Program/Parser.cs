@@ -15,76 +15,71 @@ using System.Text;
 using Utils;
 
 namespace SeleniumClient {
-	// the form must be the first class in the file in order the form resources to be compiled corredctly,
+	
+	// the form must be the first class in the file in order 
+	// the form resources to be compiled correctly by SharpDevelop,
 	// all other classes has to be moved below
+	
 	public class Parser : Form {
 
 		public Parser() {
-			this.status = true;
+			status = true;
 			InitializeComponent();
 			SetUp();
 		}
 		private void InitializeComponent() {
-			this.dataGrid = new System.Windows.Forms.DataGrid();
-			this.dataGridTableStyle = new System.Windows.Forms.DataGridTableStyle();
-			this.TextCol = new System.Windows.Forms.DataGridTextBoxColumn();
-			this.refreshButton = new System.Windows.Forms.Button();
-			((System.ComponentModel.ISupportInitialize)(this.dataGrid)).BeginInit();
-			this.SuspendLayout();
-			// 
-			// dataGrid
-			// 
-			this.dataGrid.DataMember = "";
-			this.dataGrid.HeaderForeColor = System.Drawing.SystemColors.ControlText;
-			this.dataGrid.Location = new System.Drawing.Point(8, 8);
-			this.dataGrid.Margin = new System.Windows.Forms.Padding(4);
-			this.dataGrid.Name = "dataGrid";
-			this.dataGrid.Size = new System.Drawing.Size(333, 382);
-			this.dataGrid.TabIndex = 1;
-			this.dataGrid.TableStyles.AddRange(new System.Windows.Forms.DataGridTableStyle[] {
-			this.dataGridTableStyle});
-			// 
-			// dataGridTableStyle
-			// 
-			this.dataGridTableStyle.AlternatingBackColor = System.Drawing.Color.LightGray;
-			this.dataGridTableStyle.DataGrid = this.dataGrid;
-			this.dataGridTableStyle.GridColumnStyles.AddRange(new System.Windows.Forms.DataGridColumnStyle[] {
-			this.TextCol});
-			this.dataGridTableStyle.HeaderForeColor = System.Drawing.SystemColors.ControlText;
-			this.dataGridTableStyle.MappingName = "Hosts";
-			// 
-			// TextCol
-			// 
-			this.TextCol.Format = "";
-			this.TextCol.FormatInfo = null;
-			this.TextCol.HeaderText = "hostname";
-			this.TextCol.MappingName = "hostname";
-			this.TextCol.Width = 300;
-			// 
-			// refreshButton
-			// 
-			this.refreshButton.Location = new System.Drawing.Point(8, 399);
-			this.refreshButton.Name = "refreshButton";
-			this.refreshButton.Size = new System.Drawing.Size(75, 23);
-			this.refreshButton.TabIndex = 0;
-			this.refreshButton.Text = "Refresh";
-			// 
-			// Parser
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(348, 429);
-			this.Controls.Add(this.dataGrid);
-			this.Controls.Add(this.refreshButton);
-			this.Name = "Parser";
-			((System.ComponentModel.ISupportInitialize)(this.dataGrid)).EndInit();
-			this.ResumeLayout(false);
+			dataGrid = new System.Windows.Forms.DataGrid();
+			dataGridTableStyle = new System.Windows.Forms.DataGridTableStyle();
+			textCol = new System.Windows.Forms.DataGridTextBoxColumn();
+			refreshButton = new System.Windows.Forms.Button();
+			((System.ComponentModel.ISupportInitialize)(dataGrid)).BeginInit();
+			SuspendLayout();
+			dataGrid.DataMember = "";
+			dataGrid.HeaderForeColor = System.Drawing.SystemColors.ControlText;
+			dataGrid.Location = new System.Drawing.Point(8, 8);
+			dataGrid.Margin = new System.Windows.Forms.Padding(4);
+			dataGrid.Name = "dataGrid";
+			dataGrid.Size = new System.Drawing.Size(333, 382);
+			dataGrid.TabIndex = 1;
+			dataGrid.TableStyles.AddRange(new System.Windows.Forms.DataGridTableStyle[] {
+			dataGridTableStyle});
+			dataGridTableStyle.AlternatingBackColor = System.Drawing.Color.LightGray;
+			dataGridTableStyle.DataGrid = dataGrid;
+			dataGridTableStyle.GridColumnStyles.AddRange(new System.Windows.Forms.DataGridColumnStyle[] {
+			textCol});
+			dataGridTableStyle.HeaderForeColor = System.Drawing.SystemColors.ControlText;
+			dataGridTableStyle.MappingName = "Hosts";
+			textCol.Format = "";
+			textCol.FormatInfo = null;
+			textCol.HeaderText = "hostname";
+			textCol.MappingName = "hostname";
+			textCol.Width = 300;
+			refreshButton.Location = new System.Drawing.Point(8, 399);
+			refreshButton.Name = "refreshButton";
+			refreshButton.Size = new System.Drawing.Size(75, 23);
+			refreshButton.TabIndex = 0;
+			refreshButton.Text = "Refresh";
+			refreshButton.Click += (object sender, EventArgs e) => {
+				dataSet.Tables["Hosts"].Rows.Clear();
+				Start() ;
+			};
+
+			AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			ClientSize = new System.Drawing.Size(348, 429);
+			Controls.Add(dataGrid);
+			Controls.Add(refreshButton);
+			Name = "Parser";
+			((System.ComponentModel.ISupportInitialize)(dataGrid)).EndInit();
+			ResumeLayout(false);
 
 		}
 
 		private DataGrid dataGrid;
-		private Button refreshButton;
+		private DataGridTableStyle dataGridTableStyle;
+		private DataGridTextBoxColumn textCol;
 		private DataSet dataSet;
+		private Button refreshButton;
 
 		private static string result = null;
 		private Boolean  browserReady = false;
@@ -96,8 +91,6 @@ namespace SeleniumClient {
 		private System.ComponentModel.IContainer components = null;
 		private String environment = null;
 		private Boolean status;
-		private System.Windows.Forms.DataGridTableStyle dataGridTableStyle;
-		private System.Windows.Forms.DataGridTextBoxColumn TextCol;
 		public Boolean Status {
 			get { return status; }
 		}
@@ -112,12 +105,12 @@ namespace SeleniumClient {
 			get { return environment; }
 			set {
 				environment = value;
-				if (this.Visible) {
-					this.SuspendLayout();
+				if (Visible) {
+					SuspendLayout();
 				}
-				this.Text = String.Format("{0} status", environment);
-				if (this.Visible) {
-					this.ResumeLayout();
+				Text = String.Format("{0} status", environment);
+				if (Visible) {
+					ResumeLayout();
 				}
 			}
 		}
@@ -187,8 +180,8 @@ namespace SeleniumClient {
 					MessageBoxIcon.Exclamation)) {
 
 					case DialogResult.OK:
-						this.Close();
-						this.status = false;
+						Close();
+						status = false;
 						break;
 					default:
 						break;
